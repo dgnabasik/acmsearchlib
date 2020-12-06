@@ -2,8 +2,6 @@ package filesystem
 
 // deploy using 'go install'
 import (
-	hd "acmsearchlib/headers"
-	nt "acmsearchlib/nulltime"
 	"archive/zip"
 	"bufio"
 	"fmt"
@@ -17,6 +15,9 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	hd "github.com/dgnabasik/acmsearchlib/headers"
+	nt "github.com/dgnabasik/acmsearchlib/nulltime"
 )
 
 // constants

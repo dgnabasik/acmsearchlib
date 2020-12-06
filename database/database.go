@@ -23,8 +23,6 @@ package database
 */
 
 import (
-	hd "acmsearchlib/headers"
-	nt "acmsearchlib/nulltime"
 	"database/sql"
 	"encoding/hex"
 	"fmt"
@@ -35,10 +33,12 @@ import (
 	"sync"
 	"time"
 
+	mapset "github.com/deckarep/golang-set"
+	hd "github.com/dgnabasik/acmsearchlib/headers"
+	nt "github.com/dgnabasik/acmsearchlib/nulltime"
+
 	// comment
 	_ "github.com/lib/pq"
-
-	mapset "github.com/deckarep/golang-set"
 )
 
 // mapset https://github.com/deckarep/golang-set/blob/master/README.md & https://godoc.org/github.com/deckarep/golang-set

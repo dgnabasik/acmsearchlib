@@ -3,13 +3,14 @@ package headers
 // Provide structs and their methods. These structs may or may not relect table schemas!
 
 import (
-	nt "acmsearchlib/nulltime"
 	"fmt"
 	"runtime"
 	"strconv"
 	"strings"
 	"sync"
 	"unicode/utf8"
+
+	nt "github.com/dgnabasik/acmsearchlib/nulltime"
 
 	"golang.org/x/text/language"
 	"golang.org/x/text/search"
