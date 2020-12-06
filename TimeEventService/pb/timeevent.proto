@@ -1,0 +1,68 @@
+syntax = "proto3";
+
+//import "google/protobuf/timestamp.proto";
+
+service TimeEventService {
+	rpc CreateDay(TimeEventRequest) returns (TimeEventResponse) {}
+  	rpc CreateWeek(TimeEventRequest) returns (TimeEventResponse) {}
+  	rpc CreateMonth(TimeEventRequest) returns (TimeEventResponse) {}
+  	rpc CreateQuarter(TimeEventRequest) returns (TimeEventResponse) {}
+  	rpc CreateYear(TimeEventRequest) returns (TimeEventResponse) {}
+  	rpc CreateSpan(TimeEventRequest) returns (TimeEventResponse) {}
+	rpc RecordEvent(TimeEventRequest) returns (TimeEventResponse) {}
+
+  	rpc GetTimeEvents(GetTimeEventRequest) returns (GetTimeEventResponse) {}
+}
+
+message Error {
+	int32  Code = 1;
+	string Message = 2;
+}
+
+message MTimeStampInterval {
+  enum MTimeFrameType {
+    TFUnknown = 0;
+	TFWeek    = 1;
+	TFMonth   = 2;
+	TFQuarter = 3;
+	TFYear    = 4;
+   	TFSpan    = 5;
+  }
+
+  MTimeFrameType Timeframetype = 1;
+  int64 StartTime = 2;
+  int64 EndTime   = 3;
+}
+
+message TimeEventRequest {
+	string 	Topic 	= 1;
+	int32 	EventId	= 2;
+	MTimeStampInterval Timestampinterval = 3;
+}
+
+message TimeEventResponse {
+  	Error 	error 	= 1;
+}
+
+message GetTimeEventRequest {
+  enum MEventType {
+	ETInProcess	= 0;
+	ETFailed 	= 1;
+	ETSucceeded	= 2;
+  }
+	string Topic = 1;
+	MEventType EventType = 2;	
+	MTimeStampInterval Timestampinterval = 3;
+}
+
+message SystemEvent {
+	uint32 Id      = 1;
+	string Topic  = 2;
+	bool Success  = 3;
+	MTimeStampInterval Timestampinterval = 4;
+}
+
+message GetTimeEventResponse {
+	repeated SystemEvent SystemEventList = 1;
+  	Error error = 2;
+}

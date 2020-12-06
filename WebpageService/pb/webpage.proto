@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+service WebpageService {
+  rpc NewWebpage(WebpageRequest) returns (WebpageResponse) {}
+}
+
+message WebError {
+	int32  Code = 1;
+	string Message = 2;
+}
+
+// UnixTimeStamp int64
+message WebpageRequest {
+	string 	Topic = 1;
+	int64	SinceDate = 2;
+}
+
+message AcmArticle {
+	uint32	Id = 1;
+	int64	ArchiveDate = 2;
+	string	ArticleNumber = 3;
+	string	Title = 4;
+	string	ImageSource = 5;
+	string	JournalName = 6;
+	string	AuthorName = 7;
+	int64	JournalDate = 8;
+	string	WebReference = 9;
+	string	Summary = 10;
+}
+
+message WebpageResponse {
+	string 	Topic = 1;
+  	WebError Werror = 2;
+	repeated AcmArticle AcmArticleList = 3;
+}
