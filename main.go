@@ -7,7 +7,7 @@ import (
 	"fmt"
 
 	dbase "github.com/dgnabasik/acmsearchlib/database"
-	//fs "github.com/dgnabasik/acmsearchlib/filesystem"
+	fs "github.com/dgnabasik/acmsearchlib/filesystem"
 	hd "github.com/dgnabasik/acmsearchlib/headers"
 	nt "github.com/dgnabasik/acmsearchlib/nulltime"
 )
@@ -15,7 +15,7 @@ import (
 func main() {
 	_, mostRecentArchiveDate, _ := dbase.GetLastDateSavedFromDb()
 	fmt.Println(mostRecentArchiveDate)
-	//source, _ := fs.ReadTextLines("config.go", false)
+	source, _ := fs.ReadTextLines("config.go", false)
 	source := "one two"
 	_, found2 := hd.SearchForStringIndex(source, "main")
 	fmt.Println(found2)
