@@ -1,4 +1,4 @@
-module github.com/dgnabasik/acmsearchlib/database
+module github.com/dgnabasik/acmsearchlib
 
 go 1.15
 

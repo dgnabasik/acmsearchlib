@@ -1,4 +1,4 @@
-module github.com/dgnabasik/acmsearchlib/headers
+module github.com/dgnabasik/acmsearchlib
 
 replace acmsearchlib/nulltime => ../nulltime
 
