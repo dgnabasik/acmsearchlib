@@ -1,4 +1,4 @@
-module acmsearchlib/timestampinterval
+module github.com/dgnabasik/acmsearchlib/timestampinterval
 
 replace acmsearchlib/nulltime => ../nulltime
 

@@ -1,8 +1,8 @@
 package timestampinterval
 
 import (
-	nt "acmsearchlib/nulltime"
-	pbx "acmsearchlib/timestampinterval/pb" // timestampinterval.proto
+	nt "github.com/dgnabasik/acmsearchlib/nulltime"
+	pbx "github.com/dgnabasik/acmsearchlib/timestampinterval/pb" // timestampinterval.proto
 )
 
 /* Proto messaging helper functions ************************************************************/
