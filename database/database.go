@@ -74,7 +74,7 @@ func GetDatabaseReference() (*sql.DB, error) {
 
 	dbConn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s search_path=%s sslmode=disable",
 		dbHost, dbPort, dbUser, dbPassword, dbName, dbSchema)
-
+	fmt.Println(dbConn)
 	db, err := sql.Open(dbDriver, dbConn)
 	CheckErr(err)
 	db.SetMaxIdleConns(0)
