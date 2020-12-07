@@ -78,6 +78,8 @@ github.com/deckarep/golang-set v1.7.1/go.mod h1:93vsz/8Wt4joVM7c2AVqh+YRMiUSc14y
 github.com/decker502/dnspod-go v0.2.0/go.mod h1:qsurYu1FgxcDwfSwXJdLt4kRsBLZeosEb9uq4Sy+08g=
 github.com/dgnabasik/acmsearchlib/database v0.0.0-20201206193712-f1b276987652 h1:PuWuS8pLD0nNAnjU7PPqBVCgJ29EhtkohEEckLV2Kls=
 github.com/dgnabasik/acmsearchlib/database v0.0.0-20201206193712-f1b276987652/go.mod h1:Bp89RY3wj8XPelAWgDlHTkGhTeGBxmQsmBbuidOiXts=
+github.com/dgnabasik/acmsearchlib/filesystem v0.0.0-20201206230402-5c419f48d9f3 h1:ZI0c03T8Tmvh6qg8ZMBmPze6U06UPRDcD+3wf5yuKGE=
+github.com/dgnabasik/acmsearchlib/filesystem v0.0.0-20201206230402-5c419f48d9f3/go.mod h1:ZEYR6OlMXFfvKrn+1vQGELpr+WPiKTOBfx2tugN5nyY=
 github.com/dgnabasik/acmsearchlib/headers v0.0.0-20201206193712-f1b276987652 h1:jFBe8dXmQoydYB/gPDevOWjgCjXsRKlgOQG73XdiCto=
 github.com/dgnabasik/acmsearchlib/headers v0.0.0-20201206193712-f1b276987652/go.mod h1:s8/m6I6UovhWI8ov8kr74bgU/TjgQUtoD6oJqmYeAoM=
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20201206191427-03bcb92782c7/go.mod h1:8+mnmzx+rqK/h7JkENMkF+3ZqaMmyCJP541AzTscsU0=

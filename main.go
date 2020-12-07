@@ -15,9 +15,9 @@ import (
 func main() {
 	_, mostRecentArchiveDate, _ := dbase.GetLastDateSavedFromDb()
 	fmt.Println(mostRecentArchiveDate)
-	source, _ := fs.ReadTextLines("config.go", false)
-	source := "one two"
-	_, found2 := hd.SearchForStringIndex(source, "main")
+	source, _ := fs.ReadTextLines("config.goo", false)
+	fmt.Println(source)
+	_, found2 := hd.SearchForStringIndex("one two", "two")
 	fmt.Println(found2)
 	journalDate := nt.New_NullTime("2020-12-12")
 	fmt.Println(journalDate)
