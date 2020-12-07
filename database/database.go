@@ -68,11 +68,12 @@ func GetDatabaseReference() (*sql.DB, error) {
 		dbPassword    = "Ski7Vail!"
 		dbName        = "postgres"
 		dbDriver      = "postgres"
+		dbSchema      = "acmsearch"
 		dbConnections = 10
 	)
 
-	dbConn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s search_path=public sslmode=disable",
-		dbHost, dbPort, dbUser, dbPassword, dbName)
+	dbConn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s search_path=%s sslmode=disable",
+		dbHost, dbPort, dbUser, dbPassword, dbName, dbSchema)
 
 	db, err := sql.Open(dbDriver, dbConn)
 	CheckErr(err)
