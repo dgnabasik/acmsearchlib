@@ -4,7 +4,7 @@ package pb;
 import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
 
-service WordScoreService {
+service WordScoreServiceRpcInterface {
   rpc GetWordScore(GetWordScoreRequest) returns (GetWordScoreResponse) {}
   rpc CreateWordScore(CreateWordScoreRequest) returns (CreateWordScoreResponse) {}
 }

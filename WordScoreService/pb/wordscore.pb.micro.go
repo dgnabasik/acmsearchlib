@@ -35,33 +35,33 @@ var _ context.Context
 var _ client.Option
 var _ server.Option
 
-// Api Endpoints for WordScoreService service
+// Api Endpoints for WordScoreServiceRpcInterface service
 
-func NewWordScoreServiceEndpoints() []*api.Endpoint {
+func NewWordScoreServiceRpcInterfaceEndpoints() []*api.Endpoint {
 	return []*api.Endpoint{}
 }
 
-// Client API for WordScoreService service
+// Client API for WordScoreServiceRpcInterface service
 
-type WordScoreService interface {
+type WordScoreServiceRpcInterfaceService interface {
 	GetWordScore(ctx context.Context, in *GetWordScoreRequest, opts ...client.CallOption) (*GetWordScoreResponse, error)
 	CreateWordScore(ctx context.Context, in *CreateWordScoreRequest, opts ...client.CallOption) (*CreateWordScoreResponse, error)
 }
 
-type wordScoreService struct {
+type wordScoreServiceRpcInterfaceService struct {
 	c    client.Client
 	name string
 }
 
-func NewWordScoreService(name string, c client.Client) WordScoreService {
-	return &wordScoreService{
+func NewWordScoreServiceRpcInterfaceService(name string, c client.Client) WordScoreServiceRpcInterfaceService {
+	return &wordScoreServiceRpcInterfaceService{
 		c:    c,
 		name: name,
 	}
 }
 
-func (c *wordScoreService) GetWordScore(ctx context.Context, in *GetWordScoreRequest, opts ...client.CallOption) (*GetWordScoreResponse, error) {
-	req := c.c.NewRequest(c.name, "WordScoreService.GetWordScore", in)
+func (c *wordScoreServiceRpcInterfaceService) GetWordScore(ctx context.Context, in *GetWordScoreRequest, opts ...client.CallOption) (*GetWordScoreResponse, error) {
+	req := c.c.NewRequest(c.name, "WordScoreServiceRpcInterface.GetWordScore", in)
 	out := new(GetWordScoreResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
@@ -70,8 +70,8 @@ func (c *wordScoreService) GetWordScore(ctx context.Context, in *GetWordScoreReq
 	return out, nil
 }
 
-func (c *wordScoreService) CreateWordScore(ctx context.Context, in *CreateWordScoreRequest, opts ...client.CallOption) (*CreateWordScoreResponse, error) {
-	req := c.c.NewRequest(c.name, "WordScoreService.CreateWordScore", in)
+func (c *wordScoreServiceRpcInterfaceService) CreateWordScore(ctx context.Context, in *CreateWordScoreRequest, opts ...client.CallOption) (*CreateWordScoreResponse, error) {
+	req := c.c.NewRequest(c.name, "WordScoreServiceRpcInterface.CreateWordScore", in)
 	out := new(CreateWordScoreResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
@@ -80,33 +80,33 @@ func (c *wordScoreService) CreateWordScore(ctx context.Context, in *CreateWordSc
 	return out, nil
 }
 
-// Server API for WordScoreService service
+// Server API for WordScoreServiceRpcInterface service
 
-type WordScoreServiceHandler interface {
+type WordScoreServiceRpcInterfaceHandler interface {
 	GetWordScore(context.Context, *GetWordScoreRequest, *GetWordScoreResponse) error
 	CreateWordScore(context.Context, *CreateWordScoreRequest, *CreateWordScoreResponse) error
 }
 
-func RegisterWordScoreServiceHandler(s server.Server, hdlr WordScoreServiceHandler, opts ...server.HandlerOption) error {
-	type wordScoreService interface {
+func RegisterWordScoreServiceRpcInterfaceHandler(s server.Server, hdlr WordScoreServiceRpcInterfaceHandler, opts ...server.HandlerOption) error {
+	type wordScoreServiceRpcInterface interface {
 		GetWordScore(ctx context.Context, in *GetWordScoreRequest, out *GetWordScoreResponse) error
 		CreateWordScore(ctx context.Context, in *CreateWordScoreRequest, out *CreateWordScoreResponse) error
 	}
-	type WordScoreService struct {
-		wordScoreService
+	type WordScoreServiceRpcInterface struct {
+		wordScoreServiceRpcInterface
 	}
-	h := &wordScoreServiceHandler{hdlr}
-	return s.Handle(s.NewHandler(&WordScoreService{h}, opts...))
+	h := &wordScoreServiceRpcInterfaceHandler{hdlr}
+	return s.Handle(s.NewHandler(&WordScoreServiceRpcInterface{h}, opts...))
 }
 
-type wordScoreServiceHandler struct {
-	WordScoreServiceHandler
+type wordScoreServiceRpcInterfaceHandler struct {
+	WordScoreServiceRpcInterfaceHandler
 }
 
-func (h *wordScoreServiceHandler) GetWordScore(ctx context.Context, in *GetWordScoreRequest, out *GetWordScoreResponse) error {
-	return h.WordScoreServiceHandler.GetWordScore(ctx, in, out)
+func (h *wordScoreServiceRpcInterfaceHandler) GetWordScore(ctx context.Context, in *GetWordScoreRequest, out *GetWordScoreResponse) error {
+	return h.WordScoreServiceRpcInterfaceHandler.GetWordScore(ctx, in, out)
 }
 
-func (h *wordScoreServiceHandler) CreateWordScore(ctx context.Context, in *CreateWordScoreRequest, out *CreateWordScoreResponse) error {
-	return h.WordScoreServiceHandler.CreateWordScore(ctx, in, out)
+func (h *wordScoreServiceRpcInterfaceHandler) CreateWordScore(ctx context.Context, in *CreateWordScoreRequest, out *CreateWordScoreResponse) error {
+	return h.WordScoreServiceRpcInterfaceHandler.CreateWordScore(ctx, in, out)
 }
