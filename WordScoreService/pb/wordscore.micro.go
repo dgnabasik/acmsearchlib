@@ -5,15 +5,16 @@ package pb
 
 import (
 	fmt "fmt"
+	math "math"
+
 	proto "github.com/golang/protobuf/proto"
 	_ "github.com/golang/protobuf/ptypes/struct"
 	_ "github.com/golang/protobuf/ptypes/timestamp"
-	math "math"
-)
 
-import (
 	context "context"
+
 	client "github.com/micro/go-micro/client"
+
 	server "github.com/micro/go-micro/server"
 )
 
@@ -33,33 +34,33 @@ var _ context.Context
 var _ client.Option
 var _ server.Option
 
-// Client API for WordScoreService service
+// Client API for WordScoreServiceInterface service
 
-type WordScoreService interface {
+type WordScoreServiceInterface interface {
 	GetWordScore(ctx context.Context, in *GetWordScoreRequest, opts ...client.CallOption) (*GetWordScoreResponse, error)
 	CreateWordScore(ctx context.Context, in *CreateWordScoreRequest, opts ...client.CallOption) (*CreateWordScoreResponse, error)
 }
 
-type wordScoreService struct {
+type WordScoreServiceStruct struct {
 	c    client.Client
 	name string
 }
 
-func NewWordScoreService(name string, c client.Client) WordScoreService {
+func NewWordScoreService(name string, c client.Client) WordScoreServiceInterface {
 	if c == nil {
 		c = client.NewClient()
 	}
 	if len(name) == 0 {
 		name = "pb"
 	}
-	return &wordScoreService{
+	return &WordScoreServiceStruct{
 		c:    c,
 		name: name,
 	}
 }
 
-func (c *wordScoreService) GetWordScore(ctx context.Context, in *GetWordScoreRequest, opts ...client.CallOption) (*GetWordScoreResponse, error) {
-	req := c.c.NewRequest(c.name, "WordScoreService.GetWordScore", in)
+func (c *WordScoreServiceStruct) GetWordScore(ctx context.Context, in *GetWordScoreRequest, opts ...client.CallOption) (*GetWordScoreResponse, error) {
+	req := c.c.NewRequest(c.name, "WordScoreServiceInterface.GetWordScore", in)
 	out := new(GetWordScoreResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
@@ -68,8 +69,8 @@ func (c *wordScoreService) GetWordScore(ctx context.Context, in *GetWordScoreReq
 	return out, nil
 }
 
-func (c *wordScoreService) CreateWordScore(ctx context.Context, in *CreateWordScoreRequest, opts ...client.CallOption) (*CreateWordScoreResponse, error) {
-	req := c.c.NewRequest(c.name, "WordScoreService.CreateWordScore", in)
+func (c *WordScoreServiceStruct) CreateWordScore(ctx context.Context, in *CreateWordScoreRequest, opts ...client.CallOption) (*CreateWordScoreResponse, error) {
+	req := c.c.NewRequest(c.name, "WordScoreServiceInterface.CreateWordScore", in)
 	out := new(CreateWordScoreResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
@@ -78,7 +79,7 @@ func (c *wordScoreService) CreateWordScore(ctx context.Context, in *CreateWordSc
 	return out, nil
 }
 
-// Server API for WordScoreService service
+// Server API for WordScoreServiceInterface service
 
 type WordScoreServiceHandler interface {
 	GetWordScore(context.Context, *GetWordScoreRequest, *GetWordScoreResponse) error
@@ -86,15 +87,15 @@ type WordScoreServiceHandler interface {
 }
 
 func RegisterWordScoreServiceHandler(s server.Server, hdlr WordScoreServiceHandler, opts ...server.HandlerOption) error {
-	type wordScoreService interface {
+	type WordScoreServiceStruct interface {
 		GetWordScore(ctx context.Context, in *GetWordScoreRequest, out *GetWordScoreResponse) error
 		CreateWordScore(ctx context.Context, in *CreateWordScoreRequest, out *CreateWordScoreResponse) error
 	}
-	type WordScoreService struct {
-		wordScoreService
+	type WordScoreServiceInterface struct {
+		WordScoreServiceStruct
 	}
 	h := &wordScoreServiceHandler{hdlr}
-	return s.Handle(s.NewHandler(&WordScoreService{h}, opts...))
+	return s.Handle(s.NewHandler(&WordScoreServiceInterface{h}, opts...))
 }
 
 type wordScoreServiceHandler struct {
