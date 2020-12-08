@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package pb;
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+
+service WordScoreService {
+  rpc GetWordScore(GetWordScoreRequest) returns (GetWordScoreResponse) {}
+  rpc CreateWordScore(CreateWordScoreRequest) returns (CreateWordScoreResponse) {}
+}
+
+message Error {
+	int32 Code = 1;
+	string Message = 2;
+}
+
+message MTimeStampInterval {
+  enum MTimeFrameType {
+    TFUnknown = 0;
+	TFWeek    = 1;
+	TFMonth   = 2;
+	TFQuarter = 3;
+	TFYear    = 4;
+   	TFSpan    = 5;
+  }
+
+  MTimeFrameType Timeframetype        = 1;
+  google.protobuf.Timestamp StartTime = 2;
+  google.protobuf.Timestamp EndTime   = 3;
+}
+
+message TimeEventRequest {
+	string Topic = 1;
+	MTimeStampInterval Timestampinterval = 2;
+}
+
+message TimeEventResponse {
+	bool Completed  = 1;
+  	Error error = 2;
+}
+
+message GetWordScoreRequest {
+	string Word = 1;
+	MTimeStampInterval Timeinterval = 2;
+}
+
+message GetWordScoreResponse {
+	int32 Id      = 1;
+	string Word   = 2;
+	MTimeStampInterval Timeinterval = 3;
+	float Density = 4;
+	float Linkage = 5;
+	float Growth  = 6;
+	float Score   = 7;
+}
+
+message CreateWordScoreRequest {
+	string Word = 1;
+	MTimeStampInterval Timeinterval = 2;
+}
+
+message CreateWordScoreResponse {
+  	Error error = 1;
+}

@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+message VocabularyError {
+	int32  Code = 1;
+	string Message = 2;
+}
+
+message Vocabulary {
+	uint32	Id = 1;
+	string	Word = 2;
+	int32	RowCount = 3;
+	int32	Frequency = 4;
+	int32	WordRank = 5;
+	float	Probability = 6;
+	string	SpeechPart = 7;
+}
+
+// UnixTimeStamp int64
+message VocabularyRequest {
+	string 	Topic = 1;
+	int64	StartDate = 2;
+	int64	EndDate = 3;
+}
+
+message VocabularyResponse {
+	string 	Topic = 1;
+  	VocabularyError Werror = 2;
+	repeated Vocabulary VocabularyList = 3;
+}
+
+message OccurrenceError {
+	int32  Code = 1;
+	string Message = 2;
+}
+
+message Occurrence {
+	uint32	AcmId = 1;
+	int64	ArchiveDate = 2;
+	string	Word = 3;
+	int32	Nentry = 4;
+}
+
+message OccurrenceRequest {
+	string 	Topic = 1;
+	//<<<
+}
+
+message OccurrenceResponse {
+	string 	Topic = 1;
+  	OccurrenceError Werror = 2;
+	repeated Occurrence OccurrenceList = 3;
+}

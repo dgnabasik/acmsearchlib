@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package pb;
+
+service ConditionalProbability {
+  rpc CalcConditionalProbability(ConditionalProbabilityRequest) returns (ConditionalProbabilityResponse) {}
+}
+
+message ConditionalProbabilityRequest {
+  string WordA = 1;
+  string WordB = 2;
+}
+
+message ConditionalProbabilityResponse {
+  float ConditionalProbability = 3;
+}
