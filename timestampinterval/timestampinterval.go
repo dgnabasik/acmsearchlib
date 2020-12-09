@@ -2,17 +2,17 @@ package timestampinterval
 
 import (
 	nt "github.com/dgnabasik/acmsearchlib/nulltime"
-	pbx "github.com/dgnabasik/acmsearchlib/timestamp"
+	//pbx "github.com/dgnabasik/acmsearchlib/timestamp"
 )
 
 /* Proto messaging helper functions ************************************************************/
 
 // NewTimeEventRequest func
-func NewTimeEventRequest(topic string, pbtft pbx.MTimeStampInterval_MTimeFrameType) *pbx.TimeEventRequest {
-	p := new(pbx.TimeEventRequest)
+func NewTimeEventRequest(topic string, pbtft MTimeStampInterval_MTimeFrameType) *TimeEventRequest {
+	p := new(TimeEventRequest)
 	p.Topic = topic
 	theTime := nt.GetTimeStampFromUnixTimeStamp(nt.GetCurrentUnixTimeStamp())
-	p.Timestampinterval = new(pbx.MTimeStampInterval)
+	p.Timestampinterval = new(MTimeStampInterval)
 	p.Timestampinterval.Timeframetype = pbtft
 	p.Timestampinterval.StartTime = theTime
 	p.Timestampinterval.EndTime = theTime
@@ -20,16 +20,16 @@ func NewTimeEventRequest(topic string, pbtft pbx.MTimeStampInterval_MTimeFrameTy
 }
 
 // NewTimeEventResponse func
-func NewTimeEventResponse() *pbx.TimeEventResponse {
-	p := new(pbx.TimeEventResponse)
+func NewTimeEventResponse() *TimeEventResponse {
+	p := new(TimeEventResponse)
 	p.Completed = false
 	p.Error = nil
 	return p
 }
 
 // NewTimeStampInterval func
-func NewTimeStampInterval(timeframetype pbx.MTimeStampInterval_MTimeFrameType, startTime nt.UnixTimeStamp, endTime nt.UnixTimeStamp) *pbx.MTimeStampInterval {
-	p := new(pbx.MTimeStampInterval)
+func NewTimeStampInterval(timeframetype MTimeStampInterval_MTimeFrameType, startTime nt.UnixTimeStamp, endTime nt.UnixTimeStamp) *MTimeStampInterval {
+	p := new(MTimeStampInterval)
 	p.Timeframetype = timeframetype
 	p.StartTime = nt.GetTimeStampFromUnixTimeStamp(startTime)
 	p.EndTime = nt.GetTimeStampFromUnixTimeStamp(endTime)

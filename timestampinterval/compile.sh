@@ -12,4 +12,3 @@
 #  https://github.com/grpc/grpc-go/tree/master/examples
 
 protoc timestampinterval.proto --micro_out=. --go_out=. timestampinterval.proto
-#sudo cp timestampinterval.proto /home/david/go/protobuf/include/google/protobuf
