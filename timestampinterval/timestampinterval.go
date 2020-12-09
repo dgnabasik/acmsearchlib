@@ -2,7 +2,7 @@ package timestampinterval
 
 import (
 	nt "github.com/dgnabasik/acmsearchlib/nulltime"
-	pbx "github.com/dgnabasik/acmsearchlib/timestampinterval/pb" // timestampinterval.proto
+	pbx "github.com/dgnabasik/acmsearchlib/timestamp"
 )
 
 /* Proto messaging helper functions ************************************************************/

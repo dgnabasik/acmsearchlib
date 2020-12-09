@@ -1,5 +1,6 @@
 syntax = "proto3";
 
+package timeevent;
 //import "google/protobuf/timestamp.proto";
 
 service TimeEventService {

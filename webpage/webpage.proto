@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+package webpage;
+
 service WebpageService {
   rpc NewWebpage(WebpageRequest) returns (WebpageResponse) {}
 }

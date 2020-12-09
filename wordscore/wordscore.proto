@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package pb;
+package wordscore;
 import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
 

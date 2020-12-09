@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+package article;
+
 message VocabularyError {
 	int32  Code = 1;
 	string Message = 2;

@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package pb;
+package wordscore;
 
 service ConditionalProbability {
   rpc CalcConditionalProbability(ConditionalProbabilityRequest) returns (ConditionalProbabilityResponse) {}
