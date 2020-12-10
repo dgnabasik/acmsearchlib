@@ -66,7 +66,7 @@ func stringSliceContains(a []string, x string) (int, bool) {
 // TimeFrameType type returns the enclosing week, month, quarter, year, & span (everything) as pairs of NullTimes given a date.
 type TimeFrameType int
 
-// constants
+// constants	<<< add TFFourYears ???
 const (
 	TFUnknown TimeFrameType = iota
 	TFWeek

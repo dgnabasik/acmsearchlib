@@ -409,7 +409,7 @@ func BulkInsertConditionalProbability(conditionals []hd.ConditionalProbability) 
 	txn, err := db.Begin()
 	dbx.CheckErr(err)
 
-	stmt, err := db.Prepare("INSERT INTO Conditional (wordlist, probability, startDate, endDate, firstDate, lastDate) VALUES ($1, $2, $3, $4, $5, $6, $7);")
+	stmt, err := db.Prepare("INSERT INTO Conditional (wordlist, probability, timeframetype, startDate, endDate, firstDate, lastDate) VALUES ($1, $2, $3, $4, $5, $6, $7);")
 	dbx.CheckErr(err)
 
 	for _, v := range conditionals {
@@ -462,13 +462,11 @@ func extractKeysFromProbabilityMap(wordMap map[string]float32) []string {
 }
 
 // CalcConditionalProbability P(dependent A and B both occurring): Bayes: P(A|B)=P(A∩B)/P(B)=P(B|A)P(A)/P(B)
-// What is the P of word A given word B (in this interval)?
-// The imported wordMap has probabilities over entire TFSpan.
+// What is the P of word A given word B (in this interval)? If P(A|B)=P(A) then events A and B are said to be independent.
 // P(A∩B)=P(A|B)*P(B) is the probability that both events A and B occur; they are present in the same summary.
-// If P(A|B)=P(A) then events A and B are said to be independent.
+// The imported wordMap has probabilities over timeinterval.
 // Do for 2 permutations (order matters). Performs FilteringRules(words) Returns len(wordGrams).
-// MICROSERVICE! Number of permutations for 94322 wordgrams is n!/(n-r)! = 8,896,545,362
-// Estimated completion time is 1572 hours.
+// Number of permutations for 94322 wordgrams is n!/(n-r)! = 8,896,545,362 ==> estimated completion time is 1572 hours.
 func CalcConditionalProbability(wordMap map[string]float32, timeinterval nt.TimeInterval) int {
 	if len(wordMap) < 2 {
 		fmt.Println("There must at at least 2 words to compute conditional probabilities.")
@@ -482,24 +480,23 @@ func CalcConditionalProbability(wordMap map[string]float32, timeinterval nt.Time
 
 	if len(wordGrams) < 10 {
 		fmt.Println("Processing: " + strings.Join(wordGrams, " + "))
+	} else {
+		fmt.Println("Processing: " + strconv.Itoa(len(wordGrams)) + " wordgrams.")
 	}
 
-	wordOccurrenceList, totalIDSet := CollectWordGrams(wordGrams, timeinterval) // []Occurrence
-
-	// sort.Sort(OccurrenceSorterId(wordOccurrenceList))  not needed
+	wordOccurrenceList, totalIDSet := CollectWordGrams(wordGrams, timeinterval) // []Occurrence from database.
 
 	start := time.Now()
-	fmt.Print("CalcConditionalProbability: ")
+	fmt.Print("CalcConditionalProbability (permutations=" + strconv.Itoa(permutations) + "): ")
 
 	wordIDSets := getIDSetForWordGrams(wordGrams, wordOccurrenceList) // map[string]mapset.Set
-	idDateMap, _ := getIDArchiveDateMap(timeinterval)                 // map[uint32]NullTime
+	idDateMap, _ := getIDArchiveDateMap(timeinterval)                 // map[uint32]NullTime from database.
 
 	var conditionals []hd.ConditionalProbability
 	var wordlist string
 
 	// P(A|B)=P(A∩B)/P(B)    P(wordA|wordB) = for those summaries containing wordB, how many contain wordA => intersection
 	if permutations == 2 {
-		// timeinterval := nt.TimeInterval{Timeinterval startDate, endDate}
 		for wordA := 0; wordA < len(wordGrams)-1; wordA++ {
 			wordIDSetX := extractIDSet(wordGrams[wordA], wordIDSets) // mapset.Set
 			conditionals = nil
@@ -687,39 +684,4 @@ func GetAcmArticleListByDate(timeinterval nt.TimeInterval) ([]hd.AcmArticle, err
 	dbx.CheckErr(err)
 
 	return articleList, err
-}
-
-// ProcessAcm func
-func ProcessAcm() error {
-	/*
-		wordMap, err := db.GetVocabularyMapProbability( []string{} )
-		n = db.CalcConditionalProbability(wordMap, timeInterval)
-		err = db.CalcAllWordScoresConcurrently(timeInterval)
-		if err != nil {
-			fmt.Println(err)
-			return err
-		}
-
-		articles, err := db.GetAcmArticleListByDate(timeInterval) // []AcmArticle
-
-		uploadScript, err := rg.ProduceArticleInsertRDF(articles) // defined in rdfgraph.go
-		if err != nil {
-			fmt.Println(err)
-			return err
-		} else {
-			fmt.Println("Upload script 1: " + uploadScript)
-		}
-
-		// The time it takes to run this query (20s) allows the O/S to properly delete the target folder.
-		vocabList, err := db.GetVocabularyListByDate(timeInterval) // []Vocabulary
-
-		uploadScript, err = rg.ProduceVocabularyInsertRDF(vocabList)
-		if err != nil {
-			fmt.Println(err)
-			return err
-		} else {
-			fmt.Println("Upload script 2: " + uploadScript)
-		} */
-
-	return nil
 }
