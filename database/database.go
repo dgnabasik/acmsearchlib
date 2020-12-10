@@ -54,7 +54,7 @@ func CheckErr(err error) {
 // defer db.Close() must follow a call to this function in the calling function. sslmode is set to 'required' with lib/pq by default.
 func GetDatabaseReference() (*sql.DB, error) {
 	const (
-		dbHost        = "localhost"
+		dbHost        = "192.168.1.104"
 		dbPort        = 5432
 		dbUser        = "postgres"
 		dbPassword    = "Ski7Vail!"
@@ -66,6 +66,7 @@ func GetDatabaseReference() (*sql.DB, error) {
 
 	dbConn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s search_path=%s sslmode=disable",
 		dbHost, dbPort, dbUser, dbPassword, dbName, dbSchema)
+	fmt.Println(dbConn) //<<<
 	db, err := sql.Open(dbDriver, dbConn)
 	CheckErr(err)
 	db.SetMaxIdleConns(0)
@@ -94,7 +95,7 @@ func GetArticleCount() int {
 	defer db.Close()
 
 	var count int
-	err = db.QueryRow("SELECT COUNT(*) FROM AcmData;").Scan(&count)
+	err = db.QueryRow("SELECT COUNT(*) FROM AcmData").Scan(&count)
 	CheckErr(err)
 	return count
 }
@@ -111,10 +112,10 @@ func GetLastDateSavedFromDb() (nt.NullTime, nt.NullTime, error) {
 
 	var archiveDate1, archiveDate2 nt.NullTime // NullTime supports Scan() interface.
 
-	err = db.QueryRow("SELECT MIN(ArchiveDate) FROM AcmData;").Scan(&archiveDate1)
+	err = db.QueryRow("SELECT MIN(ArchiveDate) FROM AcmData").Scan(&archiveDate1)
 	CheckErr(err)
 
-	err = db.QueryRow("SELECT MAX(ArchiveDate) FROM AcmData;").Scan(&archiveDate2)
+	err = db.QueryRow("SELECT MAX(ArchiveDate) FROM AcmData").Scan(&archiveDate2)
 	CheckErr(err)
 
 	return archiveDate1, archiveDate2, nil
