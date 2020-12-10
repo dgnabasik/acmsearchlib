@@ -157,7 +157,7 @@ func Test_NullTime(t *testing.T) {
 func Test_TimeInterval(t *testing.T) {
 	fmt.Println("Test_TimeInterval...")
 
-	//<<< GetTimeFrameFromUnixTimeStamp (uts UnixTimeStamp, timeframetype TimeFrameType) TimeFrame {
+	// GetTimeFrameFromUnixTimeStamp (uts UnixTimeStamp, timeframetype TimeFrameType) TimeFrame {
 
 	vfd1 := New_NullTime(VeryFirstDate)
 	vfd2 := vfd1
