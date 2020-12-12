@@ -17,6 +17,7 @@ import (
 	timestamp "github.com/golang/protobuf/ptypes/timestamp"
 )
 
+// constants
 const (
 	timeFormat       = "2006-01-02 15:04:05" // RFC3339 format.
 	postfixHTML      = ".html"
@@ -66,19 +67,20 @@ func stringSliceContains(a []string, x string) (int, bool) {
 // TimeFrameType type returns the enclosing week, month, quarter, year, & span (everything) as pairs of NullTimes given a date.
 type TimeFrameType int
 
-// constants	<<< add TFFourYears ???
+// constants
 const (
 	TFUnknown TimeFrameType = iota
 	TFWeek
 	TFMonth
 	TFQuarter
 	TFYear
+	TFTerm
 	TFSpan
 )
 
 // ToString method
 func (tft TimeFrameType) ToString() string {
-	return [...]string{Unknown, "Week", "Month", "Quarter", "Year", "Span"}[tft]
+	return [...]string{Unknown, "Week", "Month", "Quarter", "Year", "Term", "Span"}[tft]
 }
 
 // TimeInterval struct
@@ -165,6 +167,18 @@ func (ti TimeInterval) GetTimeIntervalDatePartitionList() []TimeInterval {
 		}
 	}
 
+	if ti.Timeframetype == TFTerm {
+		for termIndex := ti.StartDate.DT.Year(); termIndex <= ti.EndDate.DT.Year(); termIndex = termIndex + 3 {
+			startOfTerm := New_NullTime(strconv.Itoa(termIndex) + "-01-01")
+			endOfTerm := New_NullTime(strconv.Itoa(termIndex) + "-12-31")
+			if termIndex == ti.EndDate.DT.Year() {
+				endOfTerm = NullTimeToday()
+			}
+			newInterval := New_TimeInterval(ti.Timeframetype, startOfTerm, endOfTerm)
+			timeIntervalList = append(timeIntervalList, newInterval)
+		}
+	}
+
 	if ti.Timeframetype == TFSpan {
 		timeIntervalList = append(timeIntervalList, ti)
 	}
@@ -191,6 +205,8 @@ type TimeFrame struct {
 	EndOfQuarter   NullTime
 	StartOfYear    NullTime
 	EndOfYear      NullTime
+	StartOfTerm    NullTime
+	EndOfTerm      NullTime
 	StartOfSpan    NullTime
 	EndOfSpan      NullTime
 }
@@ -217,6 +233,8 @@ func (tf TimeFrame) GetDivisor() float32 {
 		return float32(37)
 	case TFYear:
 		return float32(148)
+	case TFTerm:
+		return float32(148 * 4)
 	case TFSpan:
 		return float32((year-VeryFirstYear)*148) + float32((int(month)-1)*12) + float32(day)/float32(3)
 	default:
@@ -235,6 +253,8 @@ func (tf TimeFrame) GetTimeFrameDates() (NullTime, NullTime) {
 		return tf.StartOfQuarter, tf.EndOfQuarter
 	case TFYear:
 		return tf.StartOfYear, tf.EndOfYear
+	case TFTerm:
+		return tf.StartOfTerm, tf.EndOfTerm
 	case TFSpan:
 		return tf.StartOfSpan, tf.EndOfSpan
 	default: // TFUnknown
@@ -253,6 +273,8 @@ func (tf TimeFrame) Print() {
 	fmt.Println("EndOfQuarter  :" + tf.EndOfQuarter.StandardDate())
 	fmt.Println("StartOfYear   :" + tf.StartOfYear.StandardDate())
 	fmt.Println("EndOfYear     :" + tf.EndOfYear.StandardDate())
+	fmt.Println("StartOfTerm   :" + tf.StartOfTerm.StandardDate())
+	fmt.Println("EndOfTerm     :" + tf.EndOfTerm.StandardDate())
 	fmt.Println("StartOfSpan   :" + tf.StartOfSpan.StandardDate())
 	fmt.Println("EndOfSpan     :" + tf.EndOfSpan.StandardDate())
 }
@@ -360,6 +382,10 @@ func (nt NullTime) IsScheduledDate(when TimeFrameType) bool {
 		startOfYear := New_NullTime2(time.Date(year, 1, 1, 0, 0, 0, 0, time.UTC))
 		return (nt.DT == startOfYear.DT)
 
+	case TFTerm: // Is today the start of the term? Jan 1 of [2000, 2004, 2008, 2012, 2016, 2020]
+		startOfTerm := New_NullTime2(time.Date(year, 1, 1, 0, 0, 0, 0, time.UTC))
+		return (nt.DT == startOfTerm.DT) && (year == 2000 || year == 2004 || year == 2008 || year == 2012 || year == 2016 || year == 2020 || year == 2024)
+
 	case TFSpan: // Set manually by testing for yesterday.
 		return nt.DT.Before(baseStartTime.DT)
 	}
@@ -414,11 +440,17 @@ func New_TimeFrame(timeInterval TimeInterval) TimeFrame {
 
 	p.StartOfMonth = New_NullTime2(time.Date(year, month, 1, 0, 0, 0, 0, time.UTC))
 	p.EndOfMonth = New_NullTime2(p.StartOfMonth.DT.AddDate(0, 1, -1))
+
 	p.StartOfQuarter = New_NullTime2(time.Date(year, time.Month(qStart[month]), 1, 0, 0, 0, 0, time.UTC))
 	monthEnd := New_NullTime2(time.Date(year, time.Month(qStart[month]+2), 1, 0, 0, 0, 0, time.UTC))
 	p.EndOfQuarter = New_NullTime2(monthEnd.DT.AddDate(0, 1, -1))
+
 	p.StartOfYear = New_NullTime2(time.Date(year, 1, 1, 0, 0, 0, 0, time.UTC))
 	p.EndOfYear = New_NullTime2(time.Date(year, 12, 31, 0, 0, 0, 0, time.UTC))
+
+	startTerm := ((year-VeryFirstYear)/4)*4 + VeryFirstYear
+	p.StartOfTerm = New_NullTime2(time.Date(startTerm, 1, 1, 0, 0, 0, 0, time.UTC))
+	p.EndOfTerm = New_NullTime2(time.Date(startTerm+3, 12, 31, 0, 0, 0, 0, time.UTC))
 
 	p.StartOfSpan = New_NullTime(VeryFirstDate)
 	p.EndOfSpan = NullTimeToday()

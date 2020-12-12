@@ -466,7 +466,7 @@ func extractKeysFromProbabilityMap(wordMap map[string]float32) []string {
 // P(A∩B)=P(A|B)*P(B) is the probability that both events A and B occur; they are present in the same summary.
 // The imported wordMap has probabilities over timeinterval.
 // Do for 2 permutations (order matters). Performs FilteringRules(words) Returns len(wordGrams).
-// Number of permutations for 94322 wordgrams is n!/(n-r)! = 8,896,545,362 ==> estimated completion time is 1572 hours.
+// Number of permutations for 97022 wordgrams is n!/(n-r)! = 8,896,545,362 ==> estimated completion time is 1500 hours.
 func CalcConditionalProbability(wordMap map[string]float32, timeinterval nt.TimeInterval) int {
 	if len(wordMap) < 2 {
 		fmt.Println("There must at at least 2 words to compute conditional probabilities.")

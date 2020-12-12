@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 package timeevent;
-//import "google/protobuf/timestamp.proto";
+option go_package = "google.golang.org/protobuf/types/known/timeevent";
 
 service TimeEventService {
 	rpc CreateDay(TimeEventRequest) returns (TimeEventResponse) {}
@@ -27,7 +27,8 @@ message MTimeStampInterval {
 	TFMonth   = 2;
 	TFQuarter = 3;
 	TFYear    = 4;
-   	TFSpan    = 5;
+	TFTerm    = 5;
+   	TFSpan    = 6;
   }
 
   MTimeFrameType Timeframetype = 1;

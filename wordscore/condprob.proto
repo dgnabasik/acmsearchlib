@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 package wordscore;
+option go_package = "google.golang.org/protobuf/types/known/wordscore";
 
 service ConditionalProbability {
   rpc CalcConditionalProbability(ConditionalProbabilityRequest) returns (ConditionalProbabilityResponse) {}

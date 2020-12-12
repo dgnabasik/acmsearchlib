@@ -1,8 +1,9 @@
 syntax = "proto3";
 
-package timestampinterval
+package timestampinterval;
 
 import "google/protobuf/timestamp.proto";
+option go_package = "google.golang.org/protobuf/types/known/timestampinterval";
 
 message Error {
 	string code = 1;
@@ -16,7 +17,8 @@ message MTimeStampInterval {
 	TFMonth   = 2;
 	TFQuarter = 3;
 	TFYear    = 4;
-   	TFSpan    = 5;
+	TFTerm    = 5;
+   	TFSpan    = 6;
   }
 
   MTimeFrameType Timeframetype        = 1;
