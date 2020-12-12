@@ -124,7 +124,7 @@ func GetOccurrenceListByDate(timeinterval nt.TimeInterval) ([]hd.Occurrence, map
 	db, err := dbx.GetDatabaseReference()
 	defer db.Close()
 	// Invoke stored procedure.
-	SELECT := "SELECT * FROM GetOccurrencesByDate('" + timeinterval.StartDate.StandardDate() + "', '" + timeinterval.EndDate.StandardDate() + "');"
+	SELECT := "SELECT * FROM GetOccurrencesByDate('" + timeinterval.StartDate.StandardDate() + "', '" + timeinterval.EndDate.StandardDate() + "')"
 	rows, err := db.Query(SELECT)
 	dbx.CheckErr(err)
 	defer rows.Close()
@@ -216,7 +216,7 @@ func GetOccurrencesByAcmid(xacmid uint32) ([]hd.Occurrence, error) {
 	db, err := dbx.GetDatabaseReference()
 	defer db.Close()
 
-	SELECT := "SELECT acmId, archiveDate, word, nentry FROM Occurrence WHERE acmId=" + strconv.FormatUint(uint64(xacmid), 10) + ";"
+	SELECT := "SELECT acmId, archiveDate, word, nentry FROM Occurrence WHERE acmId=" + strconv.FormatUint(uint64(xacmid), 10)
 	rows, err := db.Query(SELECT)
 	dbx.CheckErr(err)
 	defer rows.Close()
@@ -409,7 +409,7 @@ func BulkInsertConditionalProbability(conditionals []hd.ConditionalProbability) 
 	txn, err := db.Begin()
 	dbx.CheckErr(err)
 
-	stmt, err := db.Prepare("INSERT INTO Conditional (wordlist, probability, timeframetype, startDate, endDate, firstDate, lastDate) VALUES ($1, $2, $3, $4, $5, $6, $7);")
+	stmt, err := db.Prepare("INSERT INTO Conditional (wordlist, probability, timeframetype, startDate, endDate, firstDate, lastDate) VALUES ($1, $2, $3, $4, $5, $6, $7)")
 	dbx.CheckErr(err)
 
 	for _, v := range conditionals {
@@ -435,7 +435,7 @@ func getIDArchiveDateMap(timeinterval nt.TimeInterval) (map[uint32]nt.NullTime, 
 	db, err := dbx.GetDatabaseReference()
 	defer db.Close()
 
-	SELECT := "SELECT Id, ArchiveDate FROM AcmData WHERE ArchiveDate >= '" + timeinterval.StartDate.StandardDate() + "' AND ArchiveDate <= '" + timeinterval.EndDate.StandardDate() + "';"
+	SELECT := "SELECT Id, ArchiveDate FROM AcmData WHERE ArchiveDate >= '" + timeinterval.StartDate.StandardDate() + "' AND ArchiveDate <= '" + timeinterval.EndDate.StandardDate() + "'"
 	rows, err := db.Query(SELECT)
 	dbx.CheckErr(err)
 	defer rows.Close()
@@ -602,7 +602,7 @@ func GetVocabularyByWord(wordX string) hd.Vocabulary {
 	var id uint32
 	var rowCount, frequency, wordRank int
 	var probability float32
-	SELECT := "SELECT id, word, rowcount, frequency, wordrank, probability, speechpart FROM Vocabulary WHERE Word='" + wordX + "';"
+	SELECT := "SELECT id, word, rowcount, frequency, wordrank, probability, speechpart FROM Vocabulary WHERE Word='" + wordX + "'"
 	err = db.QueryRow(SELECT).Scan(&id, &word, &rowCount, &frequency, &wordRank, &probability, &speechPart)
 	dbx.CheckErr(err)
 
@@ -617,7 +617,7 @@ func GetVocabularyListByDate(timeinterval nt.TimeInterval) ([]hd.Vocabulary, err
 	db, err := dbx.GetDatabaseReference()
 	defer db.Close()
 
-	SELECT := "SELECT * FROM GetVocabularyByDate('" + timeinterval.StartDate.StandardDate() + "', '" + timeinterval.EndDate.StandardDate() + "');"
+	SELECT := "SELECT * FROM GetVocabularyByDate('" + timeinterval.StartDate.StandardDate() + "', '" + timeinterval.EndDate.StandardDate() + "')"
 	// SELECT * FROM vocabulary WHERE word IN (SELECT word FROM GetOccurrencesByDate(startDate, endDate));
 	rows, err := db.Query(SELECT)
 	dbx.CheckErr(err)
@@ -661,7 +661,7 @@ func GetAcmArticleListByDate(timeinterval nt.TimeInterval) ([]hd.AcmArticle, err
 	db, err := dbx.GetDatabaseReference()
 	defer db.Close()
 
-	SELECT := "SELECT * FROM GetAcmArticles() WHERE ArchiveDate >= '" + timeinterval.StartDate.StandardDate() + "' AND ArchiveDate <= '" + timeinterval.EndDate.StandardDate() + "';"
+	SELECT := "SELECT * FROM GetAcmArticles() WHERE ArchiveDate >= '" + timeinterval.StartDate.StandardDate() + "' AND ArchiveDate <= '" + timeinterval.EndDate.StandardDate() + "'"
 	rows, err := db.Query(SELECT)
 	dbx.CheckErr(err)
 	defer rows.Close()
