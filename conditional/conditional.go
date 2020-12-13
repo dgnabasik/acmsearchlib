@@ -464,16 +464,19 @@ func extractKeysFromProbabilityMap(wordMap map[string]float32) []string {
 // CalcConditionalProbability P(dependent A and B both occurring): Bayes: P(A|B)=P(A∩B)/P(B)=P(B|A)P(A)/P(B)
 // What is the P of word A given word B (in this interval)? If P(A|B)=P(A) then events A and B are said to be independent.
 // P(A∩B)=P(A|B)*P(B) is the probability that both events A and B occur; they are present in the same summary.
-// The imported wordMap has probabilities over timeinterval.
+// The imported wordMap has probabilities over timeinterval. startingWordgram allows for restart: must be in wordA|wordB format.
 // Do for 2 permutations (order matters). Performs FilteringRules(words) Returns len(wordGrams).
-// Number of permutations for 97022 wordgrams is n!/(n-r)! = 8,896,545,362 ==> estimated completion time is 1500 hours.
-func CalcConditionalProbability(wordMap map[string]float32, timeinterval nt.TimeInterval) int {
+// Number of permutations for 97022 wordgrams is n!/(n-r)! = 9,413,171,462 ==> estimated completion time is 1700 hours.
+func CalcConditionalProbability(startingWordgram string, wordMap map[string]float32, timeinterval nt.TimeInterval) int {
 	if len(wordMap) < 2 {
 		fmt.Println("There must at at least 2 words to compute conditional probabilities.")
 		return 0
 	}
 	permutations := 2
-	var cutoffProb float32 = 0.00001 // arbitrary
+	var cutoffProb float32 = 0.00001
+	index := strings.Index(startingWordgram, "|")
+	wordAstart := startingWordgram[0:index]
+	wordBstart := startingWordgram[index+1:]
 
 	wordGrams := extractKeysFromProbabilityMap(wordMap) // []string
 	sort.Strings(wordGrams)
@@ -498,10 +501,16 @@ func CalcConditionalProbability(wordMap map[string]float32, timeinterval nt.Time
 	// P(A|B)=P(A∩B)/P(B)    P(wordA|wordB) = for those summaries containing wordB, how many contain wordA => intersection
 	if permutations == 2 {
 		for wordA := 0; wordA < len(wordGrams)-1; wordA++ {
+			if strings.Compare(wordGrams[wordA], wordAstart) < 0 { // not <= !
+				continue
+			}
 			wordIDSetX := extractIDSet(wordGrams[wordA], wordIDSets) // mapset.Set
 			conditionals = nil
 			// MICROSERVICE: wordMap(94k), wordGrams(94k), wordIDSets(94k), idDateMap, totalIDSet.Cardinality(), wordA, wordB, startDate, endDate => conditionals
 			for wordB := wordA + 1; wordB < len(wordGrams); wordB++ {
+				if strings.Compare(wordGrams[wordB], wordBstart) <= 0 {
+					continue
+				}
 				wordIDSetY := extractIDSet(wordGrams[wordB], wordIDSets) // mapset.Set
 				idSetIntersection := wordIDSetX.Intersect(wordIDSetY)
 				if idSetIntersection.Cardinality() == 0 {

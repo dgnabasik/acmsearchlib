@@ -272,12 +272,14 @@ func GetFileList(filePath string, since nt.NullTime) ([]string, error) {
 func GetMostRecentFileAsNullTime(dirname string) (nt.NullTime, error) {
 	f, err := os.Open(dirname)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("Unable to open folder: %s %+v\n", dirname, err)
+		return nt.NullTimeToday(), err
 	}
 	files, err := f.Readdir(-1)
 	f.Close()
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("Unable to open file: %+v\n", err)
+		return nt.NullTimeToday(), err
 	}
 
 	// process template files (case-sensitive) and translate file format jul-12-2019.html to yyyy-mm-dd

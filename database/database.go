@@ -26,6 +26,8 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"os"
+	"time"
 
 	nt "github.com/dgnabasik/acmsearchlib/nulltime"
 
@@ -45,8 +47,10 @@ type DB struct {
 // CheckErr database error handler.
 func CheckErr(err error) {
 	if err != nil {
-		log.Fatal(err)
-		panic(err)
+		log.Printf("Database CheckErr %+v\n", err)
+		fmt.Println(err)
+		fmt.Print("Press Enter to continue...")
+		os.Stdin.Read([]byte{0})
 	}
 }
 
@@ -72,8 +76,29 @@ func GetDatabaseReference() (*sql.DB, error) {
 	db.SetMaxOpenConns(dbConnections)
 	db.SetConnMaxLifetime(0)
 	err = db.Ping() // connects
-	CheckErr(err)
+	if err != nil {
+		fmt.Println(err)
+		fmt.Print("Press Enter to continue...")
+		os.Stdin.Read([]byte{0})
+	}
 	return db, err
+}
+
+// TestDbConnection returns a new connection after 1 attempt if db connection is dead else user prompt.
+func TestDbConnection(db *sql.DB) (*sql.DB, error) {
+	err := db.Ping()
+	if err != nil {
+		db.Close()
+		time.Sleep(1000)
+		dbx, err := GetDatabaseReference()
+		if err != nil {
+			fmt.Print("There is a problem accessing the database. Press Enter to try again.")
+			os.Stdin.Read([]byte{0})
+			dbx, err = GetDatabaseReference()
+		}
+		return dbx, err
+	}
+	return db, nil
 }
 
 // CallTruncateTables truncates tables with sequences.

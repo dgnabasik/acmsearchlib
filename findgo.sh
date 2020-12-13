@@ -1,3 +1,4 @@
+echo "Case-sensitive search!"
 grep -l $1 ./filesystem/filesystem.go
 grep -l $1 ./conditional/conditional.go
 grep -l $1 ./wordscore/wordscore.pb.go
