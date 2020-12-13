@@ -453,7 +453,8 @@ func getIDArchiveDateMap(timeinterval nt.TimeInterval) (map[uint32]nt.NullTime, 
 	return dateMap, err
 }
 
-func extractKeysFromProbabilityMap(wordMap map[string]float32) []string {
+// ExtractKeysFromProbabilityMap func
+func ExtractKeysFromProbabilityMap(wordMap map[string]float32) []string {
 	words := make([]string, 0)
 	for word := range wordMap {
 		words = append(words, word)
@@ -478,7 +479,7 @@ func CalcConditionalProbability(startingWordgram string, wordMap map[string]floa
 	wordAstart := startingWordgram[0:index]
 	wordBstart := startingWordgram[index+1:]
 
-	wordGrams := extractKeysFromProbabilityMap(wordMap) // []string
+	wordGrams := ExtractKeysFromProbabilityMap(wordMap) // []string
 	sort.Strings(wordGrams)
 
 	if len(wordGrams) < 10 {
@@ -661,6 +662,24 @@ func GetVocabularyListByDate(timeinterval nt.TimeInterval) ([]hd.Vocabulary, err
 	fmt.Println(elapsed.String())
 
 	return vocabList, err
+}
+
+// SelectOccurrenceByWord assumes occurrenceList is sorted by Word.
+func SelectOccurrenceByWord(occurrenceList []hd.Occurrence, word string) []hd.Occurrence {
+	var subList []hd.Occurrence
+	for ndx := 0; ndx < len(occurrenceList); ndx++ {
+		order := strings.Compare(occurrenceList[ndx].Word, word)
+		if order < 0 {
+			continue
+		}
+		if order == 0 {
+			subList = append(subList, occurrenceList[ndx])
+		}
+		if order > 0 {
+			break
+		}
+	}
+	return subList
 }
 
 /*************************************************************************************************/
