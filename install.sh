@@ -4,7 +4,6 @@ echo -n "push?"
 read
 git add --all :/
 git commit -am "Release 1.0.0"
-git push https://github.com/dgnabasik/eyes-community master
 git push -u origin main
 go get -u github.com/dgnabasik/acmsearchlib
 echo -n "ok?"
