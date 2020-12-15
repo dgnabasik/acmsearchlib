@@ -54,22 +54,32 @@ func CheckErr(err error) {
 	}
 }
 
+// GetDatabaseConnectionString func uses environment var ACM_DATABASE_URL
+func GetDatabaseConnectionString() string {
+	connStr := os.Getenv("ACM_DATABASE_URL")
+	if connStr == "" {
+		log.Panic("ACM_DATABASE_URL not found in environment variables")
+	}
+	//fmt.Println(" Connected to " + connStr)
+	return connStr
+}
+
 // GetDatabaseReference opens a database specified by its database driver name and a driver-specific data source name: db,err := GetDatabaseReference()
 // defer db.Close() must follow a call to this function in the calling function. sslmode is set to 'required' with lib/pq by default.
 func GetDatabaseReference() (*sql.DB, error) {
 	const (
-		dbHost        = "192.168.1.104"
-		dbPort        = 5432
-		dbUser        = "postgres"
-		dbPassword    = "Ski7Vail!"
-		dbName        = "postgres"
+		//dbHost        = "192.168.1.104"
+		//dbPort        = 5432
+		//dbUser        = "postgres"
+		//dbPassword    = "Ski7Vail!"
+		//dbName        = "postgres"
+		//dbSchema      = "acmsearch,public"
 		dbDriver      = "postgres"
-		dbSchema      = "acmsearch,public"
-		dbConnections = 10
+		dbConnections = 20
 	)
 
-	dbConn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s search_path=%s sslmode=disable",
-		dbHost, dbPort, dbUser, dbPassword, dbName, dbSchema)
+	//dbConn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s search_path=%s sslmode=disable", dbHost, dbPort, dbUser, dbPassword, dbName, dbSchema)
+	dbConn := GetDatabaseConnectionString()
 	db, err := sql.Open(dbDriver, dbConn)
 	CheckErr(err)
 	db.SetMaxIdleConns(0)
