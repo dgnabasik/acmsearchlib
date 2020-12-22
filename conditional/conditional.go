@@ -27,6 +27,14 @@ func isHexWord(word string) bool {
 	return len(word) >= 10 && err == nil
 }
 
+// FormatDate func Put into utils.
+func FormatDate(t time.Time) string {
+	var a [20]byte
+	var b = a[:0]
+	b = t.AppendFormat(b, time.RFC3339)
+	return string(b[0:10])
+}
+
 // FilteringRules filters output from Postgres ts_stat select. Include 3d prefixes.
 // Return 0 for ok, -1 to completely ignore, 1 for modified word.
 func FilteringRules(word string) (string, int) {
@@ -321,16 +329,16 @@ func GetDistinctWords(occurrenceList []hd.Occurrence) []string {
 	return wordSet
 }
 
-// getIDSetUnion returns union of Ids in mapset.
+/* getIDSetUnion returns union of Ids in mapset.
 func getIDSetUnion(stringMapset map[string]mapset.Set) mapset.Set {
 	idSet := mapset.NewSet()
 	for _, item := range stringMapset {
 		idSet = idSet.Union(item)
 	}
 	return idSet
-}
+}*/
 
-// getIDSetIntersection NOT USED
+/* getIDSetIntersection
 func getIDSetIntersection(stringMapset map[string]mapset.Set) mapset.Set {
 	if len(stringMapset) == 0 {
 		return mapset.NewSet()
@@ -346,9 +354,9 @@ func getIDSetIntersection(stringMapset map[string]mapset.Set) mapset.Set {
 		idSet = idSet.Intersect(item)
 	}
 	return idSet
-}
+} */
 
-// getMinMaxSetValues For sets of ints
+/* getMinMaxSetValues For sets of ints
 func getMinMaxSetValues(idSet mapset.Set) (uint32, uint32) {
 	min := uint32(4 * 1073741823)
 	max := uint32(0)
@@ -363,9 +371,9 @@ func getMinMaxSetValues(idSet mapset.Set) (uint32, uint32) {
 		}
 	}
 	return min, max
-}
+}*/
 
-// extractIDSet func
+/* extractIDSet func
 func extractIDSet(word string, stringMapset map[string]mapset.Set) mapset.Set {
 	idSet := mapset.NewSet()
 	for key, item := range stringMapset {
@@ -379,9 +387,9 @@ func extractIDSet(word string, stringMapset map[string]mapset.Set) mapset.Set {
 	}
 
 	return idSet
-}
+} */
 
-// getIDSetForWordGrams fails with "invalid memory address or nil pointer dereference" if a space is in words.
+/* getIDSetForWordGrams fails with "invalid memory address or nil pointer dereference" if a space is in words.
 func getIDSetForWordGrams(wordGrams []string, occurrenceList []hd.Occurrence) map[string]mapset.Set {
 	wordIDMap := make(map[string]mapset.Set, len(wordGrams)) // {word, Set of acmIds}
 	for _, word := range wordGrams {
@@ -397,7 +405,7 @@ func getIDSetForWordGrams(wordGrams []string, occurrenceList []hd.Occurrence) ma
 	}
 
 	return wordIDMap
-}
+}*/
 
 /*************************************************************************************************/
 
@@ -426,7 +434,7 @@ func BulkInsertConditionalProbability(conditionals []hd.ConditionalProbability) 
 	return nil
 }
 
-// getIDArchiveDateMap func
+/* getIDArchiveDateMap func
 func getIDArchiveDateMap(timeinterval nt.TimeInterval) (map[uint32]nt.NullTime, error) {
 	var archiveDate nt.NullTime
 	var id uint32
@@ -451,7 +459,7 @@ func getIDArchiveDateMap(timeinterval nt.TimeInterval) (map[uint32]nt.NullTime, 
 	dbx.CheckErr(err)
 
 	return dateMap, err
-}
+}*/
 
 // ExtractKeysFromProbabilityMap func
 func ExtractKeysFromProbabilityMap(wordMap map[string]float32) []string {
@@ -462,13 +470,13 @@ func ExtractKeysFromProbabilityMap(wordMap map[string]float32) []string {
 	return words
 }
 
-// CalcConditionalProbability P(dependent A and B both occurring): Bayes: P(A|B)=P(A∩B)/P(B)=P(B|A)P(A)/P(B)
+// C_alcConditionalProbability P(dependent A and B both occurring): Bayes: P(A|B)=P(A∩B)/P(B)=P(B|A)P(A)/P(B)
 // What is the P of word A given word B (in this interval)? If P(A|B)=P(A) then events A and B are said to be independent.
 // P(A∩B)=P(A|B)*P(B) is the probability that both events A and B occur; they are present in the same summary.
 // The imported wordMap has probabilities over timeinterval. startingWordgram allows for restart: must be in wordA|wordB format.
 // Do for 2 permutations (order matters). Performs FilteringRules(words) Returns len(wordGrams).
-// Number of permutations for 97022 wordgrams is n!/(n-r)! = 9,413,171,462 ==> estimated completion time is 1700 hours.
-func CalcConditionalProbability(startingWordgram string, wordMap map[string]float32, timeinterval nt.TimeInterval) int {
+// Number of permutations for 97022 wordgrams is n!/(n-r)! = 9,413,171,462.
+/*func C_alcConditionalProbability(startingWordgram string, wordMap map[string]float32, timeinterval nt.TimeInterval) int {
 	if len(wordMap) < 2 {
 		fmt.Println("There must at at least 2 words to compute conditional probabilities.")
 		return 0
@@ -491,7 +499,7 @@ func CalcConditionalProbability(startingWordgram string, wordMap map[string]floa
 	wordOccurrenceList, totalIDSet := CollectWordGrams(wordGrams, timeinterval) // []Occurrence from database.
 
 	start := time.Now()
-	fmt.Print("CalcConditionalProbability (permutations=" + strconv.Itoa(permutations) + "): ")
+	fmt.Print("C_alcConditionalProbability (permutations=" + strconv.Itoa(permutations) + "): ")
 
 	wordIDSets := getIDSetForWordGrams(wordGrams, wordOccurrenceList) // map[string]mapset.Set
 	idDateMap, _ := getIDArchiveDateMap(timeinterval)                 // map[uint32]NullTime from database.
@@ -547,6 +555,80 @@ func CalcConditionalProbability(startingWordgram string, wordMap map[string]floa
 	fmt.Println(elapsed.String())
 
 	return len(wordGrams)
+} */
+
+// CalcConditionalProbability func (new!)	wordMap:SELECT Word,Probability FROM vocabulary
+func CalcConditionalProbability(startingWordgram string, wordMap map[string]float32, timeinterval nt.TimeInterval) (int, error) {
+	if len(wordMap) < 2 {
+		fmt.Println("There must at at least 2 words to compute conditional probabilities.")
+		return 0, nil
+	}
+	permutations := 2
+	var cutoffProbability float32 = 0.000001 // 1.0x10^-6
+	index := strings.Index(startingWordgram, "|")
+	wordAstart := startingWordgram[0:index]
+	wordBstart := startingWordgram[index+1:]
+
+	wordGrams := ExtractKeysFromProbabilityMap(wordMap) // []string
+	sort.Strings(wordGrams)
+
+	if len(wordGrams) < 10 {
+		fmt.Println("Processing: " + strings.Join(wordGrams, " + "))
+	} else {
+		fmt.Println("Processing: " + strconv.Itoa(len(wordGrams)) + " wordgrams.")
+	}
+
+	start := time.Now()
+	fmt.Print("CalcConditionalProbability (permutations=" + strconv.Itoa(permutations) + "): ")
+
+	DB1, err := dbx.GetDatabaseReference() // for calling functions
+	defer DB1.Close()
+
+	var conditionals []hd.ConditionalProbability
+	var condProb1, condProb2 float32 // must match function RETURNS TABLE names.
+	var firstDate, lastDate time.Time
+	var firstDateValue, lastDateValue nt.NullTime
+	var totalInserts int64
+	startDateParam := FormatDate(timeinterval.StartDate.DT)
+	endDateParam := FormatDate(timeinterval.EndDate.DT)
+
+	if permutations == 2 {
+		for wordA := 0; wordA < len(wordGrams)-1; wordA++ {
+			if strings.Compare(wordGrams[wordA], wordAstart) < 0 { // not <= !
+				continue
+			}
+			conditionals = nil
+			fmt.Print(wordGrams[wordA] + "  ")
+
+			for wordB := wordA + 1; wordB < len(wordGrams); wordB++ {
+				if strings.Compare(wordGrams[wordB], wordBstart) <= 0 {
+					continue
+				}
+				err = DB1.QueryRow(`SELECT condProb1, condProb2 FROM GetConditionalProbabilities($1, $2, $3, $4)`, wordGrams[wordA], wordGrams[wordB], startDateParam, endDateParam).Scan(&condProb1, &condProb2)
+				dbx.CheckErr(err)
+				if condProb1 > cutoffProbability && condProb2 > cutoffProbability {
+					err = DB1.QueryRow(`SELECT firstDate, lastDate FROM GetFirstLastArchiveDates($1, $2, $3, $4)`, wordGrams[wordA], wordGrams[wordB], startDateParam, endDateParam).Scan(&firstDate, &lastDate)
+					dbx.CheckErr(err)                            // firstDate, lastDate can be null!
+					firstDateValue = nt.New_NullTime2(firstDate) // must match function RETURNS TABLE names.
+					lastDateValue = nt.New_NullTime2(lastDate)
+					wordlist := wordGrams[wordA] + "|" + wordGrams[wordB]
+					conditionals = append(conditionals, hd.ConditionalProbability{Id: 0, WordList: wordlist, Probability: condProb1, Timeinterval: timeinterval, FirstDate: firstDateValue, LastDate: lastDateValue})
+					wordlist = wordGrams[wordB] + "|" + wordGrams[wordA]
+					conditionals = append(conditionals, hd.ConditionalProbability{Id: 0, WordList: wordlist, Probability: condProb2, Timeinterval: timeinterval, FirstDate: firstDateValue, LastDate: lastDateValue})
+				}
+			}
+
+			if len(conditionals) > 0 {
+				_ = BulkInsertConditionalProbability(conditionals)
+				totalInserts = totalInserts + int64(len(conditionals))
+			}
+		}
+		fmt.Println(totalInserts)
+	}
+
+	elapsed := time.Since(start)
+	fmt.Println(elapsed.String())
+	return len(wordGrams), nil
 }
 
 // getWhereClause Don't know PostgreSQL limit of IN values.
