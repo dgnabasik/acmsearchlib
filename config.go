@@ -1,4 +1,4 @@
-package acmsearchlib
+package main
 
 import (
 	art "github.com/dgnabasik/acmsearchlib/article"
@@ -13,4 +13,8 @@ import (
 
 func Config() []string {
 	return []string{"acmsearchlib config", art.Version(), cond.Version(), dbase.Version(), fs.Version(), hd.Version(), nt.Version(), tsi.Version(), ws.Version()}
+}
+
+func main() {
+	Config()
 }
