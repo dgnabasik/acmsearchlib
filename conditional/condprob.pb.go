@@ -4,14 +4,15 @@
 // 	protoc        v3.14.0
 // source: condprob.proto
 
-package wordscore
+package conditional
 
 import (
+	reflect "reflect"
+	sync "sync"
+
 	proto "github.com/golang/protobuf/proto"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	reflect "reflect"
-	sync "sync"
 )
 
 const (
@@ -168,12 +169,12 @@ func file_condprob_proto_rawDescGZIP() []byte {
 
 var file_condprob_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_condprob_proto_goTypes = []interface{}{
-	(*ConditionalProbabilityRequest)(nil),  // 0: wordscore.ConditionalProbabilityRequest
-	(*ConditionalProbabilityResponse)(nil), // 1: wordscore.ConditionalProbabilityResponse
+	(*ConditionalProbabilityRequest)(nil),  // 0: conditional.ConditionalProbabilityRequest
+	(*ConditionalProbabilityResponse)(nil), // 1: conditional.ConditionalProbabilityResponse
 }
 var file_condprob_proto_depIdxs = []int32{
-	0, // 0: wordscore.ConditionalProbability.CalcConditionalProbability:input_type -> wordscore.ConditionalProbabilityRequest
-	1, // 1: wordscore.ConditionalProbability.CalcConditionalProbability:output_type -> wordscore.ConditionalProbabilityResponse
+	0, // 0: conditional.ConditionalProbability.CalcConditionalProbability:input_type -> conditional.ConditionalProbabilityRequest
+	1, // 1: conditional.ConditionalProbability.CalcConditionalProbability:output_type -> conditional.ConditionalProbabilityResponse
 	1, // [1:2] is the sub-list for method output_type
 	0, // [0:1] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name

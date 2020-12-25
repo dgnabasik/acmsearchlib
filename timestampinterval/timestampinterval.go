@@ -5,6 +5,10 @@ import (
 	//pbx "github.com/dgnabasik/acmsearchlib/timestamp"
 )
 
+func Version() string {
+	return "1.0.10"
+}
+
 /* Proto messaging helper functions ************************************************************/
 
 // NewTimeEventRequest func

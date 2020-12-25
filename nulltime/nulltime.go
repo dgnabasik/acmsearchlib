@@ -17,6 +17,10 @@ import (
 	timestamp "github.com/golang/protobuf/ptypes/timestamp"
 )
 
+func Version() string {
+	return "1.0.10"
+}
+
 // constants
 const (
 	timeFormat       = "2006-01-02 15:04:05" // RFC3339 format.

@@ -37,6 +37,10 @@ import (
 
 // mapset https://github.com/deckarep/golang-set/blob/master/README.md & https://godoc.org/github.com/deckarep/golang-set
 
+func Version() string {
+	return "1.0.10"
+}
+
 // DB struct
 // dbRef, err := dbase.GetDatabaseReference()
 // dbObj := &ArticleDatastore{db: dbRef}

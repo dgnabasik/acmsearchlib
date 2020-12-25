@@ -16,6 +16,10 @@ import (
 	"golang.org/x/text/search"
 )
 
+func Version() string {
+	return "1.0.10"
+}
+
 // constants
 const (
 	floatFormatter = "%.12f"

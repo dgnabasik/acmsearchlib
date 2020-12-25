@@ -20,6 +20,10 @@ import (
 	nt "github.com/dgnabasik/acmsearchlib/nulltime"
 )
 
+func Version() string {
+	return "1.0.10"
+}
+
 // constants
 const (
 	FileSystemPrefix = "/home/david/"
