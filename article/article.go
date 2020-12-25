@@ -3,12 +3,6 @@ package article
 //  manages articles.
 
 import (
-	"fmt"
-	"sort"
-	"strconv"
-	"strings"
-	"time"
-
 	dbx "github.com/dgnabasik/acmsearchlib/database"
 	hd "github.com/dgnabasik/acmsearchlib/headers"
 	nt "github.com/dgnabasik/acmsearchlib/nulltime"
@@ -50,4 +44,3 @@ func GetAcmArticleListByDate(timeinterval nt.TimeInterval) ([]hd.AcmArticle, err
 
 	return articleList, err
 }
-
