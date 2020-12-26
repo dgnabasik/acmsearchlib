@@ -3,12 +3,12 @@ module github.com/dgnabasik/acmsearchlib
 go 1.15
 
 require (
-	github.com/dgnabasik/acmsearchlib/conditional v0.0.0-20201225143310-6031d3321d41
-	github.com/dgnabasik/acmsearchlib/database v0.0.0-20201225141644-522e36bcf8f7
-	github.com/dgnabasik/acmsearchlib/filesystem v0.0.0-20201225141644-522e36bcf8f7
-	github.com/dgnabasik/acmsearchlib/headers v0.0.0-20201225143310-6031d3321d41
-	github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20201225141644-522e36bcf8f7
-	github.com/dgnabasik/acmsearchlib/timestampinterval v0.0.0-20201225143310-6031d3321d41
+	github.com/dgnabasik/acmsearchlib/conditional v0.0.0-20201225144613-7ce5d90e2e18
+	github.com/dgnabasik/acmsearchlib/database v0.0.0-20201225144613-7ce5d90e2e18
+	github.com/dgnabasik/acmsearchlib/filesystem v0.0.0-20201225144613-7ce5d90e2e18
+	github.com/dgnabasik/acmsearchlib/headers v0.0.0-20201226155707-98d1bb06e87f
+	github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20201225144613-7ce5d90e2e18
+	github.com/dgnabasik/acmsearchlib/timestampinterval v0.0.0-20201226155707-98d1bb06e87f
 	github.com/go-log/log v0.2.0 // indirect
 	github.com/golang/protobuf v1.4.3
 	github.com/google/uuid v1.1.2 // indirect
