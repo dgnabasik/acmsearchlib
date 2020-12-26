@@ -19,6 +19,7 @@ grep -l $1 ./timestampinterval/timestampinterval.go
 grep -l $1 ./timestampinterval/timestampinterval.pb.go
 grep -l $1 ./timestampinterval/timestampinterval.pb.micro.go
 grep -l $1 ./timestampinterval/timestampinterval.micro.go
+grep -l $1 ./vocabulary/vocabulary.go
 grep -l $1 ./webpage/webpage.pb.go
 grep -l $1 ./webpage/webpage.micro.go
 grep -l $1 ./webpage/webpage.pb.micro.go

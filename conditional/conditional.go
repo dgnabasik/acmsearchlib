@@ -5,6 +5,7 @@ package conditional
 import (
 	"encoding/hex"
 	"fmt"
+	"log"
 	"sort"
 	"strconv"
 	"strings"
@@ -22,6 +23,7 @@ import (
 
 // mapset https://github.com/deckarep/golang-set/blob/master/README.md & https://godoc.org/github.com/deckarep/golang-set
 
+// Version func
 func Version() string {
 	return "1.0.10"
 }
@@ -68,11 +70,9 @@ func FilteringRules(word string) (string, int) {
 
 /*************************************************************************************************/
 
-// SelectOccurrenceByDate assumes NullTime have zero hours, min, secs, so subtract 1 minute from startDate and add 1 minute to endDate to avoid any time issues. Also assumes occurrenceList is sorted by ArchiveDate
+// SelectOccurrenceByDate assumes NullTime have zero hours and occurrenceList is sorted by ArchiveDate.
 func SelectOccurrenceByDate(occurrenceList []hd.Occurrence, timeinterval nt.TimeInterval) []hd.Occurrence {
 	var subList []hd.Occurrence
-	//sDate := StartDate.DT.Add(time.Minute * -1)
-	//eDate := timeinterval.EndDate.DT.Add(time.Minute * 1)
 
 	for ndx := 0; ndx < len(occurrenceList); ndx++ {
 		if occurrenceList[ndx].ArchiveDate.DT.Before(timeinterval.StartDate.DT) {
@@ -111,8 +111,8 @@ func SelectOccurrenceByID(occurrenceList []hd.Occurrence, acmID uint32) []hd.Occ
 	return subList
 }
 
-// selectOccurrenceByWord assumes occurrenceList is sorted by Word.
-func selectOccurrenceByWord(occurrenceList []hd.Occurrence, word string) []hd.Occurrence {
+// SelectOccurrenceByWord assumes occurrenceList is sorted by Word.
+func SelectOccurrenceByWord(occurrenceList []hd.Occurrence, word string) []hd.Occurrence {
 	var subList []hd.Occurrence
 	for ndx := 0; ndx < len(occurrenceList); ndx++ {
 		order := strings.Compare(occurrenceList[ndx].Word, word)
@@ -185,21 +185,15 @@ func CollectWordGrams(wordGrams []string, timeinterval nt.TimeInterval) ([]hd.Oc
 	occurrenceList, idSet, _ := GetOccurrenceListByDate(timeinterval) // []Occurrence
 	sort.Sort(hd.OccurrenceSorterWord(occurrenceList))
 
-	/* serial version:
-	for _, word := range wordGrams {
-		wordOccurrenceList := selectOccurrenceByWord(occurrenceList, word)	// []Occurrence
-		alphaCollection = append(alphaCollection, wordOccurrenceList...)
-	} */
-
+	// goroutine version:
 	queue := make(chan hd.Occurrence, 32768) // select count(*) from occurrence where word='says' ==> 26273
 	var wg sync.WaitGroup
-
 	for _, word := range wordGrams {
 		wg.Add(1)
 
 		go func(word string) {
 			defer wg.Done()                                                    // Decrement the counter when the goroutine completes.
-			wordOccurrenceList := selectOccurrenceByWord(occurrenceList, word) // []Occurrence
+			wordOccurrenceList := SelectOccurrenceByWord(occurrenceList, word) // []Occurrence
 			for _, wo := range wordOccurrenceList {
 				queue <- wo // avoid data race condition.  queue <- Occurrence(i)
 			}
@@ -450,138 +444,83 @@ func CalcConditionalProbability(startingWordgram string, wordMap map[string]floa
 	return len(wordGrams), nil
 }
 
-// getWhereClause Don't know PostgreSQL limit of IN values.
-func getWhereClause(columnName string, wordGrams []string) string {
-	var sb strings.Builder
-	sb.WriteString(" WHERE " + columnName + " IN (")
-	for ndx := 0; ndx < len(wordGrams); ndx++ {
-		sb.WriteString("'" + wordGrams[ndx] + "'")
-		if ndx < len(wordGrams)-1 {
-			sb.WriteString(",")
-		}
+// GetConditionalByTimeInterval func modifies condProbList pointer which should be declared beforehand. bigramMap does not need to be a pointer.
+func GetConditionalByTimeInterval(bigrams []string, timeInterval nt.TimeInterval, condProbList *[]hd.ConditionalProbability, bigramMap map[string]bool) error {
+	DB, err := dbx.GetDatabaseReference()
+	defer DB.Close()
+
+	inPhrase := dbx.CompileInClause(bigrams)
+	query := "SELECT id, wordlist, probability, timeframetype, startDate, endDate, firstDate, lastDate FROM conditional WHERE wordlist IN " + inPhrase + " AND timeframetype=" +
+		strconv.Itoa(int(timeInterval.Timeframetype)) + " AND startDate >= '" + timeInterval.StartDate.StandardDate() + "' AND endDate <= '" + timeInterval.EndDate.StandardDate() + "'"
+
+	rows, err := DB.Query(query)
+	dbx.CheckErr(err)
+	if err != nil {
+		log.Printf("GetConditionalByTimeInterval(1): %+v\n", err)
+		return err
 	}
-	sb.WriteString(");")
-	return sb.String()
-}
-
-// GetVocabularyMapProbability Read all Vocabulary.Word,Probability values if wordGrams is empty. Applys filtering.
-func GetVocabularyMapProbability(wordGrams []string) (map[string]float32, error) {
-	db, err := dbx.GetDatabaseReference()
-	defer db.Close()
-
-	wordIDMap := make(map[string]float32)
-	var word string
-	var floatField float32
-
-	SELECT := "SELECT Word,Probability FROM vocabulary"
-	if len(wordGrams) > 0 {
-		SELECT = SELECT + getWhereClause("Word", wordGrams)
-	} else {
-		SELECT = SELECT + ";"
-	}
-
-	rows, err := db.Query(SELECT)
-	dbx.CheckErr(err)
-
-	for rows.Next() {
-		err = rows.Scan(&word, &floatField)
-		dbx.CheckErr(err)
-
-		newWord, rule := FilteringRules(word)
-		if rule < 0 {
-			continue
-		} else if rule > 0 {
-			word = newWord
-		}
-
-		wordIDMap[word] = floatField
-	}
-
-	// get any iteration errors
-	err = rows.Err()
-	dbx.CheckErr(err)
-
-	return wordIDMap, err
-}
-
-// GetVocabularyByWord func
-func GetVocabularyByWord(wordX string) hd.Vocabulary {
-	db, err := dbx.GetDatabaseReference()
-	defer db.Close()
-
-	var word, speechPart string
-	var id uint32
-	var rowCount, frequency, wordRank int
-	var probability float32
-	SELECT := "SELECT id, word, rowcount, frequency, wordrank, probability, speechpart FROM Vocabulary WHERE Word='" + wordX + "'"
-	err = db.QueryRow(SELECT).Scan(&id, &word, &rowCount, &frequency, &wordRank, &probability, &speechPart)
-	dbx.CheckErr(err)
-	return hd.Vocabulary{Id: id, Word: word, RowCount: rowCount, Frequency: frequency, WordRank: wordRank, Probability: probability, SpeechPart: speechPart}
-}
-
-// GetVocabularyListByDate reads Vocabulary table filtered by articleList.
-func GetVocabularyListByDate(timeinterval nt.TimeInterval) ([]hd.Vocabulary, error) {
-	start := time.Now()
-	fmt.Print("GetVocabularyListByDate() ")
-
-	db, err := dbx.GetDatabaseReference()
-	defer db.Close()
-
-	SELECT := "SELECT * FROM GetVocabularyByDate('" + timeinterval.StartDate.StandardDate() + "', '" + timeinterval.EndDate.StandardDate() + "')"
-	rows, err := db.Query(SELECT)
-	dbx.CheckErr(err)
 	defer rows.Close()
 
-	// fields to read
-	var word, speechPart string
-	var id uint32
-	var rowCount, frequency, wordRank int
-	var probability float32
-	var vocabList []hd.Vocabulary
+	var cProb hd.ConditionalProbability
+	var timeframetype int
+	var startDate time.Time
+	var endDate time.Time
 
-	for rows.Next() { // this order follows the \d Vocabulary description:
-		err = rows.Scan(&id, &word, &rowCount, &frequency, &wordRank, &probability, &speechPart)
-		dbx.CheckErr(err)
-
-		newWord, rule := FilteringRules(word)
-		if rule < 0 {
-			continue
-		} else if rule > 0 {
-			word = newWord
+	for rows.Next() { // 720,066 total rows per TFTerm.
+		err := rows.Scan(&cProb.Id, &cProb.WordList, &cProb.Probability, &timeframetype, &startDate, &endDate, &cProb.FirstDate, &cProb.LastDate)
+		if err != nil {
+			log.Printf("GetConditionalByTimeInterval(2): %+v\n", err)
+			return err
 		}
-
-		vocabList = append(vocabList, hd.Vocabulary{Id: id, Word: word, RowCount: rowCount, Frequency: frequency, WordRank: wordRank, Probability: probability, SpeechPart: speechPart})
+		bigramMap[cProb.WordList] = true
+		cProb.Timeinterval = nt.New_TimeInterval(nt.TimeFrameType(timeframetype), nt.New_NullTime2(startDate), nt.New_NullTime2(endDate))
+		*condProbList = append(*condProbList, cProb)
 	}
 
 	// get any iteration errors
 	err = rows.Err()
 	dbx.CheckErr(err)
-
-	elapsed := time.Since(start)
-	fmt.Println(elapsed.String())
-
-	return vocabList, err
+	return err
 }
 
-// SelectOccurrenceByWord assumes occurrenceList is sorted by Word.
-func SelectOccurrenceByWord(occurrenceList []hd.Occurrence, word string) []hd.Occurrence {
-	var subList []hd.Occurrence
-	for ndx := 0; ndx < len(occurrenceList); ndx++ {
-		order := strings.Compare(occurrenceList[ndx].Word, word)
-		if order < 0 {
-			continue
+// GetConditionalByProbability func
+func GetConditionalByProbability(word string, probabilityCutoff float32, timeInterval nt.TimeInterval, condProbList *[]hd.ConditionalProbability) error {
+	DB, err := dbx.GetDatabaseReference()
+	defer DB.Close()
+
+	prefix := "'" + word + "|%'"
+	postfix := "'%|" + word + "'"
+	query := "SELECT id, wordlist, probability, timeframetype, startDate, endDate, firstDate, lastDate FROM conditional WHERE timeframetype=" +
+		strconv.Itoa(int(timeInterval.Timeframetype)) + " AND startDate >= '" + timeInterval.StartDate.StandardDate() + "' AND endDate <= '" + timeInterval.EndDate.StandardDate() + "' AND " +
+		"(wordlist LIKE " + prefix + " OR wordlist LIKE " + postfix + ")"
+
+	rows, err := DB.Query(query)
+	dbx.CheckErr(err)
+	if err != nil {
+		log.Printf("GetConditionalByProbability(1): %+v\n", err)
+		return err
+	}
+	defer rows.Close()
+
+	var cProb hd.ConditionalProbability
+	var timeframetype int
+	var startDate time.Time
+	var endDate time.Time
+
+	for rows.Next() {
+		err := rows.Scan(&cProb.Id, &cProb.WordList, &cProb.Probability, &timeframetype, &startDate, &endDate, &cProb.FirstDate, &cProb.LastDate)
+		if err != nil {
+			log.Printf("GetConditionalByProbability(2): %+v\n", err)
+			return err
 		}
-		if order == 0 {
-			subList = append(subList, occurrenceList[ndx])
-		}
-		if order > 0 {
-			break
+		if cProb.Probability >= probabilityCutoff && (strings.HasPrefix(cProb.WordList, word+"|") || strings.HasSuffix(cProb.WordList, "|"+word)) { // remove prefix-postfix words.
+			cProb.Timeinterval = nt.New_TimeInterval(nt.TimeFrameType(timeframetype), nt.New_NullTime2(startDate), nt.New_NullTime2(endDate))
+			*condProbList = append(*condProbList, cProb)
 		}
 	}
-	return subList
-}
 
-// GetConditionalByTimeInterval func returns populated condProbList which must be pre-allocated.
-func GetConditionalByTimeInterval(bigram string, timeInterval nt.TimeInterval, condProbList []hd.ConditionalProbability) error {
-	return nil //<<<<
+	// get any iteration errors
+	err = rows.Err()
+	dbx.CheckErr(err)
+	return err
 }

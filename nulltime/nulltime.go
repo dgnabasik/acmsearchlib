@@ -17,6 +17,7 @@ import (
 	timestamp "github.com/golang/protobuf/ptypes/timestamp"
 )
 
+// Version func
 func Version() string {
 	return "1.0.10"
 }
@@ -46,8 +47,8 @@ func GetShortMonthName(m int) string {
 	}
 }
 
-// indexOf(string) returns default 0th element. ONLY for shortMonthNames & longMonthNames!
-func indexOf(element string, data []string) int {
+// indexOfMonth(string) returns default 0th element. ONLY for shortMonthNames & longMonthNames!
+func indexOfMonth(element string, data []string) int {
 	for k, v := range data {
 		if element == v {
 			return k
@@ -56,8 +57,8 @@ func indexOf(element string, data []string) int {
 	return 0 //not found.
 }
 
-// return index else -1
-func stringSliceContains(a []string, x string) (int, bool) {
+// StringSliceContains func return index else -1
+func StringSliceContains(a []string, x string) (int, bool) {
 	for ndx, n := range a {
 		if x == n {
 			return ndx, true
@@ -469,16 +470,16 @@ func New_NullTime1(dt string) NullTime {
 		return New_NullTime(NullDate)
 	}
 
-	_, longMonth := stringSliceContains(longMonthNames, tokens[0]+" ")
-	_, shortMonth := stringSliceContains(shortMonthNames, tokens[0]+" ")
+	_, longMonth := StringSliceContains(longMonthNames, tokens[0]+" ")
+	_, shortMonth := StringSliceContains(shortMonthNames, tokens[0]+" ")
 	if longMonth || shortMonth {
 		tokens[1] = strings.Trim(tokens[1], ",")
 		month, _ := strconv.Atoi(tokens[1])
 		str := tokens[2] + "-"
 		if longMonth {
-			str += leadingZeroNumbers[indexOf(tokens[0]+" ", longMonthNames)] + "-" + leadingZeroNumbers[month]
+			str += leadingZeroNumbers[indexOfMonth(tokens[0]+" ", longMonthNames)] + "-" + leadingZeroNumbers[month]
 		} else {
-			str += leadingZeroNumbers[indexOf(tokens[0]+" ", shortMonthNames)] + "-" + leadingZeroNumbers[month]
+			str += leadingZeroNumbers[indexOfMonth(tokens[0]+" ", shortMonthNames)] + "-" + leadingZeroNumbers[month]
 		}
 		return New_NullTime(str)
 	}
@@ -599,7 +600,7 @@ func NullTimeToday() NullTime {
 
 // GetStandardDateForm converts mmm-dd-yyyy to yyyy-mm-dd
 func GetStandardDateForm(dt string) string {
-	return dt[7:11] + "-" + leadingZeroNumbers[indexOf(dt[0:3], shortMonthNames)] + "-" + dt[4:6]
+	return dt[7:11] + "-" + leadingZeroNumbers[indexOfMonth(dt[0:3], shortMonthNames)] + "-" + dt[4:6]
 }
 
 /********************************************************************************/

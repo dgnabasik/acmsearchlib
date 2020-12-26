@@ -27,6 +27,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	nt "github.com/dgnabasik/acmsearchlib/nulltime"
@@ -37,6 +38,7 @@ import (
 
 // mapset https://github.com/deckarep/golang-set/blob/master/README.md & https://godoc.org/github.com/deckarep/golang-set
 
+// Version func
 func Version() string {
 	return "1.0.10"
 }
@@ -125,6 +127,30 @@ func CallTruncateTables() error {
 
 	fmt.Println("CallTruncateTables() done.")
 	return nil
+}
+
+// CompileInClause func inserts quote marks for IN db clause.
+func CompileInClause(words []string) string {
+	wordlist := make([]string, 0)
+	for _, word := range words {
+		w := strings.TrimSpace(word)
+		wordlist = append(wordlist, "'"+w+"'")
+	}
+	return " (" + strings.Join(wordlist, ", ") + ") "
+}
+
+// GetWhereClause Don't know PostgreSQL limit of IN values.
+func GetWhereClause(columnName string, wordGrams []string) string {
+	var sb strings.Builder
+	sb.WriteString(" WHERE " + columnName + " IN (")
+	for ndx := 0; ndx < len(wordGrams); ndx++ {
+		sb.WriteString("'" + wordGrams[ndx] + "'")
+		if ndx < len(wordGrams)-1 {
+			sb.WriteString(",")
+		}
+	}
+	sb.WriteString(");")
+	return sb.String()
 }
 
 // GetArticleCount func
