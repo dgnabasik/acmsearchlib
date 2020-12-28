@@ -1,4 +1,4 @@
-module vocabulary
+module github.com/dgnabasik/acmsearchlib/vocabulary
 
 go 1.15
 
