@@ -1,5 +1,5 @@
 module github.com/dgnabasik/acmsearchlib/vocabulary
-
+// comment
 go 1.15
 
 require (
