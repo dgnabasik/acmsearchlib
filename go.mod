@@ -9,6 +9,7 @@ require (
 	github.com/dgnabasik/acmsearchlib/headers v0.0.0-20201226155707-98d1bb06e87f
 	github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20201226155707-98d1bb06e87f
 	github.com/dgnabasik/acmsearchlib/timestampinterval v0.0.0-20201226155707-98d1bb06e87f
+	github.com/dgnabasik/acmsearchlib/vocabulary v0.0.0-20201228151831-65ceeb95450f
 	github.com/go-log/log v0.2.0 // indirect
 	github.com/golang/protobuf v1.4.3
 	github.com/google/uuid v1.1.2 // indirect

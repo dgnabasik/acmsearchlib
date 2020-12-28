@@ -17,6 +17,11 @@ import (
 	_ "github.com/lib/pq"
 )
 
+// Version func
+func Version() string {
+	return "1.0.10"
+}
+
 // GetVocabularyByWord func
 func GetVocabularyByWord(wordX string) hd.Vocabulary {
 	db, err := dbx.GetDatabaseReference()

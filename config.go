@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	art "github.com/dgnabasik/acmsearchlib/article"
 	cond "github.com/dgnabasik/acmsearchlib/conditional"
 	dbase "github.com/dgnabasik/acmsearchlib/database"
@@ -8,13 +10,24 @@ import (
 	hd "github.com/dgnabasik/acmsearchlib/headers"
 	nt "github.com/dgnabasik/acmsearchlib/nulltime"
 	tsi "github.com/dgnabasik/acmsearchlib/timestampinterval"
+	voc "github.com/dgnabasik/acmsearchlib/vocabulary"
 	ws "github.com/dgnabasik/acmsearchlib/wordscore"
 )
 
+// Config func
 func Config() []string {
-	return []string{"acmsearchlib config", art.Version(), cond.Version(), dbase.Version(), fs.Version(), hd.Version(), nt.Version(), tsi.Version(), ws.Version()}
+	return []string{"acmsearchlib config",
+		"\ndatabase:" + dbase.Version(),
+		"\nfilesystem:" + fs.Version(),
+		"\nheaders:" + hd.Version(),
+		"\nnulltime:" + nt.Version(),
+		"\ntimestampinterval:" + tsi.Version(),
+		"\nvocabulary:" + voc.Version(),
+		"\narticle:" + art.Version(),
+		"\nconditional:" + cond.Version(),
+		"\nwordscore:" + ws.Version()}
 }
 
 func main() {
-	Config()
+	fmt.Println(Config())
 }

@@ -14,7 +14,7 @@ grep -l $1 ./nulltime/nulltime.go
 grep -l $1 ./nulltime/nulltime_test.go
 grep -l $1 ./timeevent/timeevent.pb.go
 grep -l $1 ./timeevent/timeevent.micro.go
-grep -l $1 ./timeevent/timeevent.pb.micro.go
+#grep -l $1 ./timeevent/timeevent.pb.micro.go
 grep -l $1 ./timestampinterval/timestampinterval.go
 grep -l $1 ./timestampinterval/timestampinterval.pb.go
 grep -l $1 ./timestampinterval/timestampinterval.pb.micro.go
@@ -22,7 +22,7 @@ grep -l $1 ./timestampinterval/timestampinterval.micro.go
 grep -l $1 ./vocabulary/vocabulary.go
 grep -l $1 ./webpage/webpage.pb.go
 grep -l $1 ./webpage/webpage.micro.go
-grep -l $1 ./webpage/webpage.pb.micro.go
+#grep -l $1 ./webpage/webpage.pb.micro.go
 grep -l $1 ./wordscore/wordscore.pb.go
 grep -l $1 ./wordscore/wordscore.micro.go
 grep -l $1 ./wordscore/wordscore.pb.micro.go
