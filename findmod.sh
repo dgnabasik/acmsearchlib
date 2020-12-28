@@ -10,4 +10,7 @@ echo "./headers/go.mod"
 grep -i $1 ./headers/go.mod
 echo "./nulltime/go.mod"
 grep -i $1 ./nulltime/go.mod
-
+echo "./vocabulary/go.mod"
+grep -i $1 ./vocabulary/go.mod
+echo "./conditional/go.mod"
+grep -i $1 ./conditional/go.mod
