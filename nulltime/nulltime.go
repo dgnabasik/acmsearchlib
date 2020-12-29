@@ -88,6 +88,11 @@ func (tft TimeFrameType) ToString() string {
 	return [...]string{Unknown, "Week", "Month", "Quarter", "Year", "Term", "Span"}[tft]
 }
 
+// ToStrings method
+func (tft TimeFrameType) ToStrings() []string {
+	return []string{Unknown, "Week", "Month", "Quarter", "Year", "Term", "Span"}
+}
+
 // TimeInterval struct
 type TimeInterval struct {
 	Timeframetype TimeFrameType
