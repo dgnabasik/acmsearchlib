@@ -27,6 +27,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -134,9 +135,21 @@ func CompileInClause(words []string) string {
 	wordlist := make([]string, 0)
 	for _, word := range words {
 		w := strings.TrimSpace(word)
-		wordlist = append(wordlist, "'"+w+"'")
+		if len(w) > 0 {
+			wordlist = append(wordlist, "'"+w+"'")
+		}
 	}
 	return " (" + strings.Join(wordlist, ", ") + ") "
+}
+
+// CompileDateClause func
+func CompileDateClause(timeInterval nt.TimeInterval) string {
+	return "timeframetype=" + strconv.Itoa(int(timeInterval.Timeframetype)) + " AND startDate >= '" + timeInterval.StartDate.StandardDate() + "' AND endDate <= '" + timeInterval.EndDate.StandardDate() + "'"
+}
+
+// GetDateClause func includes parentheses.
+func GetFormattedDatesForProcedure(timeInterval nt.TimeInterval) string {
+	return "('" + timeInterval.StartDate.StandardDate() + "', '" + timeInterval.EndDate.StandardDate() + "')"
 }
 
 // GetWhereClause Don't know PostgreSQL limit of IN values.

@@ -1,4 +1,10 @@
 cd ~/go/src/github.com/dgnabasik/acmsearchlib
+echo dgnabasik
+echo -n "push?"
+read
+git add --all :/
+git commit -am "Release 1.0.0"
+git push -u origin main
 
 cd ./nulltime
  go mod tidy
@@ -56,11 +62,13 @@ cd ./conditional
  read 
  cd ..
 
-echo dgnabasik
-echo -n "push?"
-read
-git add --all :/
-git commit -am "Release 1.0.0"
-git push -u origin main
+cd ./wordscore
+ go mod tidy
+ go build
+ go install
+ echo -n "?"
+ read 
+ cd ..
+
 go get -u github.com/dgnabasik/acmsearchlib
 echo "done!"

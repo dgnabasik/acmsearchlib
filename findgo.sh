@@ -23,6 +23,7 @@ grep -l $1 ./vocabulary/vocabulary.go
 grep -l $1 ./webpage/webpage.pb.go
 grep -l $1 ./webpage/webpage.micro.go
 #grep -l $1 ./webpage/webpage.pb.micro.go
+grep -l $1 ./wordscore/wordscore.go
 grep -l $1 ./wordscore/wordscore.pb.go
 grep -l $1 ./wordscore/wordscore.micro.go
 grep -l $1 ./wordscore/wordscore.pb.micro.go

@@ -3,10 +3,8 @@ package vocabulary
 //  vocabulary.go manages hd.Vocabulary in database.
 
 import (
-	"fmt"
 	"log"
 	"strings"
-	"time"
 
 	cond "github.com/dgnabasik/acmsearchlib/conditional"
 	dbx "github.com/dgnabasik/acmsearchlib/database"
@@ -112,15 +110,48 @@ func GetVocabularyList(words []string) ([]hd.Vocabulary, error) {
 	return vocabularyList, err
 }
 
+// GetWordListMap method returns all words if prefix is blank.
+func GetWordListMap(prefix string) ([]hd.LookupMap, error) {
+	DB, err := dbx.GetDatabaseReference()
+	defer DB.Close()
+
+	query := "SELECT id, word FROM vocabulary ORDER BY word"
+	if len(prefix) > 0 {
+		query = "SELECT id, word FROM vocabulary WHERE word LIKE '" + strings.ToLower(prefix) + "%' ORDER BY word"
+	}
+	rows, err := DB.Query(query)
+	dbx.CheckErr(err)
+	if err != nil {
+		log.Printf("GetWordList(1): %+v\n", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var word string
+	var id int
+	lookupMap := make([]hd.LookupMap, 0)
+	for rows.Next() {
+		err := rows.Scan(&id, &word)
+		if err != nil {
+			log.Printf("GetWordList(2): %+v\n", err)
+			return nil, err
+		}
+		lookupMap = append(lookupMap, hd.LookupMap{Value: id, Label: word})
+	}
+
+	// get any iteration errors
+	err = rows.Err()
+	dbx.CheckErr(err)
+
+	return lookupMap, err
+}
+
 // GetVocabularyListByDate reads Vocabulary table filtered by articleList.
 func GetVocabularyListByDate(timeinterval nt.TimeInterval) ([]hd.Vocabulary, error) {
-	start := time.Now()
-	fmt.Print("GetVocabularyListByDate() ")
-
 	db, err := dbx.GetDatabaseReference()
 	defer db.Close()
 
-	SELECT := "SELECT * FROM GetVocabularyByDate('" + timeinterval.StartDate.StandardDate() + "', '" + timeinterval.EndDate.StandardDate() + "')"
+	SELECT := "SELECT * FROM GetVocabularyByDate" + dbx.GetFormattedDatesForProcedure(timeinterval)
 	rows, err := db.Query(SELECT)
 	dbx.CheckErr(err)
 	defer rows.Close()
@@ -149,9 +180,6 @@ func GetVocabularyListByDate(timeinterval nt.TimeInterval) ([]hd.Vocabulary, err
 	// get any iteration errors
 	err = rows.Err()
 	dbx.CheckErr(err)
-
-	elapsed := time.Since(start)
-	fmt.Println(elapsed.String())
 
 	return vocabList, err
 }

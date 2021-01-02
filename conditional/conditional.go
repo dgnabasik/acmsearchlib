@@ -135,8 +135,8 @@ func SelectOccurrenceByWord(occurrenceList []hd.Occurrence, word string) []hd.Oc
 func GetOccurrenceListByDate(timeinterval nt.TimeInterval) ([]hd.Occurrence, mapset.Set, error) {
 	db, err := dbx.GetDatabaseReference()
 	defer db.Close()
-	// Invoke stored procedure.
-	SELECT := "SELECT * FROM GetOccurrencesByDate('" + timeinterval.StartDate.StandardDate() + "', '" + timeinterval.EndDate.StandardDate() + "')"
+
+	SELECT := "SELECT * FROM GetOccurrencesByDate'" + dbx.GetFormattedDatesForProcedure(timeinterval)
 	rows, err := db.Query(SELECT)
 	dbx.CheckErr(err)
 	defer rows.Close()
@@ -450,9 +450,7 @@ func GetConditionalByTimeInterval(bigrams []string, timeInterval nt.TimeInterval
 	defer DB.Close()
 
 	inPhrase := dbx.CompileInClause(bigrams)
-	query := "SELECT id, wordlist, probability, timeframetype, startDate, endDate, firstDate, lastDate FROM conditional WHERE wordlist IN " + inPhrase + " AND timeframetype=" +
-		strconv.Itoa(int(timeInterval.Timeframetype)) + " AND startDate >= '" + timeInterval.StartDate.StandardDate() + "' AND endDate <= '" + timeInterval.EndDate.StandardDate() + "'"
-
+	query := "SELECT id, wordlist, probability, timeframetype, startDate, endDate, firstDate, lastDate FROM conditional WHERE wordlist IN " + inPhrase + " AND " + CompileDateClause(timeInterval)
 	rows, err := DB.Query(query)
 	dbx.CheckErr(err)
 	if err != nil {
@@ -490,9 +488,8 @@ func GetConditionalByProbability(word string, probabilityCutoff float32, timeInt
 
 	prefix := "'" + word + "|%'"
 	postfix := "'%|" + word + "'"
-	query := "SELECT id, wordlist, probability, timeframetype, startDate, endDate, firstDate, lastDate FROM conditional WHERE timeframetype=" +
-		strconv.Itoa(int(timeInterval.Timeframetype)) + " AND startDate >= '" + timeInterval.StartDate.StandardDate() + "' AND endDate <= '" + timeInterval.EndDate.StandardDate() + "' AND " +
-		"(wordlist LIKE " + prefix + " OR wordlist LIKE " + postfix + ")"
+	query := "SELECT id, wordlist, probability, timeframetype, startDate, endDate, firstDate, lastDate FROM conditional WHERE " + CompileDateClause(timeInterval) +
+		+" AND (wordlist LIKE " + prefix + " OR wordlist LIKE " + postfix + ")"
 
 	rows, err := DB.Query(query)
 	dbx.CheckErr(err)

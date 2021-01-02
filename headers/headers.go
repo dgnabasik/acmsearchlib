@@ -65,6 +65,12 @@ func GetOrderedMap(fieldNames []string) map[int]string {
 	return orderedMap
 }
 
+// LookupMap struct handles unique key(string)-value(string) pairs, but must be returned to client as an array and not a map.
+type LookupMap struct {
+	Value int    `json:"value" binding:"required"`
+	Label string `json:"label" binding:"required"`
+}
+
 /*************************************************************************************************/
 
 // KeyValuePairInterface interface for AcmArticle, Vocabulary, Occurrence, WordScore structs.
