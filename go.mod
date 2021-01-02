@@ -3,13 +3,13 @@ module github.com/dgnabasik/acmsearchlib
 go 1.15
 
 require (
-	github.com/dgnabasik/acmsearchlib/conditional v0.0.0-20210102132403-dc323dd6077c
-	github.com/dgnabasik/acmsearchlib/database v0.0.0-20201229144918-2c3012e32e5f
-	github.com/dgnabasik/acmsearchlib/filesystem v0.0.0-20201229144918-2c3012e32e5f
-	github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210102132403-dc323dd6077c
-	github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20201229144918-2c3012e32e5f
-	github.com/dgnabasik/acmsearchlib/timestampinterval v0.0.0-20210102132403-dc323dd6077c
-	github.com/dgnabasik/acmsearchlib/vocabulary v0.0.0-20201229144918-2c3012e32e5f
+	github.com/dgnabasik/acmsearchlib/conditional v0.0.0-20210102133359-c6c540bba695
+	github.com/dgnabasik/acmsearchlib/database v0.0.0-20210102133359-c6c540bba695
+	github.com/dgnabasik/acmsearchlib/filesystem v0.0.0-20210102133359-c6c540bba695
+	github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210102133359-c6c540bba695
+	github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210102133359-c6c540bba695
+	github.com/dgnabasik/acmsearchlib/timestampinterval v0.0.0-20210102133359-c6c540bba695
+	github.com/dgnabasik/acmsearchlib/vocabulary v0.0.0-20210102133359-c6c540bba695
 	github.com/go-log/log v0.2.0 // indirect
 	github.com/golang/protobuf v1.4.3
 	github.com/google/uuid v1.1.3 // indirect

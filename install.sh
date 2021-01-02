@@ -1,3 +1,4 @@
+echo "Still need timeevent."
 cd ~/go/src/github.com/dgnabasik/acmsearchlib
 echo dgnabasik
 echo -n "push?"
@@ -7,7 +8,7 @@ git commit -am "Release 1.0.0"
 git push -u origin main
 
 cd ./nulltime
- go mod tidy
+ go get -u ./...
  go build
  go install
  echo -n "?"
@@ -15,7 +16,7 @@ cd ./nulltime
  cd ..
 
 cd ./headers
- go mod tidy
+ go get -u ./...
  go build
  go install
  echo -n "?"
@@ -23,7 +24,7 @@ cd ./headers
  cd ..
 
 cd ./filesystem
- go mod tidy
+ go get -u ./...
  go build
  go install
  echo -n "?"
@@ -31,7 +32,7 @@ cd ./filesystem
  cd ..
 
 cd ./database
- go mod tidy
+ go get -u ./...
  go build
  go install
  echo -n "?"
@@ -39,7 +40,7 @@ cd ./database
  cd ..
 
 cd ./timestampinterval
- go mod tidy
+ go get -u ./...
  go build
  go install
  echo -n "?"
@@ -47,7 +48,15 @@ cd ./timestampinterval
  cd ..
 
 cd ./vocabulary
- go mod tidy
+ go get -u ./...
+ go build
+ go install
+ echo -n "?"
+ read 
+ cd ..
+
+cd ./article
+ go get -u ./...
  go build
  go install
  echo -n "?"
@@ -55,7 +64,7 @@ cd ./vocabulary
  cd ..
 
 cd ./conditional
- go mod tidy
+ go get -u ./...
  go build
  go install
  echo -n "?"
@@ -63,7 +72,7 @@ cd ./conditional
  cd ..
 
 cd ./wordscore
- go mod tidy
+ go get -u ./...
  go build
  go install
  echo -n "?"
