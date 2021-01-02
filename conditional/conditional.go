@@ -450,7 +450,7 @@ func GetConditionalByTimeInterval(bigrams []string, timeInterval nt.TimeInterval
 	defer DB.Close()
 
 	inPhrase := dbx.CompileInClause(bigrams)
-	query := "SELECT id, wordlist, probability, timeframetype, startDate, endDate, firstDate, lastDate FROM conditional WHERE wordlist IN " + inPhrase + " AND " + CompileDateClause(timeInterval)
+	query := "SELECT id, wordlist, probability, timeframetype, startDate, endDate, firstDate, lastDate FROM conditional WHERE wordlist IN " + inPhrase + " AND " + dbx.CompileDateClause(timeInterval)
 	rows, err := DB.Query(query)
 	dbx.CheckErr(err)
 	if err != nil {
@@ -488,8 +488,8 @@ func GetConditionalByProbability(word string, probabilityCutoff float32, timeInt
 
 	prefix := "'" + word + "|%'"
 	postfix := "'%|" + word + "'"
-	query := "SELECT id, wordlist, probability, timeframetype, startDate, endDate, firstDate, lastDate FROM conditional WHERE " + CompileDateClause(timeInterval) +
-		+" AND (wordlist LIKE " + prefix + " OR wordlist LIKE " + postfix + ")"
+	query := "SELECT id, wordlist, probability, timeframetype, startDate, endDate, firstDate, lastDate FROM conditional WHERE " + dbx.CompileDateClause(timeInterval) +
+		" AND (wordlist LIKE " + prefix + " OR wordlist LIKE " + postfix + ")"
 
 	rows, err := DB.Query(query)
 	dbx.CheckErr(err)
