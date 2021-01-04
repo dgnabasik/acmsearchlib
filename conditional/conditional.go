@@ -136,7 +136,7 @@ func GetOccurrenceListByDate(timeinterval nt.TimeInterval) ([]hd.Occurrence, map
 	db, err := dbx.GetDatabaseReference()
 	defer db.Close()
 
-	SELECT := "SELECT * FROM GetOccurrencesByDate'" + dbx.GetFormattedDatesForProcedure(timeinterval)
+	SELECT := "SELECT * FROM GetOccurrencesByDate" + dbx.GetFormattedDatesForProcedure(timeinterval)
 	rows, err := db.Query(SELECT)
 	dbx.CheckErr(err)
 	defer rows.Close()
