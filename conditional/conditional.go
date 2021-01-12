@@ -337,11 +337,11 @@ func BulkInsertConditionalProbability(conditionals []hd.ConditionalProbability) 
 	txn, err := db.Begin()
 	dbx.CheckErr(err)
 
-	stmt, err := db.Prepare("INSERT INTO Conditional (wordlist, probability, timeframetype, startDate, endDate, firstDate, lastDate) VALUES ($1, $2, $3, $4, $5, $6, $7)")
+	stmt, err := db.Prepare("INSERT INTO Conditional (wordlist, probability, timeframetype, startDate, endDate, firstDate, lastDate, pmi, dateUpdated) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)")
 	dbx.CheckErr(err)
 
 	for _, v := range conditionals {
-		_, err = stmt.Exec(v.WordList, v.Probability, v.Timeinterval.Timeframetype, v.Timeinterval.StartDate.DT, v.Timeinterval.EndDate.DT, v.FirstDate.DT, v.LastDate.DT)
+		_, err = stmt.Exec(v.WordList, v.Probability, v.Timeinterval.Timeframetype, v.Timeinterval.StartDate.DT, v.Timeinterval.EndDate.DT, v.FirstDate.DT, v.LastDate.DT, v.Pmi, v.DateUpdated.DT)
 		dbx.CheckErr(err)
 	}
 
@@ -398,12 +398,13 @@ func CalcConditionalProbability(startingWordgram string, wordMap map[string]floa
 	defer DB1.Close()
 
 	var conditionals []hd.ConditionalProbability
-	var condProb1, condProb2 float32 // must match function RETURNS TABLE names.
-	var firstDate, lastDate time.Time
+	var condProb1, condProb2, pmi float32 // must match function RETURNS TABLE names.
+	var firstDate, lastDate, dateUpdated time.Time
 	var firstDateValue, lastDateValue nt.NullTime
 	var totalInserts int64
 	startDateParam := FormatDate(timeinterval.StartDate.DT)
-	endDateParam := FormatDate(timeinterval.EndDate.DT)
+	// The 2 stored procs use BETWEEN dates so enddate is start of next time period (plus 1 day).
+	endDateParam := FormatDate(timeinterval.EndDate.DT.AddDate(0, 0, 1))
 
 	if permutations == 2 {
 		for wordA := 0; wordA < len(wordGrams)-1; wordA++ {
@@ -412,12 +413,12 @@ func CalcConditionalProbability(startingWordgram string, wordMap map[string]floa
 			}
 			conditionals = nil
 			fmt.Print(wordGrams[wordA] + "  ")
-
 			for wordB := wordA + 1; wordB < len(wordGrams); wordB++ {
 				if strings.Compare(wordGrams[wordB], wordBstart) <= 0 {
 					continue
 				}
-				err = DB1.QueryRow(`SELECT condProb1, condProb2 FROM GetConditionalProbabilities($1, $2, $3, $4)`, wordGrams[wordA], wordGrams[wordB], startDateParam, endDateParam).Scan(&condProb1, &condProb2)
+				today := time.Now().UTC()
+				err = DB1.QueryRow(`SELECT condProb1, condProb2, pmi FROM GetConditionalProbabilities($1, $2, $3, $4)`, wordGrams[wordA], wordGrams[wordB], startDateParam, endDateParam).Scan(&condProb1, &condProb2, &pmi)
 				dbx.CheckErr(err)
 				if condProb1 > cutoffProbability && condProb2 > cutoffProbability {
 					err = DB1.QueryRow(`SELECT firstDate, lastDate FROM GetFirstLastArchiveDates($1, $2, $3, $4)`, wordGrams[wordA], wordGrams[wordB], startDateParam, endDateParam).Scan(&firstDate, &lastDate)
@@ -425,9 +426,9 @@ func CalcConditionalProbability(startingWordgram string, wordMap map[string]floa
 					firstDateValue = nt.New_NullTime2(firstDate) // must match function RETURNS TABLE names.
 					lastDateValue = nt.New_NullTime2(lastDate)
 					wordlist := wordGrams[wordA] + "|" + wordGrams[wordB]
-					conditionals = append(conditionals, hd.ConditionalProbability{Id: 0, WordList: wordlist, Probability: condProb1, Timeinterval: timeinterval, FirstDate: firstDateValue, LastDate: lastDateValue})
+					conditionals = append(conditionals, hd.ConditionalProbability{Id: 0, WordList: wordlist, Probability: condProb1, Timeinterval: timeinterval, FirstDate: firstDateValue, LastDate: lastDateValue, Pmi: pmi, DateUpdated: today})
 					wordlist = wordGrams[wordB] + "|" + wordGrams[wordA]
-					conditionals = append(conditionals, hd.ConditionalProbability{Id: 0, WordList: wordlist, Probability: condProb2, Timeinterval: timeinterval, FirstDate: firstDateValue, LastDate: lastDateValue})
+					conditionals = append(conditionals, hd.ConditionalProbability{Id: 0, WordList: wordlist, Probability: condProb2, Timeinterval: timeinterval, FirstDate: firstDateValue, LastDate: lastDateValue, Pmi: pmi, DateUpdated: today})
 				}
 			}
 
@@ -450,7 +451,7 @@ func GetConditionalByTimeInterval(bigrams []string, timeInterval nt.TimeInterval
 	defer DB.Close()
 
 	inPhrase := dbx.CompileInClause(bigrams)
-	query := "SELECT id, wordlist, probability, timeframetype, startDate, endDate, firstDate, lastDate FROM conditional WHERE wordlist IN " + inPhrase + " AND " + dbx.CompileDateClause(timeInterval)
+	query := "SELECT id, wordlist, probability, timeframetype, startDate, endDate, firstDate, lastDate, pmi, dateUpdated FROM conditional WHERE wordlist IN " + inPhrase + " AND " + dbx.CompileDateClause(timeInterval)
 	rows, err := DB.Query(query)
 	dbx.CheckErr(err)
 	if err != nil {
@@ -465,7 +466,7 @@ func GetConditionalByTimeInterval(bigrams []string, timeInterval nt.TimeInterval
 	var endDate time.Time
 
 	for rows.Next() { // 720,066 total rows per TFTerm.
-		err := rows.Scan(&cProb.Id, &cProb.WordList, &cProb.Probability, &timeframetype, &startDate, &endDate, &cProb.FirstDate, &cProb.LastDate)
+		err := rows.Scan(&cProb.Id, &cProb.WordList, &cProb.Probability, &timeframetype, &startDate, &endDate, &cProb.FirstDate, &cProb.LastDate, &cProb.Pmi, &cProb.DateUpdated)
 		if err != nil {
 			log.Printf("GetConditionalByTimeInterval(2): %+v\n", err)
 			return err
@@ -488,7 +489,7 @@ func GetConditionalByProbability(word string, probabilityCutoff float32, timeInt
 
 	prefix := "'" + word + "|%'"
 	postfix := "'%|" + word + "'"
-	query := "SELECT id, wordlist, probability, timeframetype, startDate, endDate, firstDate, lastDate FROM conditional WHERE " + dbx.CompileDateClause(timeInterval) +
+	query := "SELECT id, wordlist, probability, timeframetype, startDate, endDate, firstDate, lastDate, pmi, dateUpdated FROM conditional WHERE " + dbx.CompileDateClause(timeInterval) +
 		" AND (wordlist LIKE " + prefix + " OR wordlist LIKE " + postfix + ")"
 
 	rows, err := DB.Query(query)
@@ -505,7 +506,7 @@ func GetConditionalByProbability(word string, probabilityCutoff float32, timeInt
 	var endDate time.Time
 
 	for rows.Next() {
-		err := rows.Scan(&cProb.Id, &cProb.WordList, &cProb.Probability, &timeframetype, &startDate, &endDate, &cProb.FirstDate, &cProb.LastDate)
+		err := rows.Scan(&cProb.Id, &cProb.WordList, &cProb.Probability, &timeframetype, &startDate, &endDate, &cProb.FirstDate, &cProb.LastDate, &cProb.Pmi, &cProb.DateUpdated)
 		if err != nil {
 			log.Printf("GetConditionalByProbability(2): %+v\n", err)
 			return err
