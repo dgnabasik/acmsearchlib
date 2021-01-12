@@ -399,7 +399,7 @@ func CalcConditionalProbability(startingWordgram string, wordMap map[string]floa
 
 	var conditionals []hd.ConditionalProbability
 	var condProb1, condProb2, pmi float32 // must match function RETURNS TABLE names.
-	var firstDate, lastDate, dateUpdated time.Time
+	var firstDate, lastDate time.Time
 	var firstDateValue, lastDateValue nt.NullTime
 	var totalInserts int64
 	startDateParam := FormatDate(timeinterval.StartDate.DT)
@@ -417,7 +417,7 @@ func CalcConditionalProbability(startingWordgram string, wordMap map[string]floa
 				if strings.Compare(wordGrams[wordB], wordBstart) <= 0 {
 					continue
 				}
-				today := time.Now().UTC()
+				today := nt.NullTimeToday()
 				err = DB1.QueryRow(`SELECT condProb1, condProb2, pmi FROM GetConditionalProbabilities($1, $2, $3, $4)`, wordGrams[wordA], wordGrams[wordB], startDateParam, endDateParam).Scan(&condProb1, &condProb2, &pmi)
 				dbx.CheckErr(err)
 				if condProb1 > cutoffProbability && condProb2 > cutoffProbability {
