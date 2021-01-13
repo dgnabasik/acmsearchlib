@@ -398,7 +398,7 @@ func CalcConditionalProbability(startingWordgram string, wordMap map[string]floa
 	defer DB1.Close()
 
 	var conditionals []hd.ConditionalProbability
-	var condProb1, condProb2, pmi float32 // must match function RETURNS TABLE names.
+	var pAgivenB, pBgivenA, pmi float32 // must match function RETURNS TABLE names.
 	var firstDate, lastDate time.Time
 	var firstDateValue, lastDateValue nt.NullTime
 	var totalInserts int64
@@ -418,17 +418,17 @@ func CalcConditionalProbability(startingWordgram string, wordMap map[string]floa
 					continue
 				}
 				today := nt.NullTimeToday()
-				err = DB1.QueryRow(`SELECT condProb1, condProb2, pmi FROM GetConditionalProbabilities($1, $2, $3, $4)`, wordGrams[wordA], wordGrams[wordB], startDateParam, endDateParam).Scan(&condProb1, &condProb2, &pmi)
+				err = DB1.QueryRow(`SELECT pAgivenB, pBgivenA, pmi FROM GetConditionalProbabilities($1, $2, $3, $4)`, wordGrams[wordA], wordGrams[wordB], startDateParam, endDateParam).Scan(&pAgivenB, &pBgivenA, &pmi)
 				dbx.CheckErr(err)
-				if condProb1 > cutoffProbability && condProb2 > cutoffProbability {
+				if pAgivenB > cutoffProbability && pBgivenA > cutoffProbability {
 					err = DB1.QueryRow(`SELECT firstDate, lastDate FROM GetFirstLastArchiveDates($1, $2, $3, $4)`, wordGrams[wordA], wordGrams[wordB], startDateParam, endDateParam).Scan(&firstDate, &lastDate)
 					dbx.CheckErr(err)                            // firstDate, lastDate can be null!
 					firstDateValue = nt.New_NullTime2(firstDate) // must match function RETURNS TABLE names.
 					lastDateValue = nt.New_NullTime2(lastDate)
 					wordlist := wordGrams[wordA] + "|" + wordGrams[wordB]
-					conditionals = append(conditionals, hd.ConditionalProbability{Id: 0, WordList: wordlist, Probability: condProb1, Timeinterval: timeinterval, FirstDate: firstDateValue, LastDate: lastDateValue, Pmi: pmi, DateUpdated: today})
+					conditionals = append(conditionals, hd.ConditionalProbability{Id: 0, WordList: wordlist, Probability: pAgivenB, Timeinterval: timeinterval, FirstDate: firstDateValue, LastDate: lastDateValue, Pmi: pmi, DateUpdated: today})
 					wordlist = wordGrams[wordB] + "|" + wordGrams[wordA]
-					conditionals = append(conditionals, hd.ConditionalProbability{Id: 0, WordList: wordlist, Probability: condProb2, Timeinterval: timeinterval, FirstDate: firstDateValue, LastDate: lastDateValue, Pmi: pmi, DateUpdated: today})
+					conditionals = append(conditionals, hd.ConditionalProbability{Id: 0, WordList: wordlist, Probability: pBgivenA, Timeinterval: timeinterval, FirstDate: firstDateValue, LastDate: lastDateValue, Pmi: pmi, DateUpdated: today})
 				}
 			}
 

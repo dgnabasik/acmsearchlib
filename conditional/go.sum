@@ -89,12 +89,16 @@ github.com/dgnabasik/acmsearchlib/database v0.0.0-20210102133359-c6c540bba695 h1
 github.com/dgnabasik/acmsearchlib/database v0.0.0-20210102133359-c6c540bba695/go.mod h1:7l594YQf6vD/Rxs+QH/X6Q8nTfU6k821UrOOYK+NSyQ=
 github.com/dgnabasik/acmsearchlib/database v0.0.0-20210112194524-c533c0e22890 h1:tYWfc4uslWvsWH5HLWXoo1kzfrN9hZ3/kfvuQmpOSu0=
 github.com/dgnabasik/acmsearchlib/database v0.0.0-20210112194524-c533c0e22890/go.mod h1:tBzsjehsJ33fOe5/MwdACeugeEHpd8ezXTUXefdwtZ4=
+github.com/dgnabasik/acmsearchlib/database v0.0.0-20210112195813-1cb5bedbd297 h1:PmAgN/sazBxb7PxhsqqvLks4zo06CIo8GkruHzD5GQg=
+github.com/dgnabasik/acmsearchlib/database v0.0.0-20210112195813-1cb5bedbd297/go.mod h1:qCLv6VQVjriZB7bPOEnP65XSjaJGAV/0HU0OH4xwFuk=
 github.com/dgnabasik/acmsearchlib/headers v0.0.0-20201226155707-98d1bb06e87f h1:qOQmEarqh3xinOJepJrnJdetkheAgvywKyaNepRhDds=
 github.com/dgnabasik/acmsearchlib/headers v0.0.0-20201226155707-98d1bb06e87f/go.mod h1:/cEZZwMOWQLaUni8gQhhRpE6DtFap+L4lsxksdrDli8=
 github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210102133359-c6c540bba695 h1:JoItPDX31O/Q0DXnpBARqN+adej7J88iQCfdA/jidu0=
 github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210102133359-c6c540bba695/go.mod h1:/cEZZwMOWQLaUni8gQhhRpE6DtFap+L4lsxksdrDli8=
 github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210112194524-c533c0e22890 h1:VHzLNqFDNXkaVrGsF7iQkyJu8ocJsDmeGht+tgBJdJg=
 github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210112194524-c533c0e22890/go.mod h1:Rkpn8Sjo7ClZ2QUfS9TNugDCFiJkEWzlhzh6g+mtE5M=
+github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210112195813-1cb5bedbd297 h1:CL9/G3F4VsTswTeHFPEqax+cYxFNQPN0hwQKy15SXHU=
+github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210112195813-1cb5bedbd297/go.mod h1:Rkpn8Sjo7ClZ2QUfS9TNugDCFiJkEWzlhzh6g+mtE5M=
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20201206191427-03bcb92782c7/go.mod h1:8+mnmzx+rqK/h7JkENMkF+3ZqaMmyCJP541AzTscsU0=
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20201206193712-f1b276987652/go.mod h1:8+mnmzx+rqK/h7JkENMkF+3ZqaMmyCJP541AzTscsU0=
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20201226155707-98d1bb06e87f h1:H7H2F16/MEl2n4qAdETgEC3OtfqQPN0B7SNXfz+hHuQ=
@@ -103,6 +107,8 @@ github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210102133359-c6c540bba695 h1
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210102133359-c6c540bba695/go.mod h1:8+mnmzx+rqK/h7JkENMkF+3ZqaMmyCJP541AzTscsU0=
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210104030944-946acfe2561a h1:6Gh54tkvQ65KTJ3azlHyFNcmjQuSog6DEjNfZu8h38Q=
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210104030944-946acfe2561a/go.mod h1:8+mnmzx+rqK/h7JkENMkF+3ZqaMmyCJP541AzTscsU0=
+github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210112195813-1cb5bedbd297 h1:11Uc7ZFl+5JRd4WjHOAN3fSl/gfdCQ4Psd9MsDYh4v8=
+github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210112195813-1cb5bedbd297/go.mod h1:im4Nlp2zAJ1XIxoCS5UCJSH5E85uZcD6eB5b1wwLiQA=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible/go.mod h1:E3ru+11k8xSBh+hMPgOLZmtrrCbhqsmaPHjLKYnJCaQ=
 github.com/dimchansky/utfbom v1.1.0/go.mod h1:rO41eb7gLfo8SF1jd9F8HplJm1Fewwi4mQvIirEdv+8=
 github.com/dnaeon/go-vcr v0.0.0-20180814043457-aafff18a5cc2/go.mod h1:aBB1+wY4s93YsC3HHjMBMrwTj2R9FHDzUr9KyGc8n1E=
@@ -494,6 +500,8 @@ golang.org/x/sys v0.0.0-20201231184435-2d18734c6014 h1:joucsQqXmyBVxViHCPFjG3hx8
 golang.org/x/sys v0.0.0-20201231184435-2d18734c6014/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/sys v0.0.0-20210112091331-59c308dcf3cc h1:y0Og6AYdwus7SIAnKnDxjc4gJetRiYEWOx4AKbOeyEI=
 golang.org/x/sys v0.0.0-20210112091331-59c308dcf3cc/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
+golang.org/x/sys v0.0.0-20210113181707-4bcb84eeeb78 h1:nVuTkr9L6Bq62qpUqKo/RnZCFfzDBL0bYo6w9OJUqZY=
+golang.org/x/sys v0.0.0-20210113181707-4bcb84eeeb78/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/term v0.0.0-20201117132131-f5c789dd3221/go.mod h1:Nr5EML6q2oocZ2LXRh80K7BxOlk5/8JxuGnuhpl+muw=
 golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1/go.mod h1:bj7SfCRtBDWHUb9snDiAeCFNEtKQo2Wmx5Cou7ajbmo=
 golang.org/x/text v0.3.0/go.mod h1:NqM8EUOU14njkJ3fqMW+pc6Ldnwhi/IjpwHt7yyuwOQ=
