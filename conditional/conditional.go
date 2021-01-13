@@ -403,8 +403,7 @@ func CalcConditionalProbability(startingWordgram string, wordMap map[string]floa
 	var firstDateValue, lastDateValue nt.NullTime
 	var totalInserts int64
 	startDateParam := FormatDate(timeinterval.StartDate.DT)
-	// The 2 stored procs use BETWEEN dates so enddate is start of next time period (plus 1 day).
-	endDateParam := FormatDate(timeinterval.EndDate.DT.AddDate(0, 0, 1))
+	endDateParam := FormatDate(timeinterval.EndDate.DT)
 
 	if permutations == 2 {
 		for wordA := 0; wordA < len(wordGrams)-1; wordA++ {
