@@ -168,7 +168,7 @@ func ReadFileIntoString(filePath string) (string, error) {
 	return string(content), err
 }
 
-// ReadTextLines reads a whole file into memory and returns a slice of its lines. Applys .ToLower()
+// ReadTextLines reads a whole file into memory and returns a slice of its lines. Applys .ToLower(). Skips empty lines if normalizeText is true.
 func ReadTextLines(filePath string, normalizeText bool) ([]string, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
@@ -182,7 +182,10 @@ func ReadTextLines(filePath string, normalizeText bool) ([]string, error) {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		if normalizeText {
-			lines = append(lines, strings.ToLower(strings.TrimSpace(scanner.Text())))
+			str := strings.ToLower(strings.TrimSpace(scanner.Text()))
+			if len(str) > 0 {
+				lines = append(lines, str)
+			}
 		} else {
 			lines = append(lines, scanner.Text())
 		}
