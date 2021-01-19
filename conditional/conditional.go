@@ -18,7 +18,7 @@ import (
 	nt "github.com/dgnabasik/acmsearchlib/nulltime"
 
 	// comment
-	_ "github.com/lib/pq"
+	"github.com/lib/pq"
 )
 
 // mapset https://github.com/deckarep/golang-set/blob/master/README.md & https://godoc.org/github.com/deckarep/golang-set
@@ -337,13 +337,17 @@ func BulkInsertConditionalProbability(conditionals []hd.ConditionalProbability) 
 	txn, err := db.Begin()
 	dbx.CheckErr(err)
 
-	stmt, err := db.Prepare("INSERT INTO Conditional (wordlist, probability, timeframetype, startDate, endDate, firstDate, lastDate, pmi, dateUpdated) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)")
+	// Must use lowercase column names! First param is table name.
+	stmt, err := txn.Prepare(pq.CopyIn("conditional", "wordlist", "probability", "timeframetype", "startDate", "endDate", "firstDate", "lastDate", "pmi", "dateUpdated"))
 	dbx.CheckErr(err)
 
 	for _, v := range conditionals {
 		_, err = stmt.Exec(v.WordList, v.Probability, v.Timeinterval.Timeframetype, v.Timeinterval.StartDate.DT, v.Timeinterval.EndDate.DT, v.FirstDate.DT, v.LastDate.DT, v.Pmi, v.DateUpdated.DT)
 		dbx.CheckErr(err)
 	}
+
+	_, err = stmt.Exec()
+	dbx.CheckErr(err)
 
 	err = stmt.Close()
 	dbx.CheckErr(err)

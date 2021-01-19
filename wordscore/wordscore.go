@@ -12,7 +12,6 @@ import (
 
 	// comment
 	"github.com/lib/pq"
-	_ "github.com/lib/pq"
 )
 
 func Version() string {
@@ -109,8 +108,7 @@ func BulkInsertWordScores(wordScoreList []hd.WordScore) error {
 	txn, err := db.Begin()
 	dbase.CheckErr(err)
 
-	//original: stmt, err := db.Prepare("INSERT INTO WordScore (word, timeframetype, startdate, enddate, density, linkage, growth, score) VALUES ($1, $2, $3, $4, $5, $6, $7, $8);")
-	// [wordscore] in schema wordscore. Must use lowercase column names!
+	// Must use lowercase column names! First param is table name.
 	stmt, err := txn.Prepare(pq.CopyIn("wordscore", "word", "timeframetype", "startdate", "enddate", "density", "linkage", "growth", "score"))
 	dbase.CheckErr(err)
 
