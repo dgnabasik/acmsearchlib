@@ -338,7 +338,7 @@ func BulkInsertConditionalProbability(conditionals []hd.ConditionalProbability) 
 	dbx.CheckErr(err)
 
 	// Must use lowercase column names! First param is table name.
-	stmt, err := txn.Prepare(pq.CopyIn("conditional", "wordlist", "probability", "timeframetype", "startDate", "endDate", "firstDate", "lastDate", "pmi", "dateUpdated"))
+	stmt, err := txn.Prepare(pq.CopyIn("conditional", "wordlist", "probability", "timeframetype", "startdate", "enddate", "firstdate", "lastdate", "pmi", "dateupdated"))
 	dbx.CheckErr(err)
 
 	for _, v := range conditionals {
