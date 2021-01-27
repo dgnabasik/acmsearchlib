@@ -12,6 +12,8 @@ github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210112195813-1cb5bedbd297 h1:
 github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210112195813-1cb5bedbd297/go.mod h1:Rkpn8Sjo7ClZ2QUfS9TNugDCFiJkEWzlhzh6g+mtE5M=
 github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210119011634-2c78036ec9c6 h1:ou5m7z6G++cZJbJveX/E0CiACFeTeiga9gBH5UEOJkY=
 github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210119011634-2c78036ec9c6/go.mod h1:mGCH9oFE6lRM4muC77HEHjl6gGwf2aUa+Qn0lfrQ26o=
+github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210120203449-b95222e5cac7 h1:0XSViKPx2vjj0/7gA8UAN4PaSjH7Ci/FJg0rIgruuBo=
+github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210120203449-b95222e5cac7/go.mod h1:GhLKRoyELr2tb0Y0zBtg+nC6ymMq+p1iNQE3jSw0Q6k=
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20201206191427-03bcb92782c7 h1:ocW1YKbTDqeqjGUy7O1nYzDJEZiRuv5NyZ4o3JFJET4=
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20201206191427-03bcb92782c7/go.mod h1:8+mnmzx+rqK/h7JkENMkF+3ZqaMmyCJP541AzTscsU0=
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20201206193712-f1b276987652 h1:77Qx1fjQu9W4neNDKxpR6Xv+6wUtk9Qe40mCyGPdbHE=
@@ -24,6 +26,8 @@ github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210112195813-1cb5bedbd297 h1
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210112195813-1cb5bedbd297/go.mod h1:im4Nlp2zAJ1XIxoCS5UCJSH5E85uZcD6eB5b1wwLiQA=
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210119011634-2c78036ec9c6 h1:Wlg0z4D/hS6ogLz/qnQD8VaYHZX4KuXSxlOyb6JFBtQ=
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210119011634-2c78036ec9c6/go.mod h1:im4Nlp2zAJ1XIxoCS5UCJSH5E85uZcD6eB5b1wwLiQA=
+github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210120203449-b95222e5cac7 h1:2iZ8jAK0CezCyvh4jmDQrg1hRQT71aaDTqBgd1c2JxE=
+github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210120203449-b95222e5cac7/go.mod h1:im4Nlp2zAJ1XIxoCS5UCJSH5E85uZcD6eB5b1wwLiQA=
 github.com/envoyproxy/go-control-plane v0.9.1-0.20191026205805-5f8ba28d4473/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=
 github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7+kN2VEUnK/pcBlmesArF7c=
 github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b/go.mod h1:SBH7ygxi8pfUlaOkMMuAQtPIUF8ecWP5IEl/CR7VP2Q=

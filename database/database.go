@@ -75,17 +75,10 @@ func GetDatabaseConnectionString() string {
 // defer db.Close() must follow a call to this function in the calling function. sslmode is set to 'required' with lib/pq by default.
 func GetDatabaseReference() (*sql.DB, error) {
 	const (
-		//dbHost        = "192.168.1.104"
-		//dbPort        = 5432
-		//dbUser        = "postgres"
-		//dbPassword    = "Ski7Vail!"
-		//dbName        = "postgres"
-		//dbSchema      = "acmsearch,public"
 		dbDriver      = "postgres"
 		dbConnections = 20
 	)
 
-	//dbConn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s search_path=%s sslmode=disable", dbHost, dbPort, dbUser, dbPassword, dbName, dbSchema)
 	dbConn := GetDatabaseConnectionString()
 	db, err := sql.Open(dbDriver, dbConn)
 	CheckErr(err)
@@ -130,6 +123,14 @@ func CallTruncateTables() error {
 	return nil
 }
 
+// NoRowsReturned func 
+func NoRowsReturned(err error) bool {
+	if err == nil {
+		return false
+	}
+	return strings.Contains(err.Error(), "no rows in result set")
+}
+
 // CompileInClause func inserts quote marks for IN db clause.
 func CompileInClause(words []string) string {
 	wordlist := make([]string, 0)
@@ -164,38 +165,6 @@ func GetWhereClause(columnName string, wordGrams []string) string {
 	}
 	sb.WriteString(");")
 	return sb.String()
-}
-
-// GetArticleCount func
-func GetArticleCount() int {
-	db, err := GetDatabaseReference()
-	defer db.Close()
-
-	var count int
-	err = db.QueryRow("SELECT COUNT(*) FROM AcmData").Scan(&count)
-	CheckErr(err)
-	return count
-}
-
-// GetLastDateSavedFromDb returns the earliest and latest AcmData.ArchiveDate values else default time.
-func GetLastDateSavedFromDb() (nt.NullTime, nt.NullTime, error) {
-	articleCount := GetArticleCount()
-	if articleCount == 0 {
-		return nt.New_NullTime(""), nt.New_NullTime(""), nil // default time.
-	}
-
-	db, err := GetDatabaseReference()
-	defer db.Close()
-
-	var archiveDate1, archiveDate2 nt.NullTime // NullTime supports Scan() interface.
-
-	err = db.QueryRow("SELECT MIN(ArchiveDate) FROM AcmData").Scan(&archiveDate1)
-	CheckErr(err)
-
-	err = db.QueryRow("SELECT MAX(ArchiveDate) FROM AcmData").Scan(&archiveDate2)
-	CheckErr(err)
-
-	return archiveDate1, archiveDate2, nil
 }
 
 /*************************************************************************************************/
