@@ -137,6 +137,8 @@ github.com/dgnabasik/acmsearchlib/database v0.0.0-20210119011634-2c78036ec9c6 h1
 github.com/dgnabasik/acmsearchlib/database v0.0.0-20210119011634-2c78036ec9c6/go.mod h1:Tepi6dzRGV8zXnYm3KvzFu2JsWhZh0ErUXCk4+W1oRs=
 github.com/dgnabasik/acmsearchlib/database v0.0.0-20210120203449-b95222e5cac7 h1:YJmSET1Qd1SbqKteMhe23eI5PeHl5IoBgDcaTwQri2c=
 github.com/dgnabasik/acmsearchlib/database v0.0.0-20210120203449-b95222e5cac7/go.mod h1:ZTWjk4ZXQxNXzkyq6WqmcsnFeJ8R2Hzj0aP0XuQDvG8=
+github.com/dgnabasik/acmsearchlib/database v0.0.0-20210127040904-c08867ba0f70 h1:kUgEco7pDkiEWABnUdY+6GRxGJQVy4gfmiVIltlUwNQ=
+github.com/dgnabasik/acmsearchlib/database v0.0.0-20210127040904-c08867ba0f70/go.mod h1:1lb9Sk5iy2le3koTwtwkVgf7DQYRrV5ayjgk+K3txB4=
 github.com/dgnabasik/acmsearchlib/filesystem v0.0.0-20201226155707-98d1bb06e87f h1:JTGzeICFZNLrzwTRZMQcbocsxMeFpQfzn+UN3jK2U5Q=
 github.com/dgnabasik/acmsearchlib/filesystem v0.0.0-20201226155707-98d1bb06e87f/go.mod h1:ZEYR6OlMXFfvKrn+1vQGELpr+WPiKTOBfx2tugN5nyY=
 github.com/dgnabasik/acmsearchlib/filesystem v0.0.0-20201229144918-2c3012e32e5f h1:Fm8DFKw77taNO2ExTGRl4G1g/8fh7GR9O/g590YWpDM=
@@ -168,6 +170,8 @@ github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210119011634-2c78036ec9c6 h1:
 github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210119011634-2c78036ec9c6/go.mod h1:mGCH9oFE6lRM4muC77HEHjl6gGwf2aUa+Qn0lfrQ26o=
 github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210120203449-b95222e5cac7 h1:0XSViKPx2vjj0/7gA8UAN4PaSjH7Ci/FJg0rIgruuBo=
 github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210120203449-b95222e5cac7/go.mod h1:GhLKRoyELr2tb0Y0zBtg+nC6ymMq+p1iNQE3jSw0Q6k=
+github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210127040904-c08867ba0f70 h1:h61h95gPDNX1RUBfh77Qt41AKofcUwngKFpU/YLcJuM=
+github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210127040904-c08867ba0f70/go.mod h1:qU+RsiYi8IENzUtiQ7F6M6YPW12dnDYsM3ZOBn2UxPg=
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20201206191427-03bcb92782c7/go.mod h1:8+mnmzx+rqK/h7JkENMkF+3ZqaMmyCJP541AzTscsU0=
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20201206193712-f1b276987652/go.mod h1:8+mnmzx+rqK/h7JkENMkF+3ZqaMmyCJP541AzTscsU0=
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20201209003945-fa039e7f0d5a/go.mod h1:8+mnmzx+rqK/h7JkENMkF+3ZqaMmyCJP541AzTscsU0=
@@ -187,6 +191,8 @@ github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210119011634-2c78036ec9c6 h1
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210119011634-2c78036ec9c6/go.mod h1:im4Nlp2zAJ1XIxoCS5UCJSH5E85uZcD6eB5b1wwLiQA=
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210120203449-b95222e5cac7 h1:2iZ8jAK0CezCyvh4jmDQrg1hRQT71aaDTqBgd1c2JxE=
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210120203449-b95222e5cac7/go.mod h1:im4Nlp2zAJ1XIxoCS5UCJSH5E85uZcD6eB5b1wwLiQA=
+github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210127040904-c08867ba0f70 h1:G7501rkx0Csrd+yf3TuFmOpyDrfcHFEf+gHp3GZWQCg=
+github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210127040904-c08867ba0f70/go.mod h1:im4Nlp2zAJ1XIxoCS5UCJSH5E85uZcD6eB5b1wwLiQA=
 github.com/dgnabasik/acmsearchlib/timestampinterval v0.0.0-20201226155707-98d1bb06e87f h1:B1dDtT7qCxkVdYjHAw/RnHtbBSd3p/lS8CP4i1gqqh8=
 github.com/dgnabasik/acmsearchlib/timestampinterval v0.0.0-20201226155707-98d1bb06e87f/go.mod h1:LzXaXkThLbO6xDbymPMMHYhAeZ1MmlZT66QarVrTOLY=
 github.com/dgnabasik/acmsearchlib/timestampinterval v0.0.0-20201229144918-2c3012e32e5f h1:TOMPal1kAHAn5RF+NZDruP+3wRbbNvQZ5TZ8I+O9ErI=
@@ -434,6 +440,8 @@ github.com/miekg/dns v1.1.27 h1:aEH/kqUzUxGJ/UHcEKdJY+ugH6WEzsEBBSPa8zuy1aM=
 github.com/miekg/dns v1.1.27/go.mod h1:KNUDUusw/aVsxyTYZM1oqvCicbwhgbNgztCETuNZ7xM=
 github.com/miekg/dns v1.1.35 h1:oTfOaDH+mZkdcgdIjH6yBajRGtIwcwcaR+rt23ZSrJs=
 github.com/miekg/dns v1.1.35/go.mod h1:KNUDUusw/aVsxyTYZM1oqvCicbwhgbNgztCETuNZ7xM=
+github.com/miekg/dns v1.1.37 h1:+kky2ArpBqk0S/74RkwFjmKM9jja7AB1RN7VUuVq0iM=
+github.com/miekg/dns v1.1.37/go.mod h1:KNUDUusw/aVsxyTYZM1oqvCicbwhgbNgztCETuNZ7xM=
 github.com/mitchellh/go-homedir v1.1.0/go.mod h1:SfyaCUpYCn1Vlf4IUYiD9fPX4A5wJrkLzIz1N1q0pr0=
 github.com/mitchellh/go-vnc v0.0.0-20150629162542-723ed9867aed/go.mod h1:3rdaFaCv4AyBgu5ALFM0+tSuHrBh6v692nyQe3ikrq0=
 github.com/mitchellh/hashstructure v1.0.0 h1:ZkRJX1CyOoTkar7p/mLS5TZU4nJ1Rn/F8u9dGS02Q3Y=
