@@ -120,6 +120,8 @@ github.com/dgnabasik/acmsearchlib/conditional v0.0.0-20210119011634-2c78036ec9c6
 github.com/dgnabasik/acmsearchlib/conditional v0.0.0-20210119011634-2c78036ec9c6/go.mod h1:4ZgJTDIHnf2h6b12uv1+r32gM7mJMOiQz/mSkH0MyUU=
 github.com/dgnabasik/acmsearchlib/conditional v0.0.0-20210120203449-b95222e5cac7 h1:r24mFm3/EH/tIaE8Nv6ExjbDESlrn1JPW+zF5TGdu9Q=
 github.com/dgnabasik/acmsearchlib/conditional v0.0.0-20210120203449-b95222e5cac7/go.mod h1:7znNCotD7HtA5iUQWuIWJ8gC2tlX5DlrmF12PkD+Ogs=
+github.com/dgnabasik/acmsearchlib/conditional v0.0.0-20210127040904-c08867ba0f70 h1:s9/KWyvErFAYqHs/BDKN8oPb+n18r5cGfaPqiF9rJnk=
+github.com/dgnabasik/acmsearchlib/conditional v0.0.0-20210127040904-c08867ba0f70/go.mod h1:eOW2BtkeVeySkyPiHSR7ObG5AgLBYsvAHKRy2/dc5Ms=
 github.com/dgnabasik/acmsearchlib/database v0.0.0-20201209003945-fa039e7f0d5a/go.mod h1:pse/E43gJqU0Mk/APMnNtYO1qcTenm8Xa233slKxwWE=
 github.com/dgnabasik/acmsearchlib/database v0.0.0-20201225144613-7ce5d90e2e18 h1:3MV9ekt2Afe3zXR59q6wtoroowTqaXWQmW/fG8aVAwk=
 github.com/dgnabasik/acmsearchlib/database v0.0.0-20201225144613-7ce5d90e2e18/go.mod h1:7l594YQf6vD/Rxs+QH/X6Q8nTfU6k821UrOOYK+NSyQ=
@@ -151,6 +153,8 @@ github.com/dgnabasik/acmsearchlib/filesystem v0.0.0-20210119011634-2c78036ec9c6 
 github.com/dgnabasik/acmsearchlib/filesystem v0.0.0-20210119011634-2c78036ec9c6/go.mod h1:bqT4gy9oQp8se4NsVks6PmAmAiHFtIm7hkjLm1vpzuk=
 github.com/dgnabasik/acmsearchlib/filesystem v0.0.0-20210127040746-9414bd3314ff h1:+tl3J/X0EGhlRIu6EULLcHPNmkrYD+RPCRXNpvqOBrA=
 github.com/dgnabasik/acmsearchlib/filesystem v0.0.0-20210127040746-9414bd3314ff/go.mod h1:5E6mlMtMv6cj4x2a8/ykXijH8VvwQPyegEsfzKxP3WY=
+github.com/dgnabasik/acmsearchlib/filesystem v0.0.0-20210131010825-260c20a6c6a1 h1:enZQ+8s4pdXMU8P5QANOdMQSFn9BIs6CIXusnZdJ4BA=
+github.com/dgnabasik/acmsearchlib/filesystem v0.0.0-20210131010825-260c20a6c6a1/go.mod h1:o6MmAWy6S/nDYxXc8WW8zbOJ6vsKc4I/UJ9bPpgI7pE=
 github.com/dgnabasik/acmsearchlib/headers v0.0.0-20201206193712-f1b276987652/go.mod h1:s8/m6I6UovhWI8ov8kr74bgU/TjgQUtoD6oJqmYeAoM=
 github.com/dgnabasik/acmsearchlib/headers v0.0.0-20201209003945-fa039e7f0d5a/go.mod h1:ol+RxXpjnz6gc/JB8oBEFKLMKieb6diVdUtP1TLAh/M=
 github.com/dgnabasik/acmsearchlib/headers v0.0.0-20201225144613-7ce5d90e2e18/go.mod h1:/cEZZwMOWQLaUni8gQhhRpE6DtFap+L4lsxksdrDli8=
@@ -207,6 +211,8 @@ github.com/dgnabasik/acmsearchlib/timestampinterval v0.0.0-20210119011634-2c7803
 github.com/dgnabasik/acmsearchlib/timestampinterval v0.0.0-20210119011634-2c78036ec9c6/go.mod h1:D159ugNYu07k+wjEbQcfo0TrEE/FKXjaFYQFSFOSRrc=
 github.com/dgnabasik/acmsearchlib/timestampinterval v0.0.0-20210127040746-9414bd3314ff h1:oQnqRXXC/9qNXWHzU1FUEa6ohcN0NC2ykKmwLbnq6EE=
 github.com/dgnabasik/acmsearchlib/timestampinterval v0.0.0-20210127040746-9414bd3314ff/go.mod h1:dYW5OVAsG/Ai+GKN/yZ5z0k5yNPIXT8o9SzJ2KJUV3Y=
+github.com/dgnabasik/acmsearchlib/timestampinterval v0.0.0-20210131010825-260c20a6c6a1 h1:vTsMyx31dX7Jxa05kA08gzmo+scK4J/rcztEMUD9XP4=
+github.com/dgnabasik/acmsearchlib/timestampinterval v0.0.0-20210131010825-260c20a6c6a1/go.mod h1:UTed1zaZT3M4tDcla3MbK6YPPK+FimmOkXn7CJTzJTY=
 github.com/dgnabasik/acmsearchlib/vocabulary v0.0.0-20201228151831-65ceeb95450f h1:7fteE7EfrJUOCLmyIcFNmPOZ+o89OHVEPDi6+bYo6ME=
 github.com/dgnabasik/acmsearchlib/vocabulary v0.0.0-20201228151831-65ceeb95450f/go.mod h1:WCM6RPQMbwMInEQ7bvsz4PZzSBjpv/+XkxIO/LcIEMU=
 github.com/dgnabasik/acmsearchlib/vocabulary v0.0.0-20201229144918-2c3012e32e5f h1:GCireBdmTm+jKQNijP5F92H0tamM2eUCwWy6SSlcHsQ=
@@ -219,6 +225,8 @@ github.com/dgnabasik/acmsearchlib/vocabulary v0.0.0-20210119011634-2c78036ec9c6 
 github.com/dgnabasik/acmsearchlib/vocabulary v0.0.0-20210119011634-2c78036ec9c6/go.mod h1:QEtB516HcjguLUyGmKHQVIEIQb51d4XsmaRykcnOg48=
 github.com/dgnabasik/acmsearchlib/vocabulary v0.0.0-20210127040746-9414bd3314ff h1:AwgaBW+oakNi4n5D/CKpYqaCGB9BEVDCac3EPsTv9E0=
 github.com/dgnabasik/acmsearchlib/vocabulary v0.0.0-20210127040746-9414bd3314ff/go.mod h1:buEVgxPwJP0NZr6eYia5CzTFxn7QXxEusF+iAIE8jWs=
+github.com/dgnabasik/acmsearchlib/vocabulary v0.0.0-20210131010825-260c20a6c6a1 h1:26OyzkXcwUuB2OmU5nZjzubfGc/koUEt6fsxWY6/DSU=
+github.com/dgnabasik/acmsearchlib/vocabulary v0.0.0-20210131010825-260c20a6c6a1/go.mod h1:3IRglFjrys+IkZ8uJYGCMuWVr1mC3qJ8cFV16glz3nY=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible h1:7qlOGliEKZXTDg6OTjfoBKDXWrumCAMpl/TFQ4/5kLM=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible/go.mod h1:E3ru+11k8xSBh+hMPgOLZmtrrCbhqsmaPHjLKYnJCaQ=
 github.com/dimchansky/utfbom v1.1.0/go.mod h1:rO41eb7gLfo8SF1jd9F8HplJm1Fewwi4mQvIirEdv+8=
