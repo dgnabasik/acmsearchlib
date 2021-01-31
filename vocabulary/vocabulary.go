@@ -196,11 +196,10 @@ func GetVocabularyMapProbability(wordGrams []string, timeInterval nt.TimeInterva
 
 	SELECT := "SELECT word,probability FROM Vocabulary WHERE "
 	if len(wordGrams) > 0 {
-		SELECT = SELECT + dbx.GetWhereClause("Word", wordGrams) + " AND " + dbx.GetSingleDateWhereClause("archivedate", timeInterval)
+		SELECT = SELECT + dbx.GetWhereClause("word", wordGrams)
 	} else {
-		SELECT = SELECT + dbx.GetSingleDateWhereClause("archivedate", timeInterval)
+		SELECT = SELECT + "word in (SELECT DISTINCT(word) FROM Occurrence WHERE " + dbx.GetSingleDateWhereClause("archivedate", timeInterval) + ")"
 	}
-
 	rows, err := db.Query(SELECT)
 	dbx.CheckErr(err)
 
