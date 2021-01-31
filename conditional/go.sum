@@ -95,6 +95,8 @@ github.com/dgnabasik/acmsearchlib/database v0.0.0-20210119011634-2c78036ec9c6 h1
 github.com/dgnabasik/acmsearchlib/database v0.0.0-20210119011634-2c78036ec9c6/go.mod h1:Tepi6dzRGV8zXnYm3KvzFu2JsWhZh0ErUXCk4+W1oRs=
 github.com/dgnabasik/acmsearchlib/database v0.0.0-20210120203449-b95222e5cac7 h1:YJmSET1Qd1SbqKteMhe23eI5PeHl5IoBgDcaTwQri2c=
 github.com/dgnabasik/acmsearchlib/database v0.0.0-20210120203449-b95222e5cac7/go.mod h1:ZTWjk4ZXQxNXzkyq6WqmcsnFeJ8R2Hzj0aP0XuQDvG8=
+github.com/dgnabasik/acmsearchlib/database v0.0.0-20210127040904-c08867ba0f70 h1:kUgEco7pDkiEWABnUdY+6GRxGJQVy4gfmiVIltlUwNQ=
+github.com/dgnabasik/acmsearchlib/database v0.0.0-20210127040904-c08867ba0f70/go.mod h1:1lb9Sk5iy2le3koTwtwkVgf7DQYRrV5ayjgk+K3txB4=
 github.com/dgnabasik/acmsearchlib/headers v0.0.0-20201226155707-98d1bb06e87f h1:qOQmEarqh3xinOJepJrnJdetkheAgvywKyaNepRhDds=
 github.com/dgnabasik/acmsearchlib/headers v0.0.0-20201226155707-98d1bb06e87f/go.mod h1:/cEZZwMOWQLaUni8gQhhRpE6DtFap+L4lsxksdrDli8=
 github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210102133359-c6c540bba695 h1:JoItPDX31O/Q0DXnpBARqN+adej7J88iQCfdA/jidu0=
@@ -107,6 +109,8 @@ github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210119011634-2c78036ec9c6 h1:
 github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210119011634-2c78036ec9c6/go.mod h1:mGCH9oFE6lRM4muC77HEHjl6gGwf2aUa+Qn0lfrQ26o=
 github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210120203449-b95222e5cac7 h1:0XSViKPx2vjj0/7gA8UAN4PaSjH7Ci/FJg0rIgruuBo=
 github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210120203449-b95222e5cac7/go.mod h1:GhLKRoyELr2tb0Y0zBtg+nC6ymMq+p1iNQE3jSw0Q6k=
+github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210127040904-c08867ba0f70 h1:h61h95gPDNX1RUBfh77Qt41AKofcUwngKFpU/YLcJuM=
+github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210127040904-c08867ba0f70/go.mod h1:qU+RsiYi8IENzUtiQ7F6M6YPW12dnDYsM3ZOBn2UxPg=
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20201206191427-03bcb92782c7/go.mod h1:8+mnmzx+rqK/h7JkENMkF+3ZqaMmyCJP541AzTscsU0=
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20201206193712-f1b276987652/go.mod h1:8+mnmzx+rqK/h7JkENMkF+3ZqaMmyCJP541AzTscsU0=
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20201226155707-98d1bb06e87f h1:H7H2F16/MEl2n4qAdETgEC3OtfqQPN0B7SNXfz+hHuQ=
@@ -121,6 +125,8 @@ github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210119011634-2c78036ec9c6 h1
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210119011634-2c78036ec9c6/go.mod h1:im4Nlp2zAJ1XIxoCS5UCJSH5E85uZcD6eB5b1wwLiQA=
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210120203449-b95222e5cac7 h1:2iZ8jAK0CezCyvh4jmDQrg1hRQT71aaDTqBgd1c2JxE=
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210120203449-b95222e5cac7/go.mod h1:im4Nlp2zAJ1XIxoCS5UCJSH5E85uZcD6eB5b1wwLiQA=
+github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210127040904-c08867ba0f70 h1:G7501rkx0Csrd+yf3TuFmOpyDrfcHFEf+gHp3GZWQCg=
+github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210127040904-c08867ba0f70/go.mod h1:im4Nlp2zAJ1XIxoCS5UCJSH5E85uZcD6eB5b1wwLiQA=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible/go.mod h1:E3ru+11k8xSBh+hMPgOLZmtrrCbhqsmaPHjLKYnJCaQ=
 github.com/dimchansky/utfbom v1.1.0/go.mod h1:rO41eb7gLfo8SF1jd9F8HplJm1Fewwi4mQvIirEdv+8=
 github.com/dnaeon/go-vcr v0.0.0-20180814043457-aafff18a5cc2/go.mod h1:aBB1+wY4s93YsC3HHjMBMrwTj2R9FHDzUr9KyGc8n1E=
@@ -286,6 +292,8 @@ github.com/miekg/dns v1.1.27 h1:aEH/kqUzUxGJ/UHcEKdJY+ugH6WEzsEBBSPa8zuy1aM=
 github.com/miekg/dns v1.1.27/go.mod h1:KNUDUusw/aVsxyTYZM1oqvCicbwhgbNgztCETuNZ7xM=
 github.com/miekg/dns v1.1.35 h1:oTfOaDH+mZkdcgdIjH6yBajRGtIwcwcaR+rt23ZSrJs=
 github.com/miekg/dns v1.1.35/go.mod h1:KNUDUusw/aVsxyTYZM1oqvCicbwhgbNgztCETuNZ7xM=
+github.com/miekg/dns v1.1.37 h1:+kky2ArpBqk0S/74RkwFjmKM9jja7AB1RN7VUuVq0iM=
+github.com/miekg/dns v1.1.37/go.mod h1:KNUDUusw/aVsxyTYZM1oqvCicbwhgbNgztCETuNZ7xM=
 github.com/mitchellh/go-homedir v1.1.0/go.mod h1:SfyaCUpYCn1Vlf4IUYiD9fPX4A5wJrkLzIz1N1q0pr0=
 github.com/mitchellh/go-vnc v0.0.0-20150629162542-723ed9867aed/go.mod h1:3rdaFaCv4AyBgu5ALFM0+tSuHrBh6v692nyQe3ikrq0=
 github.com/mitchellh/hashstructure v1.0.0/go.mod h1:QjSHrPWS+BGUVBYkbTZWEnOh3G1DutKwClXU/ABz6AQ=

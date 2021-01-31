@@ -123,7 +123,7 @@ func CallTruncateTables() error {
 	return nil
 }
 
-// NoRowsReturned func 
+// NoRowsReturned func
 func NoRowsReturned(err error) bool {
 	if err == nil {
 		return false
@@ -143,28 +143,33 @@ func CompileInClause(words []string) string {
 	return " (" + strings.Join(wordlist, ", ") + ") "
 }
 
-// CompileDateClause func
-func CompileDateClause(timeInterval nt.TimeInterval) string {
-	return "timeframetype=" + strconv.Itoa(int(timeInterval.Timeframetype)) + " AND startDate >= '" + timeInterval.StartDate.StandardDate() + "' AND endDate <= '" + timeInterval.EndDate.StandardDate() + "'"
-}
-
-// GetDateClause func includes parentheses.
+// GetFormattedDatesForProcedure func includes parentheses.
 func GetFormattedDatesForProcedure(timeInterval nt.TimeInterval) string {
 	return "('" + timeInterval.StartDate.StandardDate() + "', '" + timeInterval.EndDate.StandardDate() + "')"
 }
 
-// GetWhereClause Don't know PostgreSQL limit of IN values.
+// GetWhereClause func. Don't know PostgreSQL limit of IN values.
 func GetWhereClause(columnName string, wordGrams []string) string {
 	var sb strings.Builder
-	sb.WriteString(" WHERE " + columnName + " IN (")
+	sb.WriteString(columnName + " IN (")
 	for ndx := 0; ndx < len(wordGrams); ndx++ {
 		sb.WriteString("'" + wordGrams[ndx] + "'")
 		if ndx < len(wordGrams)-1 {
 			sb.WriteString(",")
 		}
 	}
-	sb.WriteString(");")
+	sb.WriteString(") ")
 	return sb.String()
+}
+
+// GetSingleDateWhereClause func
+func GetSingleDateWhereClause(columnName string, timeInterval nt.TimeInterval) string {
+	return columnName + " >= '" + timeInterval.StartDate.StandardDate() + "' AND " + columnName + " <= '" + timeInterval.EndDate.StandardDate() + "' "
+}
+
+// CompileDateClause func
+func CompileDateClause(timeInterval nt.TimeInterval) string {
+	return "timeframetype=" + strconv.Itoa(int(timeInterval.Timeframetype)) + " AND startDate >= '" + timeInterval.StartDate.StandardDate() + "' AND endDate <= '" + timeInterval.EndDate.StandardDate() + "' "
 }
 
 /*************************************************************************************************/

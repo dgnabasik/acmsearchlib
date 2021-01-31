@@ -185,7 +185,8 @@ func GetVocabularyListByDate(timeinterval nt.TimeInterval) ([]hd.Vocabulary, err
 }
 
 // GetVocabularyMapProbability Read all Vocabulary.Word,Probability values if wordGrams is empty. Applys filtering.
-func GetVocabularyMapProbability(wordGrams []string) (map[string]float32, error) {
+// Vocabulary.probability is NOT used to calculate conditional probabilities!
+func GetVocabularyMapProbability(wordGrams []string, timeInterval nt.TimeInterval) (map[string]float32, error) {
 	db, err := dbx.GetDatabaseReference()
 	defer db.Close()
 
@@ -193,11 +194,11 @@ func GetVocabularyMapProbability(wordGrams []string) (map[string]float32, error)
 	var word string
 	var floatField float32
 
-	SELECT := "SELECT Word,Probability FROM vocabulary"
+	SELECT := "SELECT word,probability FROM Vocabulary WHERE "
 	if len(wordGrams) > 0 {
-		SELECT = SELECT + dbx.GetWhereClause("Word", wordGrams)
+		SELECT = SELECT + dbx.GetWhereClause("Word", wordGrams) + " AND " + dbx.GetSingleDateWhereClause("archivedate", timeInterval)
 	} else {
-		SELECT = SELECT + ";"
+		SELECT = SELECT + dbx.GetSingleDateWhereClause("archivedate", timeInterval)
 	}
 
 	rows, err := db.Query(SELECT)
