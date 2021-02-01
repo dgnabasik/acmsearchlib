@@ -35,41 +35,6 @@ func GetVocabularyByWord(wordX string) hd.Vocabulary {
 	return hd.Vocabulary{Id: id, Word: word, RowCount: rowCount, Frequency: frequency, WordRank: wordRank, Probability: probability, SpeechPart: speechPart}
 }
 
-// GetWordList method returns all words if prefix is blank.
-func GetWordList(prefix string) ([]string, error) {
-	DB, err := dbx.GetDatabaseReference()
-	defer DB.Close()
-
-	query := "SELECT word FROM vocabulary ORDER BY word"
-	if len(prefix) > 0 {
-		query = "SELECT word FROM vocabulary WHERE word LIKE '" + strings.ToLower(prefix) + "%' ORDER BY word"
-	}
-	rows, err := DB.Query(query)
-	dbx.CheckErr(err)
-	if err != nil {
-		log.Printf("GetWordList(1): %+v\n", err)
-		return nil, err
-	}
-	defer rows.Close()
-
-	var word string
-	wordList := make([]string, 0)
-	for rows.Next() {
-		err := rows.Scan(&word)
-		if err != nil {
-			log.Printf("GetWordList(2): %+v\n", err)
-			return nil, err
-		}
-		wordList = append(wordList, word)
-	}
-
-	// get any iteration errors
-	err = rows.Err()
-	dbx.CheckErr(err)
-
-	return wordList, err
-}
-
 // GetVocabularyList method does NOT apply filtering to imported []words. Func places single quotes around each words element.
 func GetVocabularyList(words []string) ([]hd.Vocabulary, error) {
 	DB, err := dbx.GetDatabaseReference()
@@ -122,7 +87,7 @@ func GetWordListMap(prefix string) ([]hd.LookupMap, error) {
 	rows, err := DB.Query(query)
 	dbx.CheckErr(err)
 	if err != nil {
-		log.Printf("GetWordList(1): %+v\n", err)
+		log.Printf("GetWordListMap(1): %+v\n", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -133,13 +98,12 @@ func GetWordListMap(prefix string) ([]hd.LookupMap, error) {
 	for rows.Next() {
 		err := rows.Scan(&id, &word)
 		if err != nil {
-			log.Printf("GetWordList(2): %+v\n", err)
+			log.Printf("GetWordListMap(2): %+v\n", err)
 			return nil, err
 		}
 		lookupMap = append(lookupMap, hd.LookupMap{Value: id, Label: word})
 	}
 
-	// get any iteration errors
 	err = rows.Err()
 	dbx.CheckErr(err)
 
@@ -156,7 +120,6 @@ func GetVocabularyListByDate(timeinterval nt.TimeInterval) ([]hd.Vocabulary, err
 	dbx.CheckErr(err)
 	defer rows.Close()
 
-	// fields to read
 	var word, speechPart string
 	var id uint32
 	var rowCount, frequency, wordRank int
@@ -177,7 +140,6 @@ func GetVocabularyListByDate(timeinterval nt.TimeInterval) ([]hd.Vocabulary, err
 		vocabList = append(vocabList, hd.Vocabulary{Id: id, Word: word, RowCount: rowCount, Frequency: frequency, WordRank: wordRank, Probability: probability, SpeechPart: speechPart})
 	}
 
-	// get any iteration errors
 	err = rows.Err()
 	dbx.CheckErr(err)
 
@@ -217,9 +179,43 @@ func GetVocabularyMapProbability(wordGrams []string, timeInterval nt.TimeInterva
 		wordIDMap[word] = floatField
 	}
 
-	// get any iteration errors
 	err = rows.Err()
 	dbx.CheckErr(err)
 
 	return wordIDMap, err
+}
+
+// GetTitleWordsBigramInterval func queries [title] table which has same structure as [occurrence].
+// This does NOT perform the word intersection by acmId!
+func GetTitleWordsBigramInterval(bigrams []string, timeInterval nt.TimeInterval) ([]hd.Occurrence, error) {
+	db, err := dbx.GetDatabaseReference()
+	defer db.Close()
+
+	inPhrase := dbx.CompileInClause(bigrams)
+	if len(inPhrase) < 5 {
+		inPhrase = "('')"
+	}
+
+	SELECT := "SELECT acmId, archiveDate, word, nentry FROM Title WHERE word IN " + inPhrase + " AND " + dbx.GetSingleDateWhereClause("archiveDate", timeInterval)
+
+	rows, err := db.Query(SELECT)
+	dbx.CheckErr(err)
+	defer rows.Close()
+
+	var acmID uint32
+	var archiveDate nt.NullTime
+	var word string
+	var nentry int
+	titleList := make([]hd.Occurrence, 0)
+
+	for rows.Next() {
+		err = rows.Scan(&acmID, &archiveDate, &word, &nentry)
+		dbx.CheckErr(err)
+		titleList = append(titleList, hd.Occurrence{AcmId: acmID, ArchiveDate: archiveDate, Word: word, Nentry: nentry})
+	}
+
+	err = rows.Err()
+	dbx.CheckErr(err)
+
+	return titleList, nil
 }

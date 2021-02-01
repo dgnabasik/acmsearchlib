@@ -4,6 +4,8 @@ package article
 
 import (
 	"log"
+	"strconv"
+	"strings"
 
 	dbx "github.com/dgnabasik/acmsearchlib/database"
 	hd "github.com/dgnabasik/acmsearchlib/headers"
@@ -107,6 +109,45 @@ func GetAcmArticleListByDate(timeinterval nt.TimeInterval) ([]hd.AcmArticle, err
 	var archiveDate, journalDate nt.NullTime
 	var articleNumber, title, imageSource, journalName, authorName, webReference, summary string
 
+	var articleList []hd.AcmArticle
+
+	for rows.Next() { // this order follows the \d AcmData description:
+		err = rows.Scan(&id, &archiveDate.DT, &articleNumber, &title, &imageSource, &journalName, &authorName, &journalDate.DT, &webReference, &summary)
+		dbx.CheckErr(err)
+		articleList = append(articleList, hd.AcmArticle{Id: id, ArchiveDate: archiveDate, ArticleNumber: articleNumber, Title: title, ImageSource: imageSource, JournalName: journalName, AuthorName: authorName, JournalDate: journalDate, WebReference: webReference, Summary: summary})
+	}
+
+	// get any iteration errors
+	err = rows.Err()
+	dbx.CheckErr(err)
+
+	return articleList, err
+}
+
+// GetAcmArticlesByID func
+func GetAcmArticlesByID(idMap map[uint32]int, cutoff int) ([]hd.AcmArticle, error) {
+	db, err := dbx.GetDatabaseReference()
+	defer db.Close()
+
+	//inPhrase := "(" + strings.Trim(strings.Join(strings.Fields(fmt.Sprint(idMap)), ","), "[]") + ")" // beautiful! but only works with arrays and not maps.
+	intlist := make([]string, 0)
+	for k, v := range idMap {
+		if v >= cutoff {
+			intlist = append(intlist, strconv.Itoa(int(k)))
+		}
+	}
+	inPhrase := "(" + strings.Join(intlist, ",") + ")"
+	if len(inPhrase) < 4 {
+		inPhrase = "(0)"
+	}
+	SELECT := "SELECT * FROM AcmData WHERE id IN " + inPhrase
+	rows, err := db.Query(SELECT)
+	dbx.CheckErr(err)
+	defer rows.Close()
+
+	var id uint32
+	var archiveDate, journalDate nt.NullTime
+	var articleNumber, title, imageSource, journalName, authorName, webReference, summary string
 	var articleList []hd.AcmArticle
 
 	for rows.Next() { // this order follows the \d AcmData description:
