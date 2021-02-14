@@ -73,6 +73,14 @@ cd ./wordscore
  read 
  cd ..
 
+cd ./category
+ go get -u ./...
+ go build
+ go install
+ echo -n "category?"
+ read 
+ cd ..
+
 echo dgnabasik
 echo -n "push?"
 read
