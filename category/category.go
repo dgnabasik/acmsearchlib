@@ -78,7 +78,7 @@ func GetSpecialMap(category int) ([]hd.SpecialTable, error) {
 	var special hd.SpecialTable
 	specialMap := []hd.SpecialTable{}
 	for rows.Next() {
-		err = rows.Scan(&special.Id, &special.Word, &special.Category&special.DateUpdated)
+		err = rows.Scan(&special.Id, &special.Word, &special.Category, &special.DateUpdated)
 		dbx.CheckErr(err)
 		specialMap = append(specialMap, special)
 	}
