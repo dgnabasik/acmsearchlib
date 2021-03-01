@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	art "github.com/dgnabasik/acmsearchlib/article"
+	cat "github.com/dgnabasik/acmsearchlib/category"
 	cond "github.com/dgnabasik/acmsearchlib/conditional"
 	dbase "github.com/dgnabasik/acmsearchlib/database"
 	fs "github.com/dgnabasik/acmsearchlib/filesystem"
@@ -25,7 +26,9 @@ func Config() []string {
 		"\nvocabulary:" + voc.Version(),
 		"\narticle:" + art.Version(),
 		"\nconditional:" + cond.Version(),
-		"\nwordscore:" + ws.Version()}
+		"\nwordscore:" + ws.Version(),
+		"\ncategory:" + cat.Version(),
+	}
 }
 
 func main() {

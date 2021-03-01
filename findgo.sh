@@ -1,4 +1,4 @@
-echo "Case-sensitive search!"
+echo "Case-sensitive search!" $1
 grep -l $1 ./article/article.go
 grep -l $1 ./article/article.pb.micro.go
 grep -l $1 ./article/article.pb.go

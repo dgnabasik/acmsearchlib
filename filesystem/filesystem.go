@@ -4,6 +4,7 @@ package filesystem
 import (
 	"archive/zip"
 	"bufio"
+	"database/sql"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -18,10 +19,25 @@ import (
 
 	hd "github.com/dgnabasik/acmsearchlib/headers"
 	nt "github.com/dgnabasik/acmsearchlib/nulltime"
+	"github.com/gin-gonic/gin"
 )
 
-func Version() string {
-	return "1.0.10"
+/*************************************************************************************/
+
+// FileServiceInterface interface functions are not placed into acmsearchlib.
+type FileServiceInterface interface {
+	GetTextFile(ctx *gin.Context)
+	SetWordCategory(ctx *gin.Context)
+}
+
+// FileService struct implements FileServiceInterface.
+type FileService struct {
+	tableController TableController
+}
+
+// TableController struct
+type TableController struct {
+	DB *sql.DB
 }
 
 // constants
@@ -31,6 +47,11 @@ const (
 	PrefixProcessed  = FileSystemPrefix + "acm/"
 	PostfixHTML      = ".html"
 )
+
+// Version func
+func Version() string {
+	return "1.0.10"
+}
 
 // ReadDir reads the directory named by dirname and returns a list of FileInfo entries [sorted by filename.]
 func ReadDir(dirname string) ([]os.FileInfo, error) {
@@ -315,3 +336,100 @@ func GetFileTime(fileName string) int64 {
 	sdt := nt.New_NullTime(nt.GetStandardDateForm(file))
 	return sdt.DT.UnixNano() / 1000000
 }
+
+// GetSourceDirectory func sources local acm.env file.
+func GetSourceDirectory() string {
+	return os.Getenv("REACT_ACM_SOURCE_DIR")
+}
+
+/*************************************************************************************/
+
+// GetTextFile method assigns key values starting at 1. <<< MOVE TO ...
+func (fss *FileService) GetTextFile(ctx *gin.Context) {
+	filename := ctx.Param("name")
+	words, err := ReadTextLines(GetSourceDirectory()+filename, true) // applys toLower()
+
+	if err != nil {
+		log.Printf("FileService.GetTextFile: %+v\n", err)
+		ctx.JSON(404, gin.H{
+			"message": fmt.Sprintf("FileService.GetTextFile: " + err.Error()),
+		})
+		return
+	}
+
+	// first remove duplicates.
+	amap := make(map[int]string, len(words))
+	for ndx, word := range words {
+		amap[ndx] = word
+	}
+
+	// ndx starts at 0 but lookupMap.Value starts at 1.
+	lookupMap := make([]hd.LookupMap, len(amap))
+	for ndx := range amap {
+		if len(amap[ndx]) > 0 {
+			lookupMap[ndx] = hd.LookupMap{Value: ndx + 1, Label: amap[ndx]}
+		}
+	}
+
+	ctx.JSON(200, gin.H{
+		"LookupMap": lookupMap,
+	})
+}
+
+/*************************************************************************************/
+
+/* InitializeRoutes func: cannot rely upon the order of execution of init() functions!
+// Query string parameters are parsed using the existing underlying request object.
+func InitializeRoutes(qs *ListService, fss *FileService) *gin.Engine {
+	defer qs.tableController.DB.Close()
+
+	gin.SetMode(gin.ReleaseMode) // Switch to "release" mode in production; or export GIN_MODE=release
+	router := gin.Default()
+
+	// Credential is not supported if the CORS header ‘Access-Control-Allow-Origin’ is ‘*’
+	// The wildcard asterisk only works for AllowedOrigins. Using the asterisk in AllowedMethods and AllowedHeaders will have no affect.
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"User-Agent", "Referrer", "Host", "Token", "Accept", "Content-Type", "Origin", "Content-Length", "X-Requested-With", "Accept-Encoding"},
+		AllowCredentials: true,
+		AllowAllOrigins:  false,
+		ExposeHeaders:    []string{"Content-Length", "Content-Type"},
+		AllowOriginFunc: func(origin string) bool {
+			return true // origin == hostName
+		},
+		MaxAge: 86400,
+	}))
+
+	router.Use(ErrorHandler)
+	router.Static("/static", "./build/static") // use the loaded source
+	router.Use(static.Serve("/", static.LocalFile("./build", true)))
+
+	// Direct all routes to index.html:
+	router.GET("/", func(ctx *gin.Context) {
+		ctx.HTML(http.StatusOK, "index.html", nil)
+	})
+
+	list := router.Group("/list")
+	{
+		list.GET("", qs.GetCategoryMap)
+		list.GET("/:category", qs.GetSpecialMap) // number
+	}
+
+	file := router.Group("/file")
+	{
+		file.GET("/:name", fss.GetTextFile) // string
+		file.OPTIONS("", ContextOptions)
+		file.POST("", fss.SetWordCategory) // append formdata{description, filename}
+	}
+
+	apiPort := GetPort()
+	api := "Handling REST-API calls on " + GetHost() + ":" + apiPort
+	fmt.Println(api)
+	fmt.Println("  GET /list")
+	fmt.Println("  GET /list/:category")
+	fmt.Println("  GET /file/:name")
+
+	router.Run(":" + apiPort)
+	return router
+} */

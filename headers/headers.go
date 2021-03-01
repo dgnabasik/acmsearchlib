@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 	"unicode/utf8"
 
 	nt "github.com/dgnabasik/acmsearchlib/nulltime"
@@ -458,6 +459,23 @@ type ConditionalProbability struct {
 	LastDate     nt.NullTime     `json:"lastdate"`
 	Pmi          float32         `json:"pmi"` // point mutual information.
 	DateUpdated  nt.NullTime     `json:"dateupdated"`
+}
+
+/*************************************************************************************************/
+
+// SpecialTable struct
+type SpecialTable struct {
+	Id          uint64    `json:"id"`
+	Word        string    `json:"word"`
+	Category    int       `json:"category"`
+	DateUpdated time.Time `json:"dateupdated"`
+}
+
+// CategoryTable struct
+type CategoryTable struct {
+	Id          uint64    `json:"id"`
+	Description string    `json:"description"`
+	DateUpdated time.Time `json:"dateupdated"`
 }
 
 /*************************************************************************************************/
