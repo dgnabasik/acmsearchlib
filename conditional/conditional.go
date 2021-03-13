@@ -21,6 +21,11 @@ import (
 	"github.com/lib/pq"
 )
 
+// comment
+const (
+	SEP = "|"
+)
+
 // mapset https://github.com/deckarep/golang-set/blob/master/README.md & https://godoc.org/github.com/deckarep/golang-set
 
 // Version func
@@ -524,4 +529,158 @@ func GetConditionalByProbability(word string, probabilityCutoff float32, timeInt
 	err = rows.Err()
 	dbx.CheckErr(err)
 	return err
+}
+
+// GetWordBigramPermutations func permutes or combines words.
+func GetWordBigramPermutations(words []string, permute bool) []string {
+	result := make([]string, 0)
+	if len(words) == 1 {
+		return words
+	}
+	for i := 0; i < len(words); i++ {
+		for j := i + 1; j < len(words); j++ {
+			result = append(result, words[i]+SEP+words[j])
+			if permute {
+				result = append(result, words[j]+SEP+words[i])
+			}
+		}
+	}
+	return result
+}
+
+// GetConditionalList func
+func GetConditionalList(words []string, timeInterval nt.TimeInterval, permute bool) ([]hd.ConditionalProbability, error) {
+	db, err := dbx.GetDatabaseReference()
+	defer db.Close()
+
+	bigrams := GetWordBigramPermutations(words, permute)
+	intervalClause := dbx.CompileDateClause(timeInterval)
+	compileInClause := dbx.CompileInClause(bigrams)
+	SELECT := "SELECT id, wordlist, probability, timeframetype, startDate, endDate, firstDate, lastDate, pmi, dateUpdated FROM Conditional WHERE wordlist IN " +
+		compileInClause + " AND " + intervalClause
+
+	rows, err := db.Query(SELECT)
+	dbx.CheckErr(err)
+	defer rows.Close()
+
+	var cProb hd.ConditionalProbability
+	var timeframetype int
+	var startDate time.Time
+	var endDate time.Time
+	var condProbList []hd.ConditionalProbability
+
+	for rows.Next() {
+		err := rows.Scan(&cProb.Id, &cProb.WordList, &cProb.Probability, &timeframetype, &startDate, &endDate, &cProb.FirstDate, &cProb.LastDate, &cProb.Pmi, &cProb.DateUpdated)
+		dbx.CheckErr(err)
+		cProb.Timeinterval = nt.New_TimeInterval(nt.TimeFrameType(timeframetype), nt.New_NullTime2(startDate), nt.New_NullTime2(endDate))
+		condProbList = append(condProbList, cProb)
+	}
+
+	err = rows.Err()
+	dbx.CheckErr(err)
+
+	return condProbList, nil
+}
+
+// GetExistingConditionalBigrams func tests for existing bigrams in Conditional.WordList
+func GetExistingConditionalBigrams(bigrams []string, intervalClause string) ([]string, error) {
+	db, err := dbx.GetDatabaseReference()
+	defer db.Close()
+
+	bigramList := make([]string, 0)
+	compileInClause := dbx.CompileInClause(bigrams)
+	query := "SELECT wordlist FROM Conditional WHERE wordlist IN " + compileInClause + " AND " + intervalClause
+	rows, err := db.Query(query)
+	dbx.CheckErr(err)
+	defer rows.Close()
+
+	var wordlist string
+	for rows.Next() {
+		err := rows.Scan(&wordlist)
+		dbx.CheckErr(err)
+		bigramList = append(bigramList, wordlist)
+	}
+	err = rows.Err()
+	dbx.CheckErr(err)
+	return bigramList, err
+}
+
+// GetProbabilityGraph func returns ordered list of high-probability bigrams for given word.
+func GetProbabilityGraph(words []string, timeInterval nt.TimeInterval) ([]hd.ConditionalProbability, error) {
+	// build SQL values:
+	bigrams := GetWordBigramPermutations(words, true) // permute=true
+	intervalClause := dbx.CompileDateClause(timeInterval)
+	bigrams, _ = GetExistingConditionalBigrams(bigrams, intervalClause) // this prevents huge SELECT queries.
+
+	db, err := dbx.GetDatabaseReference()
+	defer db.Close()
+	var SELECT strings.Builder
+	for index := 0; index < len(bigrams); index++ {
+		bigram := "'" + bigrams[index] + "'"
+		ndxSep := strings.Index(bigrams[index], SEP)
+		leftWord := "'" + bigrams[index][0:ndxSep] + "'"
+		likeWord1 := "'" + bigrams[index][0:ndxSep] + SEP + "%'"
+		rightWord := "'" + bigrams[index][ndxSep+1:] + "'"
+		likeWord2 := "'" + bigrams[index][ndxSep+1:] + SEP + "%'"
+		reverseBigram := "'" + bigrams[index][ndxSep+1:] + SEP + bigrams[index][0:ndxSep] + "'"
+
+		SELECT.WriteString("SELECT id, wordlist, probability, timeframetype, startDate, endDate, firstDate, lastDate, pmi, dateUpdated FROM Conditional ")
+		SELECT.WriteString("WHERE wordlist LIKE " + likeWord1 + " AND " + intervalClause)
+		SELECT.WriteString("AND pmi >= (SELECT pmi FROM Conditional WHERE wordlist=" + bigram + " AND " + intervalClause + ") ")
+		SELECT.WriteString("AND probability >= (SELECT probability FROM Conditional WHERE wordlist=" + bigram + " AND " + intervalClause + ") ")
+		SELECT.WriteString("AND SUBSTRING(wordlist from " + strconv.Itoa(len(leftWord)+2) + " for 32) IN (SELECT word FROM Wordscore WHERE score >= (SELECT MAX(score) FROM Wordscore WHERE word=" + leftWord + ")) ")
+		SELECT.WriteString("UNION ")
+		SELECT.WriteString("SELECT id, wordlist, probability, timeframetype, startDate, endDate, firstDate, lastDate, pmi, dateUpdated FROM Conditional ")
+		SELECT.WriteString("WHERE wordlist LIKE " + likeWord2 + " AND " + intervalClause)
+		SELECT.WriteString("AND pmi >= (SELECT pmi FROM Conditional WHERE wordlist=" + reverseBigram + " AND " + intervalClause + ") ")
+		SELECT.WriteString("AND probability >= (SELECT probability FROM Conditional WHERE wordlist=" + reverseBigram + " AND " + intervalClause + ") ")
+		SELECT.WriteString("AND SUBSTRING(wordlist FROM " + strconv.Itoa(len(rightWord)+2) + " for 32) IN (SELECT word FROM Wordscore WHERE score >= (SELECT MAX(score) FROM Wordscore WHERE word=" + rightWord + ")) ")
+
+		if index < len(bigrams)-1 {
+			SELECT.WriteString("UNION ")
+		}
+	}
+	SELECT.WriteString(";")
+
+	rows, err := db.Query(SELECT.String())
+	dbx.CheckErr(err)
+	defer rows.Close()
+
+	var cProb hd.ConditionalProbability
+	var timeframetype int
+	var startDate time.Time
+	var endDate time.Time
+	var condProbList []hd.ConditionalProbability
+
+	for rows.Next() {
+		err := rows.Scan(&cProb.Id, &cProb.WordList, &cProb.Probability, &timeframetype, &startDate, &endDate, &cProb.FirstDate, &cProb.LastDate, &cProb.Pmi, &cProb.DateUpdated)
+		dbx.CheckErr(err)
+		cProb.Timeinterval = timeInterval
+		condProbList = append(condProbList, cProb)
+	}
+
+	err = rows.Err()
+	dbx.CheckErr(err)
+
+	// fetch reverseWordlist values:
+	reverseWordlist := make([]string, 0)
+	for _, cp := range condProbList {
+		ndxSep := strings.Index(cp.WordList, SEP)
+		reverseWordlist = append(reverseWordlist, cp.WordList[ndxSep+1:]+SEP+cp.WordList[0:ndxSep])
+	}
+	compileInClause := dbx.CompileInClause(reverseWordlist)
+	query := "SELECT id, wordlist, probability, timeframetype, startDate, endDate, firstDate, lastDate, pmi, dateUpdated FROM Conditional WHERE wordlist IN " + compileInClause + " AND " + intervalClause
+	rows, err = db.Query(query)
+	dbx.CheckErr(err)
+	defer rows.Close()
+	for rows.Next() {
+		err := rows.Scan(&cProb.Id, &cProb.WordList, &cProb.Probability, &timeframetype, &startDate, &endDate, &cProb.FirstDate, &cProb.LastDate, &cProb.Pmi, &cProb.DateUpdated)
+		dbx.CheckErr(err)
+		cProb.Timeinterval = timeInterval
+		condProbList = append(condProbList, cProb)
+	}
+	err = rows.Err()
+	dbx.CheckErr(err)
+
+	return condProbList, nil
 }

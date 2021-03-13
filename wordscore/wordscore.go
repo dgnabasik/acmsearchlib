@@ -18,12 +18,12 @@ func Version() string {
 	return "1.0.10"
 }
 
-// GetWordScore func returns all wordscores.
-func GetWordScore(word string) hd.WordScore {
+// GetWordScores func returns all wordscores.
+func GetWordScores(word string) ([]hd.WordScore, error) {
 	db, err := dbase.GetDatabaseReference()
 	defer db.Close()
 
-	SELECT := "SELECT id,word,timeframetype,startDate,endDate,density,linkage,growth,score FROM WordScore WHERE Word='" + word + "';"
+	SELECT := "SELECT id,word,timeframetype,startDate,endDate,density,linkage,growth,score FROM WordScore WHERE Word='" + word + "' ORDER BY startDate"
 	rows, err := db.Query(SELECT)
 	dbase.CheckErr(err)
 	defer rows.Close()
@@ -31,20 +31,37 @@ func GetWordScore(word string) hd.WordScore {
 	// fields to read
 	var id uint64
 	var timeframetype int
-	var wordA string
 	var dt1, dt2 time.Time
 	var density, linkage, growth, score float32
+	var wordscore hd.WordScore
+	wordscoreList := []hd.WordScore{}
 
-	err = db.QueryRow(SELECT).Scan(&id, &wordA, &timeframetype, &dt1, &dt2, &density, &linkage, &growth, &score)
+	for rows.Next() {
+		err := rows.Scan(
+			&id,
+			&word,
+			&timeframetype,
+			&dt1,
+			&dt2,
+			&density,
+			&linkage,
+			&growth,
+			&score)
+		if err != nil {
+			log.Printf("GetWordScores: %+v\n", err)
+			return wordscoreList, err
+		}
+
+		timeinterval := nt.TimeInterval{Timeframetype: nt.TimeFrameType(timeframetype), StartDate: nt.New_NullTime2(dt1), EndDate: nt.New_NullTime2(dt2)}
+		wordscore = hd.WordScore{Id: id, Word: word, Timeinterval: timeinterval, Density: density, Linkage: linkage, Growth: growth, Score: score}
+		wordscoreList = append(wordscoreList, wordscore)
+	}
+
+	// get any iteration errors
+	err = rows.Err()
 	dbase.CheckErr(err)
 
-	startDate := nt.New_NullTime2(dt1)
-	endDate := nt.New_NullTime2(dt2)
-	tfType := nt.TimeFrameType(timeframetype)
-
-	wordScore := hd.New_WordScore(id, wordA, tfType, startDate, endDate, density, linkage, growth, score)
-
-	return wordScore
+	return wordscoreList, nil
 }
 
 // GetWordScoreListByTimeInterval func
