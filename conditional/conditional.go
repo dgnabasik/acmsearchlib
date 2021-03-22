@@ -466,7 +466,7 @@ func CalcConditionalProbability(startingWordgram string, wordMap map[string]floa
 }
 
 // GetConditionalByTimeInterval func modifies condProbList pointer which should be declared beforehand. bigramMap does not need to be a pointer.
-func GetConditionalByTimeInterval(bigrams []string, timeInterval nt.TimeInterval, condProbList *[]hd.ConditionalProbability, bigramMap map[string]bool) error {
+func GetConditionalByTimeInterval(bigrams []string, timeInterval nt.TimeInterval, condProbList *[]hd.ConditionalProbability, bigramMap map[string]bool, includeTimeframetype bool) error {
 	DB, err := dbx.GetDatabaseReference()
 	if err != nil {
 		return err
@@ -475,7 +475,7 @@ func GetConditionalByTimeInterval(bigrams []string, timeInterval nt.TimeInterval
 
 	inPhrase := dbx.CompileInClause(bigrams)
 	query := "SELECT id, wordlist, probability, timeframetype, startDate, endDate, firstDate, lastDate, pmi, dateUpdated FROM conditional WHERE wordlist IN " + inPhrase +
-		" AND " + dbx.CompileDateClause(timeInterval, true)
+		" AND " + dbx.CompileDateClause(timeInterval, includeTimeframetype)
 	rows, err := DB.Query(query)
 	dbx.CheckErr(err)
 	if err != nil {
