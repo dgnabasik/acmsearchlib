@@ -106,6 +106,8 @@ github.com/dgnabasik/acmsearchlib/category v0.0.0-20210215175252-1e36ee979477 h1
 github.com/dgnabasik/acmsearchlib/category v0.0.0-20210215175252-1e36ee979477/go.mod h1:yvp8ypAn5m9b0STWrNC/Az7nhunVBYLptxeo1uiWWho=
 github.com/dgnabasik/acmsearchlib/category v0.0.0-20210303203715-a3f25ab4f17c h1:xPZhgfYUgg/yjaT1ygmUH2+3s707qmdUDfU177+OJFI=
 github.com/dgnabasik/acmsearchlib/category v0.0.0-20210303203715-a3f25ab4f17c/go.mod h1:FU6/Xvkr0U9zv6vkancW/ULI2JFm6YOCr7w+hBTjQcs=
+github.com/dgnabasik/acmsearchlib/category v0.0.0-20210322142620-1dea691eef44 h1:neZJSW/ddllYdFGx5au82RaaJyd18n+QdGHYZKZnvxk=
+github.com/dgnabasik/acmsearchlib/category v0.0.0-20210322142620-1dea691eef44/go.mod h1:xQFVmT6/75EN7qvYLvaTDmRjBeXrG5QvLpHx+CD3F3E=
 github.com/dgnabasik/acmsearchlib/conditional v0.0.0-20201225144613-7ce5d90e2e18 h1:AswOVTE11xCz5ujb7R0yr7x/EVeb2ylnqmKwmB1/26A=
 github.com/dgnabasik/acmsearchlib/conditional v0.0.0-20201225144613-7ce5d90e2e18/go.mod h1:1L+VJvINS56LHzLCVzTXu0ejcn4nwDKF47IMmUzQgA8=
 github.com/dgnabasik/acmsearchlib/conditional v0.0.0-20201226155707-98d1bb06e87f h1:WR0RLnz337WfTAKr9p2WmxX1vNbdPZlc8a2AvevoSn4=
@@ -131,6 +133,9 @@ github.com/dgnabasik/acmsearchlib/conditional v0.0.0-20210131022223-510b54edd542
 github.com/dgnabasik/acmsearchlib/conditional v0.0.0-20210215175252-1e36ee979477/go.mod h1:sqJ3kI8q//ceGb2bJ9d+XCmbTN8GhPcJuhA2GCAtRTs=
 github.com/dgnabasik/acmsearchlib/conditional v0.0.0-20210303203715-a3f25ab4f17c h1:REZ/r9VKUGcfhIT1q07+J9uGPsEPCyAYckO6a0Wacm0=
 github.com/dgnabasik/acmsearchlib/conditional v0.0.0-20210303203715-a3f25ab4f17c/go.mod h1:YiSty/jGpORfju71rezj5BzBnBa+S62o2qphsBeCdSc=
+github.com/dgnabasik/acmsearchlib/conditional v0.0.0-20210320194116-b0663c847efd/go.mod h1:D0cKVhMWojseX3Mlb78W9v2m6RjCLIOOFq7sE3UA34k=
+github.com/dgnabasik/acmsearchlib/conditional v0.0.0-20210322142620-1dea691eef44 h1:IMJGVdBMY21wHIeR+LCgPFvBOA4GhiQzqbYoZ6Wp2yU=
+github.com/dgnabasik/acmsearchlib/conditional v0.0.0-20210322142620-1dea691eef44/go.mod h1:D0cKVhMWojseX3Mlb78W9v2m6RjCLIOOFq7sE3UA34k=
 github.com/dgnabasik/acmsearchlib/database v0.0.0-20201209003945-fa039e7f0d5a/go.mod h1:pse/E43gJqU0Mk/APMnNtYO1qcTenm8Xa233slKxwWE=
 github.com/dgnabasik/acmsearchlib/database v0.0.0-20201225144613-7ce5d90e2e18 h1:3MV9ekt2Afe3zXR59q6wtoroowTqaXWQmW/fG8aVAwk=
 github.com/dgnabasik/acmsearchlib/database v0.0.0-20201225144613-7ce5d90e2e18/go.mod h1:7l594YQf6vD/Rxs+QH/X6Q8nTfU6k821UrOOYK+NSyQ=
@@ -160,6 +165,7 @@ github.com/dgnabasik/acmsearchlib/database v0.0.0-20210303203715-a3f25ab4f17c h1
 github.com/dgnabasik/acmsearchlib/database v0.0.0-20210303203715-a3f25ab4f17c/go.mod h1:efXbYr8aOnmfrd/dwaOZrI1+svFMeF5Z0o30/nnDaZM=
 github.com/dgnabasik/acmsearchlib/database v0.0.0-20210313144544-5f170d2a702d h1:ps39ULwhbbKYA98J4djkfMJBjTvO3SXPLaTby8K8GzA=
 github.com/dgnabasik/acmsearchlib/database v0.0.0-20210313144544-5f170d2a702d/go.mod h1:1ygVpAmcEfpOFlt6XVjK0RXZRmZkhOx1gAskUCrQEYA=
+github.com/dgnabasik/acmsearchlib/database v0.0.0-20210320194116-b0663c847efd/go.mod h1:beQO3IQgnKsjMrsh9BWWegkWHYURnXmOr2/17d5v+kI=
 github.com/dgnabasik/acmsearchlib/database v0.0.0-20210322142620-1dea691eef44 h1:meA8AfXj9WxGjPpLZSzyKZJoTGdeqHqL5hik1VgG0Cs=
 github.com/dgnabasik/acmsearchlib/database v0.0.0-20210322142620-1dea691eef44/go.mod h1:beQO3IQgnKsjMrsh9BWWegkWHYURnXmOr2/17d5v+kI=
 github.com/dgnabasik/acmsearchlib/filesystem v0.0.0-20201226155707-98d1bb06e87f h1:JTGzeICFZNLrzwTRZMQcbocsxMeFpQfzn+UN3jK2U5Q=
@@ -182,6 +188,8 @@ github.com/dgnabasik/acmsearchlib/filesystem v0.0.0-20210202214409-605c0508d159 
 github.com/dgnabasik/acmsearchlib/filesystem v0.0.0-20210202214409-605c0508d159/go.mod h1:ckZOXJl8DHDwkWFDgy/dgvuwCdP9YUmnrmoeVlXE7Os=
 github.com/dgnabasik/acmsearchlib/filesystem v0.0.0-20210303203715-a3f25ab4f17c h1:2493cvX8QeE9k//VZN4RaWBwXRTRMt4XeVNdCDQnxRY=
 github.com/dgnabasik/acmsearchlib/filesystem v0.0.0-20210303203715-a3f25ab4f17c/go.mod h1:pwKJdGHQ6dPLjrrWkJ4VR1gF/R82pK/DrntYGhh55dI=
+github.com/dgnabasik/acmsearchlib/filesystem v0.0.0-20210322142620-1dea691eef44 h1:m//c/iHJqSMawHoPdU/lVDRkuzrR+pahpfNkAN8dUF4=
+github.com/dgnabasik/acmsearchlib/filesystem v0.0.0-20210322142620-1dea691eef44/go.mod h1:e0u+JVlCS3ria+5A45aaYc65pWgaLPWlNt7d/mh3V/I=
 github.com/dgnabasik/acmsearchlib/headers v0.0.0-20201206193712-f1b276987652/go.mod h1:s8/m6I6UovhWI8ov8kr74bgU/TjgQUtoD6oJqmYeAoM=
 github.com/dgnabasik/acmsearchlib/headers v0.0.0-20201209003945-fa039e7f0d5a/go.mod h1:ol+RxXpjnz6gc/JB8oBEFKLMKieb6diVdUtP1TLAh/M=
 github.com/dgnabasik/acmsearchlib/headers v0.0.0-20201225144613-7ce5d90e2e18/go.mod h1:/cEZZwMOWQLaUni8gQhhRpE6DtFap+L4lsxksdrDli8=
@@ -213,6 +221,7 @@ github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210303203715-a3f25ab4f17c h1:
 github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210303203715-a3f25ab4f17c/go.mod h1:tT0+V+Ap9sgpZkbNeGwMuXiB0SVL+Z8riFTh/ySUwnM=
 github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210313144544-5f170d2a702d h1:RPMRQ4KCjB3k+9WELJm3eUTDXRaQiiMSAtw+3xqeQmY=
 github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210313144544-5f170d2a702d/go.mod h1:AV98f/SYfNKrCZEiezKb71UgOnSXNi5d2+Rrq6DIORc=
+github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210320194116-b0663c847efd/go.mod h1:dltiteovEwXVCU/cS+du/+hB1bBvU4nhO7ij7gYxVzQ=
 github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210322142620-1dea691eef44 h1:oT1AiUZoJTyy4HAnvx8uIc4lo2s7yxAvHwwkBY9fVRM=
 github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210322142620-1dea691eef44/go.mod h1:dltiteovEwXVCU/cS+du/+hB1bBvU4nhO7ij7gYxVzQ=
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20201206191427-03bcb92782c7/go.mod h1:8+mnmzx+rqK/h7JkENMkF+3ZqaMmyCJP541AzTscsU0=
@@ -246,6 +255,7 @@ github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210303203715-a3f25ab4f17c h1
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210303203715-a3f25ab4f17c/go.mod h1:im4Nlp2zAJ1XIxoCS5UCJSH5E85uZcD6eB5b1wwLiQA=
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210313144544-5f170d2a702d h1:ITHYAijN01zLSqpo3lckpM+SxKbZIzMEGrf8eSXtcPA=
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210313144544-5f170d2a702d/go.mod h1:im4Nlp2zAJ1XIxoCS5UCJSH5E85uZcD6eB5b1wwLiQA=
+github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210320194116-b0663c847efd/go.mod h1:dYaE77wLGNns26SzehkrmK6Pg5LDvUK89RIdxgxCnQs=
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210322142620-1dea691eef44 h1:0CSiIS6n1I0Zw9Dmx7V3eLvEq89XGSd6rnUPFov2SJg=
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210322142620-1dea691eef44/go.mod h1:dYaE77wLGNns26SzehkrmK6Pg5LDvUK89RIdxgxCnQs=
 github.com/dgnabasik/acmsearchlib/timestampinterval v0.0.0-20201226155707-98d1bb06e87f h1:B1dDtT7qCxkVdYjHAw/RnHtbBSd3p/lS8CP4i1gqqh8=
@@ -268,6 +278,8 @@ github.com/dgnabasik/acmsearchlib/timestampinterval v0.0.0-20210131022223-510b54
 github.com/dgnabasik/acmsearchlib/timestampinterval v0.0.0-20210131022223-510b54edd542/go.mod h1:UTed1zaZT3M4tDcla3MbK6YPPK+FimmOkXn7CJTzJTY=
 github.com/dgnabasik/acmsearchlib/timestampinterval v0.0.0-20210303203715-a3f25ab4f17c h1:+qbahhhj67ZZH7Zg2WRPSGpCFao4i7C3FP1zShd5ZuQ=
 github.com/dgnabasik/acmsearchlib/timestampinterval v0.0.0-20210303203715-a3f25ab4f17c/go.mod h1:stctikmAOt9iAkFZZCCfPS1XNWj5fq/NFPf/+lLU8SI=
+github.com/dgnabasik/acmsearchlib/timestampinterval v0.0.0-20210322142620-1dea691eef44 h1:HPxhm/lDt7gxGdGB4MHLphhNMm7aWSPrwwDZingXjNk=
+github.com/dgnabasik/acmsearchlib/timestampinterval v0.0.0-20210322142620-1dea691eef44/go.mod h1:kCLThqul+wBcOIkvMJFgdB8NqF563D31ZFH+nzfcljg=
 github.com/dgnabasik/acmsearchlib/vocabulary v0.0.0-20201228151831-65ceeb95450f h1:7fteE7EfrJUOCLmyIcFNmPOZ+o89OHVEPDi6+bYo6ME=
 github.com/dgnabasik/acmsearchlib/vocabulary v0.0.0-20201228151831-65ceeb95450f/go.mod h1:WCM6RPQMbwMInEQ7bvsz4PZzSBjpv/+XkxIO/LcIEMU=
 github.com/dgnabasik/acmsearchlib/vocabulary v0.0.0-20201229144918-2c3012e32e5f h1:GCireBdmTm+jKQNijP5F92H0tamM2eUCwWy6SSlcHsQ=
@@ -286,6 +298,8 @@ github.com/dgnabasik/acmsearchlib/vocabulary v0.0.0-20210131022223-510b54edd542 
 github.com/dgnabasik/acmsearchlib/vocabulary v0.0.0-20210131022223-510b54edd542/go.mod h1:3IRglFjrys+IkZ8uJYGCMuWVr1mC3qJ8cFV16glz3nY=
 github.com/dgnabasik/acmsearchlib/vocabulary v0.0.0-20210303203715-a3f25ab4f17c h1:ViCXhQJ9/EVqgoq/zLGW8lgceCDk+8nZ+LCU3/hwJVc=
 github.com/dgnabasik/acmsearchlib/vocabulary v0.0.0-20210303203715-a3f25ab4f17c/go.mod h1:OTuJryXWttggyTZm56ANx5LBfnSiJ/bHP15awb+5AU4=
+github.com/dgnabasik/acmsearchlib/vocabulary v0.0.0-20210322142620-1dea691eef44 h1:rqZZfiByrfI2mVaVf9/sNQIu0YPva0yh5YRSRFp2VUQ=
+github.com/dgnabasik/acmsearchlib/vocabulary v0.0.0-20210322142620-1dea691eef44/go.mod h1:qqLStEu9WAA5ADYDsDSV8KTFYyI6LIoLQc5GKb2Vtag=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible h1:7qlOGliEKZXTDg6OTjfoBKDXWrumCAMpl/TFQ4/5kLM=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible/go.mod h1:E3ru+11k8xSBh+hMPgOLZmtrrCbhqsmaPHjLKYnJCaQ=
 github.com/dimchansky/utfbom v1.1.0/go.mod h1:rO41eb7gLfo8SF1jd9F8HplJm1Fewwi4mQvIirEdv+8=
@@ -732,6 +746,8 @@ golang.org/x/crypto v0.0.0-20210220033148-5ea612d1eb83 h1:/ZScEX8SfEmUGRHs0gxpqt
 golang.org/x/crypto v0.0.0-20210220033148-5ea612d1eb83/go.mod h1:jdWPYTVW3xRLrWPugEBEK3UY2ZEsg3UU495nc5E+M+I=
 golang.org/x/crypto v0.0.0-20210317152858-513c2a44f670 h1:gzMM0EjIYiRmJI3+jBdFuoynZlpxa2JQZsolKu09BXo=
 golang.org/x/crypto v0.0.0-20210317152858-513c2a44f670/go.mod h1:T9bdIzuCu7OtxOm1hfPfRQxPLYneinmdGuTeoZ9dtd4=
+golang.org/x/crypto v0.0.0-20210322153248-0c34fe9e7dc2 h1:It14KIkyBFYkHkwZ7k45minvA9aorojkyjGk9KJ5B/w=
+golang.org/x/crypto v0.0.0-20210322153248-0c34fe9e7dc2/go.mod h1:T9bdIzuCu7OtxOm1hfPfRQxPLYneinmdGuTeoZ9dtd4=
 golang.org/x/exp v0.0.0-20190121172915-509febef88a4/go.mod h1:CJ0aWSM057203Lf6IL+f9T1iT9GByDxfZKAQTCR3kQA=
 golang.org/x/exp v0.0.0-20190306152737-a1d7652674e8/go.mod h1:CJ0aWSM057203Lf6IL+f9T1iT9GByDxfZKAQTCR3kQA=
 golang.org/x/exp v0.0.0-20190510132918-efd6b22b2522/go.mod h1:ZjyILWgesfNpC6sMxTJOJm9Kp84zZh5NQWvqDGG3Qr8=
