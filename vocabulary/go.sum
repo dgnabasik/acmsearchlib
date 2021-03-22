@@ -145,6 +145,8 @@ github.com/dgnabasik/acmsearchlib/database v0.0.0-20210322142620-1dea691eef44 h1
 github.com/dgnabasik/acmsearchlib/database v0.0.0-20210322142620-1dea691eef44/go.mod h1:beQO3IQgnKsjMrsh9BWWegkWHYURnXmOr2/17d5v+kI=
 github.com/dgnabasik/acmsearchlib/database v0.0.0-20210322163022-e25dd13e0ed3 h1:AFI3jVzf1NW01m0+LwEqdfjnpCSJpLsA+uBgNZkpaZM=
 github.com/dgnabasik/acmsearchlib/database v0.0.0-20210322163022-e25dd13e0ed3/go.mod h1:e14TYcV0SpZZGBLONdlRjlG6xDsTaul3kt+lylZp1zs=
+github.com/dgnabasik/acmsearchlib/database v0.0.0-20210322172523-c97930b80934 h1:hXHUdovGcEzywb4rBz9Bk4VKEwz5khltgCdJ42kq6hE=
+github.com/dgnabasik/acmsearchlib/database v0.0.0-20210322172523-c97930b80934/go.mod h1:KTD84ri77fuZfDQ7ghc/BhvZU3eHjUleaQRW56HCfWQ=
 github.com/dgnabasik/acmsearchlib/headers v0.0.0-20201206193712-f1b276987652/go.mod h1:s8/m6I6UovhWI8ov8kr74bgU/TjgQUtoD6oJqmYeAoM=
 github.com/dgnabasik/acmsearchlib/headers v0.0.0-20201209003945-fa039e7f0d5a/go.mod h1:ol+RxXpjnz6gc/JB8oBEFKLMKieb6diVdUtP1TLAh/M=
 github.com/dgnabasik/acmsearchlib/headers v0.0.0-20201225144613-7ce5d90e2e18 h1:TXkOkDUhwglInCzbtvwtSflAL6P3Y330h41pF69kJoU=

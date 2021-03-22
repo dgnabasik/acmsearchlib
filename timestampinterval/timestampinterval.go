@@ -1,10 +1,6 @@
 package timestampinterval
 
-import (
-	nt "github.com/dgnabasik/acmsearchlib/nulltime"
-	"github.com/golang/protobuf/ptypes/timestamp"
-	//pbx "github.com/dgnabasik/acmsearchlib/timestamp"
-)
+//pbx "github.com/dgnabasik/acmsearchlib/timestamp"
 
 func Version() string {
 	return "1.16.2"
@@ -12,7 +8,7 @@ func Version() string {
 
 /* Proto messaging helper functions ************************************************************/
 
-// GetTimeStampFromUnixTimeStamp func
+/* GetTimeStampFromUnixTimeStamp func
 func GetTimeStampFromUnixTimeStamp(uts nt.UnixTimeStamp) *timestamp.Timestamp {
 	tt := nt.GetTimeFromUnixTimeStamp(uts)
 	ts, _ := timestamp.TimestampProto(tt)
@@ -46,9 +42,4 @@ func NewTimeStampInterval(timeframetype MTimeStampInterval_MTimeFrameType, start
 	p.StartTime = nt.GetTimeStampFromUnixTimeStamp(startTime)
 	p.EndTime = nt.GetTimeStampFromUnixTimeStamp(endTime)
 	return p
-}
-
-/************************************************************/
-/*
-func main() {
-}*/
+} */

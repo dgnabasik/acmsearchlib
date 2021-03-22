@@ -170,6 +170,8 @@ github.com/dgnabasik/acmsearchlib/database v0.0.0-20210322142620-1dea691eef44 h1
 github.com/dgnabasik/acmsearchlib/database v0.0.0-20210322142620-1dea691eef44/go.mod h1:beQO3IQgnKsjMrsh9BWWegkWHYURnXmOr2/17d5v+kI=
 github.com/dgnabasik/acmsearchlib/database v0.0.0-20210322163022-e25dd13e0ed3 h1:AFI3jVzf1NW01m0+LwEqdfjnpCSJpLsA+uBgNZkpaZM=
 github.com/dgnabasik/acmsearchlib/database v0.0.0-20210322163022-e25dd13e0ed3/go.mod h1:e14TYcV0SpZZGBLONdlRjlG6xDsTaul3kt+lylZp1zs=
+github.com/dgnabasik/acmsearchlib/database v0.0.0-20210322172523-c97930b80934 h1:hXHUdovGcEzywb4rBz9Bk4VKEwz5khltgCdJ42kq6hE=
+github.com/dgnabasik/acmsearchlib/database v0.0.0-20210322172523-c97930b80934/go.mod h1:KTD84ri77fuZfDQ7ghc/BhvZU3eHjUleaQRW56HCfWQ=
 github.com/dgnabasik/acmsearchlib/filesystem v0.0.0-20201226155707-98d1bb06e87f h1:JTGzeICFZNLrzwTRZMQcbocsxMeFpQfzn+UN3jK2U5Q=
 github.com/dgnabasik/acmsearchlib/filesystem v0.0.0-20201226155707-98d1bb06e87f/go.mod h1:ZEYR6OlMXFfvKrn+1vQGELpr+WPiKTOBfx2tugN5nyY=
 github.com/dgnabasik/acmsearchlib/filesystem v0.0.0-20201229144918-2c3012e32e5f h1:Fm8DFKw77taNO2ExTGRl4G1g/8fh7GR9O/g590YWpDM=
