@@ -4,6 +4,7 @@ package vocabulary
 
 import (
 	"log"
+	"os"
 	"strings"
 
 	cond "github.com/dgnabasik/acmsearchlib/conditional"
@@ -21,8 +22,11 @@ func Version() string {
 }
 
 // GetVocabularyByWord func
-func GetVocabularyByWord(wordX string) hd.Vocabulary {
+func GetVocabularyByWord(wordX string) (hd.Vocabulary, error) {
 	db, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return hd.Vocabulary{}, err
+	}
 	defer db.Close()
 
 	var word, speechPart string
@@ -32,12 +36,15 @@ func GetVocabularyByWord(wordX string) hd.Vocabulary {
 	SELECT := "SELECT id, word, rowcount, frequency, wordrank, probability, speechpart FROM Vocabulary WHERE Word='" + wordX + "'"
 	err = db.QueryRow(SELECT).Scan(&id, &word, &rowCount, &frequency, &wordRank, &probability, &speechPart)
 	dbx.CheckErr(err)
-	return hd.Vocabulary{Id: id, Word: word, RowCount: rowCount, Frequency: frequency, WordRank: wordRank, Probability: probability, SpeechPart: speechPart}
+	return hd.Vocabulary{Id: id, Word: word, RowCount: rowCount, Frequency: frequency, WordRank: wordRank, Probability: probability, SpeechPart: speechPart}, nil
 }
 
 // GetVocabularyList method does NOT apply filtering to imported []words. Func places single quotes around each words element.
 func GetVocabularyList(words []string) ([]hd.Vocabulary, error) {
 	DB, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return nil, err
+	}
 	defer DB.Close()
 
 	inPhrase := dbx.CompileInClause(words)
@@ -75,14 +82,27 @@ func GetVocabularyList(words []string) ([]hd.Vocabulary, error) {
 	return vocabularyList, err
 }
 
-// GetWordListMap method returns all words if prefix is blank.
+func getAcmGraphCount() string {
+	count := os.Getenv("REACT_ACM_GRAPH_COUNT")
+	if count == "" {
+		count = "1"
+	}
+	return count
+}
+
+// GetWordListMap method returns all words if prefix is blank. Also filters by REACT_ACM_GRAPH_COUNT.
 func GetWordListMap(prefix string) ([]hd.LookupMap, error) {
 	DB, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return nil, err
+	}
 	defer DB.Close()
 
-	query := "SELECT id, word FROM vocabulary ORDER BY word"
+	occurrenceCount := getAcmGraphCount()
+
+	query := "SELECT id, word FROM vocabulary WHERE occurrenceCount > " + occurrenceCount + " ORDER BY word"
 	if len(prefix) > 0 {
-		query = "SELECT id, word FROM vocabulary WHERE word LIKE '" + strings.ToLower(prefix) + "%' ORDER BY word"
+		query = "SELECT id, word FROM vocabulary WHERE occurrenceCount > " + occurrenceCount + " AND word LIKE '" + strings.ToLower(prefix) + "%' ORDER BY word"
 	}
 	rows, err := DB.Query(query)
 	dbx.CheckErr(err)
@@ -113,6 +133,9 @@ func GetWordListMap(prefix string) ([]hd.LookupMap, error) {
 // GetVocabularyListByDate reads Vocabulary table filtered by articleList.
 func GetVocabularyListByDate(timeinterval nt.TimeInterval) ([]hd.Vocabulary, error) {
 	db, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return nil, err
+	}
 	defer db.Close()
 
 	SELECT := "SELECT * FROM GetVocabularyByDate" + dbx.GetFormattedDatesForProcedure(timeinterval)
@@ -150,6 +173,9 @@ func GetVocabularyListByDate(timeinterval nt.TimeInterval) ([]hd.Vocabulary, err
 // Vocabulary.probability is NOT used to calculate conditional probabilities!
 func GetVocabularyMapProbability(wordGrams []string, timeInterval nt.TimeInterval) (map[string]float32, error) {
 	db, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return nil, err
+	}
 	defer db.Close()
 
 	wordIDMap := make(map[string]float32)
@@ -189,6 +215,9 @@ func GetVocabularyMapProbability(wordGrams []string, timeInterval nt.TimeInterva
 // This does NOT perform the word intersection by acmId!
 func GetTitleWordsBigramInterval(bigrams []string, timeInterval nt.TimeInterval, useOccurrence bool) ([]hd.Occurrence, error) {
 	db, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return nil, err
+	}
 	defer db.Close()
 
 	inPhrase := dbx.CompileInClause(bigrams)
