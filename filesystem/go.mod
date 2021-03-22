@@ -7,8 +7,8 @@ replace acmsearchlib/headers => ../headers
 replace acmsearchlib/nulltime => ../nulltime
 
 require (
-	github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210322142620-1dea691eef44
-	github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210322142620-1dea691eef44
+	github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210322163022-e25dd13e0ed3
+	github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210322163022-e25dd13e0ed3
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-playground/validator/v10 v10.4.1 // indirect
 	github.com/golang/protobuf v1.5.1 // indirect

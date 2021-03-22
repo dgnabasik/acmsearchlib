@@ -76,7 +76,7 @@ func GetWordScoreListByTimeInterval(words []string, timeInterval nt.TimeInterval
 	defer db.Close()
 
 	SELECT := "SELECT id,word,timeframetype,startDate,endDate,density,linkage,growth,score FROM WordScore WHERE word IN" + dbase.CompileInClause(words) +
-		"AND " + dbase.CompileDateClause(timeInterval)
+		"AND " + dbase.CompileDateClause(timeInterval, true)
 
 	rows, err := db.Query(SELECT)
 	dbase.CheckErr(err)

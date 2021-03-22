@@ -1,4 +1,4 @@
-echo "Still need timeevent."
+echo "Still need to fix timestampinterval and compile all timeevent services..."
 cd ~/go/src/github.com/dgnabasik/acmsearchlib
 
 cd ./nulltime
@@ -17,19 +17,19 @@ cd ./headers
  read 
  cd ..
 
-cd ./filesystem
- go get -u ./...
- go build
- go install
- echo -n "filesystem?"
- read 
- cd ..
-
 cd ./database
  go get -u ./...
  go build
  go install
  echo -n "database?"
+ read 
+ cd ..
+
+cd ./filesystem
+ go get -u ./...
+ go build
+ go install
+ echo -n "filesystem?"
  read 
  cd ..
 

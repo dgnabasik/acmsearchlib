@@ -474,7 +474,8 @@ func GetConditionalByTimeInterval(bigrams []string, timeInterval nt.TimeInterval
 	defer DB.Close()
 
 	inPhrase := dbx.CompileInClause(bigrams)
-	query := "SELECT id, wordlist, probability, timeframetype, startDate, endDate, firstDate, lastDate, pmi, dateUpdated FROM conditional WHERE wordlist IN " + inPhrase + " AND " + dbx.CompileDateClause(timeInterval)
+	query := "SELECT id, wordlist, probability, timeframetype, startDate, endDate, firstDate, lastDate, pmi, dateUpdated FROM conditional WHERE wordlist IN " + inPhrase +
+		" AND " + dbx.CompileDateClause(timeInterval, true)
 	rows, err := DB.Query(query)
 	dbx.CheckErr(err)
 	if err != nil {
@@ -515,7 +516,7 @@ func GetConditionalByProbability(word string, probabilityCutoff float32, timeInt
 
 	prefix := "'" + word + "|%'"
 	postfix := "'%|" + word + "'"
-	query := "SELECT id, wordlist, probability, timeframetype, startDate, endDate, firstDate, lastDate, pmi, dateUpdated FROM conditional WHERE " + dbx.CompileDateClause(timeInterval) +
+	query := "SELECT id, wordlist, probability, timeframetype, startDate, endDate, firstDate, lastDate, pmi, dateUpdated FROM conditional WHERE " + dbx.CompileDateClause(timeInterval, false) +
 		" AND (wordlist LIKE " + prefix + " OR wordlist LIKE " + postfix + ")"
 
 	rows, err := DB.Query(query)
@@ -575,11 +576,10 @@ func GetConditionalList(words []string, timeInterval nt.TimeInterval, permute bo
 	defer db.Close()
 
 	bigrams := GetWordBigramPermutations(words, permute)
-	intervalClause := dbx.CompileDateClause(timeInterval)
+	intervalClause := dbx.CompileDateClause(timeInterval, false)
 	compileInClause := dbx.CompileInClause(bigrams)
 	SELECT := "SELECT id, wordlist, probability, timeframetype, startDate, endDate, firstDate, lastDate, pmi, dateUpdated FROM Conditional WHERE wordlist IN " +
 		compileInClause + " AND " + intervalClause
-
 	rows, err := db.Query(SELECT)
 	dbx.CheckErr(err)
 	defer rows.Close()
@@ -614,7 +614,6 @@ func GetExistingConditionalBigrams(bigrams []string, intervalClause string) ([]s
 	bigramList := make([]string, 0)
 	compileInClause := dbx.CompileInClause(bigrams)
 	query := "SELECT wordlist FROM Conditional WHERE wordlist IN " + compileInClause + " AND " + intervalClause
-	fmt.Println(query) //<<<
 	rows, err := db.Query(query)
 	dbx.CheckErr(err)
 	defer rows.Close()
@@ -634,7 +633,7 @@ func GetExistingConditionalBigrams(bigrams []string, intervalClause string) ([]s
 func GetProbabilityGraph(words []string, timeInterval nt.TimeInterval) ([]hd.ConditionalProbability, error) {
 	// build SQL values:
 	bigrams := GetWordBigramPermutations(words, true) // permute=true
-	intervalClause := dbx.CompileDateClause(timeInterval)
+	intervalClause := dbx.CompileDateClause(timeInterval, false)
 	bigrams, _ = GetExistingConditionalBigrams(bigrams, intervalClause) // this prevents huge SELECT queries.
 
 	db, err := dbx.GetDatabaseReference()

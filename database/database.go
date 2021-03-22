@@ -143,7 +143,11 @@ func CompileInClause(words []string) string {
 			wordlist = append(wordlist, "'"+w+"'")
 		}
 	}
-	return " (" + strings.Join(wordlist, ", ") + ") "
+	if len(wordlist) > 0 {
+		return " (" + strings.Join(wordlist, ", ") + ") "
+	} else {
+		return " ('') "
+	}
 }
 
 // GetFormattedDatesForProcedure func includes parentheses.
@@ -171,8 +175,11 @@ func GetSingleDateWhereClause(columnName string, timeInterval nt.TimeInterval) s
 }
 
 // CompileDateClause func
-func CompileDateClause(timeInterval nt.TimeInterval) string {
-	return "timeframetype=" + strconv.Itoa(int(timeInterval.Timeframetype)) + " AND startDate >= '" + timeInterval.StartDate.StandardDate() + "' AND endDate <= '" + timeInterval.EndDate.StandardDate() + "' "
+func CompileDateClause(timeInterval nt.TimeInterval, useTimeframetype bool) string {
+	if useTimeframetype {
+		return "timeframetype=" + strconv.Itoa(int(timeInterval.Timeframetype)) + " AND startDate >= '" + timeInterval.StartDate.StandardDate() + "' AND endDate <= '" + timeInterval.EndDate.StandardDate() + "' "
+	}
+	return "startDate >= '" + timeInterval.StartDate.StandardDate() + "' AND endDate <= '" + timeInterval.EndDate.StandardDate() + "' "
 }
 
 /*************************************************************************************************/
