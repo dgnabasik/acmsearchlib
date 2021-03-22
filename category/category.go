@@ -16,7 +16,7 @@ import (
 
 // Version func
 func Version() string {
-	return "1.0.10"
+	return "1.16.2"
 }
 
 // InsertCategoryWords func. 32k statement limit.
@@ -24,6 +24,9 @@ func InsertCategoryWords(categoryID uint64, words []string) error {
 	dateupdated := time.Now()
 
 	db, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return err
+	}
 	defer db.Close()
 
 	txn, err := db.Begin()
@@ -54,6 +57,9 @@ func InsertCategoryWords(categoryID uint64, words []string) error {
 func InsertWordCategory(description string) (hd.CategoryTable, error) {
 	dateupdated := time.Now()
 	db, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return hd.CategoryTable{}, err
+	}
 	defer db.Close()
 
 	var id uint64
@@ -68,6 +74,9 @@ func InsertWordCategory(description string) (hd.CategoryTable, error) {
 // GetSpecialMap func filters by category
 func GetSpecialMap(category int) ([]hd.SpecialTable, error) {
 	db, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return nil, err
+	}
 	defer db.Close()
 
 	SELECT := "SELECT id, word, category, dateupdated FROM Special WHERE category=" + strconv.Itoa(category) + " ORDER BY word"
@@ -92,6 +101,9 @@ func GetSpecialMap(category int) ([]hd.SpecialTable, error) {
 // GetCategoryMap func
 func GetCategoryMap() ([]hd.CategoryTable, error) {
 	db, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return nil, err
+	}
 	defer db.Close()
 
 	SELECT := "SELECT id, description, dateupdated FROM Wordcategory"

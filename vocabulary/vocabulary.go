@@ -18,7 +18,7 @@ import (
 
 // Version func
 func Version() string {
-	return "1.0.10"
+	return "1.16.2"
 }
 
 // GetVocabularyByWord func

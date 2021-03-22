@@ -30,7 +30,7 @@ const (
 
 // Version func
 func Version() string {
-	return "1.0.10"
+	return "1.16.2"
 }
 
 func isHexWord(word string) bool {
@@ -139,6 +139,9 @@ func SelectOccurrenceByWord(occurrenceList []hd.Occurrence, word string) []hd.Oc
 // mapset.Set is the set of distinct AcmId values in the returned list.
 func GetOccurrenceListByDate(timeinterval nt.TimeInterval) ([]hd.Occurrence, mapset.Set, error) {
 	db, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return nil, nil, err
+	}
 	defer db.Close()
 
 	SELECT := "SELECT * FROM GetOccurrencesByDate" + dbx.GetFormattedDatesForProcedure(timeinterval)
@@ -225,6 +228,9 @@ func CollectWordGrams(wordGrams []string, timeinterval nt.TimeInterval) ([]hd.Oc
 // GetOccurrencesByAcmid func
 func GetOccurrencesByAcmid(xacmid uint32) ([]hd.Occurrence, error) {
 	db, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return nil, err
+	}
 	defer db.Close()
 
 	SELECT := "SELECT acmId, archiveDate, word, nentry FROM Occurrence WHERE acmId=" + strconv.FormatUint(uint64(xacmid), 10)
@@ -318,7 +324,7 @@ func GetDistinctDates(occurrenceList []hd.Occurrence) []nt.NullTime {
 
 // GetDistinctWords func
 func GetDistinctWords(occurrenceList []hd.Occurrence) []string {
-	var wordMap map[string]int
+	wordMap := make(map[string]int)
 	for _, item := range occurrenceList {
 		wordMap[item.Word] = 0
 	}
@@ -337,6 +343,9 @@ func GetDistinctWords(occurrenceList []hd.Occurrence) []string {
 // BulkInsertConditionalProbability uses prepared statement.
 func BulkInsertConditionalProbability(conditionals []hd.ConditionalProbability) error {
 	db, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return err
+	}
 	defer db.Close()
 
 	txn, err := db.Begin()
@@ -400,11 +409,14 @@ func CalcConditionalProbability(startingWordgram string, wordMap map[string]floa
 		fmt.Println("Processing: " + strconv.Itoa(len(wordGrams)) + " wordgrams.")
 	}
 
+	DB1, err := dbx.GetDatabaseReference() // for calling functions
+	if err != nil {
+		return -1, err
+	}
+	defer DB1.Close()
+
 	start := time.Now()
 	fmt.Print("CalcConditionalProbability (permutations=" + strconv.Itoa(permutations) + "): ")
-
-	DB1, err := dbx.GetDatabaseReference() // for calling functions
-	defer DB1.Close()
 
 	var conditionals []hd.ConditionalProbability
 	var pAgivenB, pBgivenA, pmi float32 // must match function RETURNS TABLE names.
@@ -456,6 +468,9 @@ func CalcConditionalProbability(startingWordgram string, wordMap map[string]floa
 // GetConditionalByTimeInterval func modifies condProbList pointer which should be declared beforehand. bigramMap does not need to be a pointer.
 func GetConditionalByTimeInterval(bigrams []string, timeInterval nt.TimeInterval, condProbList *[]hd.ConditionalProbability, bigramMap map[string]bool) error {
 	DB, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return err
+	}
 	defer DB.Close()
 
 	inPhrase := dbx.CompileInClause(bigrams)
@@ -493,6 +508,9 @@ func GetConditionalByTimeInterval(bigrams []string, timeInterval nt.TimeInterval
 // GetConditionalByProbability func
 func GetConditionalByProbability(word string, probabilityCutoff float32, timeInterval nt.TimeInterval, condProbList *[]hd.ConditionalProbability) error {
 	DB, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return err
+	}
 	defer DB.Close()
 
 	prefix := "'" + word + "|%'"
@@ -551,6 +569,9 @@ func GetWordBigramPermutations(words []string, permute bool) []string {
 // GetConditionalList func
 func GetConditionalList(words []string, timeInterval nt.TimeInterval, permute bool) ([]hd.ConditionalProbability, error) {
 	db, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return nil, err
+	}
 	defer db.Close()
 
 	bigrams := GetWordBigramPermutations(words, permute)
@@ -585,11 +606,15 @@ func GetConditionalList(words []string, timeInterval nt.TimeInterval, permute bo
 // GetExistingConditionalBigrams func tests for existing bigrams in Conditional.WordList
 func GetExistingConditionalBigrams(bigrams []string, intervalClause string) ([]string, error) {
 	db, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return nil, err
+	}
 	defer db.Close()
 
 	bigramList := make([]string, 0)
 	compileInClause := dbx.CompileInClause(bigrams)
 	query := "SELECT wordlist FROM Conditional WHERE wordlist IN " + compileInClause + " AND " + intervalClause
+	fmt.Println(query) //<<<
 	rows, err := db.Query(query)
 	dbx.CheckErr(err)
 	defer rows.Close()
@@ -613,6 +638,9 @@ func GetProbabilityGraph(words []string, timeInterval nt.TimeInterval) ([]hd.Con
 	bigrams, _ = GetExistingConditionalBigrams(bigrams, intervalClause) // this prevents huge SELECT queries.
 
 	db, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return nil, err
+	}
 	defer db.Close()
 	var SELECT strings.Builder
 	for index := 0; index < len(bigrams); index++ {

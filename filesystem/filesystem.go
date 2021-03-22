@@ -50,7 +50,7 @@ const (
 
 // Version func
 func Version() string {
-	return "1.0.10"
+	return "1.16.2"
 }
 
 // ReadDir reads the directory named by dirname and returns a list of FileInfo entries [sorted by filename.]
@@ -344,7 +344,7 @@ func GetSourceDirectory() string {
 
 /*************************************************************************************/
 
-// GetTextFile method assigns key values starting at 1. <<< MOVE TO ...
+// GetTextFile method assigns key values starting at 1.
 func (fss *FileService) GetTextFile(ctx *gin.Context) {
 	filename := ctx.Param("name")
 	words, err := ReadTextLines(GetSourceDirectory()+filename, true) // applys toLower()

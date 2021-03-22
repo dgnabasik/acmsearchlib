@@ -2,7 +2,7 @@ module github.com/dgnabasik/acmsearchlib/timestampinterval
 
 replace acmsearchlib/nulltime => ../nulltime
 
-go 1.15
+go 1.16
 
 require (
 	github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210313144544-5f170d2a702d

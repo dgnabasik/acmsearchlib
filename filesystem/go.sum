@@ -26,6 +26,8 @@ github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210303203715-a3f25ab4f17c h1:
 github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210303203715-a3f25ab4f17c/go.mod h1:tT0+V+Ap9sgpZkbNeGwMuXiB0SVL+Z8riFTh/ySUwnM=
 github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210313144544-5f170d2a702d h1:RPMRQ4KCjB3k+9WELJm3eUTDXRaQiiMSAtw+3xqeQmY=
 github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210313144544-5f170d2a702d/go.mod h1:AV98f/SYfNKrCZEiezKb71UgOnSXNi5d2+Rrq6DIORc=
+github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210322142620-1dea691eef44 h1:oT1AiUZoJTyy4HAnvx8uIc4lo2s7yxAvHwwkBY9fVRM=
+github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210322142620-1dea691eef44/go.mod h1:dltiteovEwXVCU/cS+du/+hB1bBvU4nhO7ij7gYxVzQ=
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20201206191427-03bcb92782c7 h1:ocW1YKbTDqeqjGUy7O1nYzDJEZiRuv5NyZ4o3JFJET4=
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20201206191427-03bcb92782c7/go.mod h1:8+mnmzx+rqK/h7JkENMkF+3ZqaMmyCJP541AzTscsU0=
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20201206193712-f1b276987652 h1:77Qx1fjQu9W4neNDKxpR6Xv+6wUtk9Qe40mCyGPdbHE=
@@ -50,6 +52,8 @@ github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210303203715-a3f25ab4f17c h1
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210303203715-a3f25ab4f17c/go.mod h1:im4Nlp2zAJ1XIxoCS5UCJSH5E85uZcD6eB5b1wwLiQA=
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210313144544-5f170d2a702d h1:ITHYAijN01zLSqpo3lckpM+SxKbZIzMEGrf8eSXtcPA=
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210313144544-5f170d2a702d/go.mod h1:im4Nlp2zAJ1XIxoCS5UCJSH5E85uZcD6eB5b1wwLiQA=
+github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210322142620-1dea691eef44 h1:0CSiIS6n1I0Zw9Dmx7V3eLvEq89XGSd6rnUPFov2SJg=
+github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210322142620-1dea691eef44/go.mod h1:dYaE77wLGNns26SzehkrmK6Pg5LDvUK89RIdxgxCnQs=
 github.com/envoyproxy/go-control-plane v0.9.1-0.20191026205805-5f8ba28d4473/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=
 github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7+kN2VEUnK/pcBlmesArF7c=
 github.com/gin-contrib/sse v0.1.0 h1:Y/yl/+YNO8GZSjAhjMsSuLt29uWRFHdHYUb5lYOV9qE=
@@ -128,6 +132,8 @@ golang.org/x/crypto v0.0.0-20210220033148-5ea612d1eb83 h1:/ZScEX8SfEmUGRHs0gxpqt
 golang.org/x/crypto v0.0.0-20210220033148-5ea612d1eb83/go.mod h1:jdWPYTVW3xRLrWPugEBEK3UY2ZEsg3UU495nc5E+M+I=
 golang.org/x/crypto v0.0.0-20210317152858-513c2a44f670 h1:gzMM0EjIYiRmJI3+jBdFuoynZlpxa2JQZsolKu09BXo=
 golang.org/x/crypto v0.0.0-20210317152858-513c2a44f670/go.mod h1:T9bdIzuCu7OtxOm1hfPfRQxPLYneinmdGuTeoZ9dtd4=
+golang.org/x/crypto v0.0.0-20210322153248-0c34fe9e7dc2 h1:It14KIkyBFYkHkwZ7k45minvA9aorojkyjGk9KJ5B/w=
+golang.org/x/crypto v0.0.0-20210322153248-0c34fe9e7dc2/go.mod h1:T9bdIzuCu7OtxOm1hfPfRQxPLYneinmdGuTeoZ9dtd4=
 golang.org/x/exp v0.0.0-20190121172915-509febef88a4/go.mod h1:CJ0aWSM057203Lf6IL+f9T1iT9GByDxfZKAQTCR3kQA=
 golang.org/x/lint v0.0.0-20181026193005-c67002cb31c3/go.mod h1:UVdnD1Gm6xHRNCYTkRU2/jEulfH38KcIWyp/GAMgvoE=
 golang.org/x/lint v0.0.0-20190227174305-5b3e6a55c961/go.mod h1:wehouNa3lNwaWXcvxsM5YxQ5yQlVC4a0KAMCusXpPoU=
@@ -155,6 +161,8 @@ golang.org/x/sys v0.0.0-20210313110737-8e9fff1a3a18 h1:jxr7/dEo+rR29uEBoLSWJ1tRH
 golang.org/x/sys v0.0.0-20210313110737-8e9fff1a3a18/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/sys v0.0.0-20210319071255-635bc2c9138d h1:jbzgAvDZn8aEnytae+4ou0J0GwFZoHR0hOrTg4qH8GA=
 golang.org/x/sys v0.0.0-20210319071255-635bc2c9138d/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
+golang.org/x/sys v0.0.0-20210320140829-1e4c9ba3b0c4 h1:EZ2mChiOa8udjfp6rRmswTbtZN/QzUQp4ptM4rnjHvc=
+golang.org/x/sys v0.0.0-20210320140829-1e4c9ba3b0c4/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/term v0.0.0-20201117132131-f5c789dd3221/go.mod h1:Nr5EML6q2oocZ2LXRh80K7BxOlk5/8JxuGnuhpl+muw=
 golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1/go.mod h1:bj7SfCRtBDWHUb9snDiAeCFNEtKQo2Wmx5Cou7ajbmo=
 golang.org/x/text v0.3.0/go.mod h1:NqM8EUOU14njkJ3fqMW+pc6Ldnwhi/IjpwHt7yyuwOQ=

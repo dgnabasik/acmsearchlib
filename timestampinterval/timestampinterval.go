@@ -2,20 +2,28 @@ package timestampinterval
 
 import (
 	nt "github.com/dgnabasik/acmsearchlib/nulltime"
+	"github.com/golang/protobuf/ptypes/timestamp"
 	//pbx "github.com/dgnabasik/acmsearchlib/timestamp"
 )
 
 func Version() string {
-	return "1.0.10"
+	return "1.16.2"
 }
 
 /* Proto messaging helper functions ************************************************************/
+
+// GetTimeStampFromUnixTimeStamp func
+func GetTimeStampFromUnixTimeStamp(uts nt.UnixTimeStamp) *timestamp.Timestamp {
+	tt := nt.GetTimeFromUnixTimeStamp(uts)
+	ts, _ := timestamp.TimestampProto(tt)
+	return ts
+}
 
 // NewTimeEventRequest func
 func NewTimeEventRequest(topic string, pbtft MTimeStampInterval_MTimeFrameType) *TimeEventRequest {
 	p := new(TimeEventRequest)
 	p.Topic = topic
-	theTime := nt.GetTimeStampFromUnixTimeStamp(nt.GetCurrentUnixTimeStamp())
+	var theTime *timestamp.Timestamp //<<< := nt.GetTimeStampFromUnixTimeStamp(nt.GetCurrentUnixTimeStamp())
 	p.Timestampinterval = new(MTimeStampInterval)
 	p.Timestampinterval.Timeframetype = pbtft
 	p.Timestampinterval.StartTime = theTime

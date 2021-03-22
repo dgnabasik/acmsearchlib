@@ -12,14 +12,22 @@ import (
 	"strings"
 	"time"
 
+	// APIv2:
+	// syntax = "proto3";
+	// import "google/protobuf/descriptor.proto";
+
 	// proto "github.com/golang/protobuf/proto"
-	ptypes "github.com/golang/protobuf/ptypes"
-	timestamp "github.com/golang/protobuf/ptypes/timestamp"
+	// APIv2 is not backwards compatible with APIv1, we need to use different module paths for each.
+	// APIv1 uses github.com/golang/protobuf.  APIv2 uses google.golang.org/protobuf
+	// https://pkg.go.dev/google.golang.org/protobuf/types/known/timestamppb
+	// ptypes "github.com/golang/protobuf/ptypes" // deprecated https://blog.golang.org/protobuf-apiv2
+	// 		ptypes "github.com/golang/protobuf/ptypes"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // Version func
 func Version() string {
-	return "1.0.10"
+	return "1.16.2"
 }
 
 // constants
@@ -414,7 +422,7 @@ func GetStartEndOfWeek(givenDate NullTime) (NullTime, NullTime) {
 	if isoYear > isoWeek { // dummy
 		for p.StartOfWeek.DT.Weekday() != time.Sunday {
 			p.StartOfWeek.DT = p.StartOfWeek.DT.AddDate(0, 0, -1)
-			isoYear, isoWeek = p.StartOfWeek.DT.ISOWeek()
+			_, _ = p.StartOfWeek.DT.ISOWeek() // isoYear, isoWeek
 		}
 	}
 
@@ -423,7 +431,7 @@ func GetStartEndOfWeek(givenDate NullTime) (NullTime, NullTime) {
 	if isoYear > isoWeek { // dummy
 		for p.EndOfWeek.DT.Weekday() != time.Saturday {
 			p.EndOfWeek.DT = p.EndOfWeek.DT.AddDate(0, 0, 1)
-			isoYear, isoWeek = p.EndOfWeek.DT.ISOWeek()
+			_, _ = p.EndOfWeek.DT.ISOWeek() // isoYear, isoWeek
 		}
 	}
 
@@ -621,22 +629,8 @@ type TimeStampInterval struct { // Enforce exact UTC time.
 }
 
 // GetCurrentTimeStamp func
-func GetCurrentTimeStamp() *timestamp.Timestamp {
-	return ptypes.TimestampNow()
-}
-
-// GetTimeStampFromUnixTimeStamp func
-func GetTimeStampFromUnixTimeStamp(uts UnixTimeStamp) *timestamp.Timestamp {
-	tt := GetTimeFromUnixTimeStamp(uts)
-	ts, _ := ptypes.TimestampProto(tt)
-	return ts
-}
-
-// GetNullTimeFromTimeStamp converts
-func GetNullTimeFromTimeStamp(tp *timestamp.Timestamp) NullTime {
-	tt, _ := ptypes.Timestamp(tp)
-	nt := New_NullTime2(tt)
-	return nt
+func GetCurrentTimeStamp() *timestamppb.Timestamp { // was *timestamp
+	return timestamppb.Now()
 }
 
 // GetUnixTimeStampFromTime func.

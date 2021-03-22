@@ -18,7 +18,7 @@ import (
 )
 
 func Version() string {
-	return "1.0.10"
+	return "1.16.2"
 }
 
 // constants
@@ -398,7 +398,7 @@ type OrderedArticleMap struct {
 // New_OrderedArticleMap func
 func New_OrderedArticleMap() OrderedArticleMap {
 	p := new(OrderedArticleMap)
-	p.articleMap = make(map[string]string, 0)
+	p.articleMap = make(map[string]string)
 	p.articleNames = make([]string, 0)
 	return *p
 }

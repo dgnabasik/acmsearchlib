@@ -33,13 +33,13 @@ cd ./database
  read 
  cd ..
 
-cd ./timestampinterval
- go get -u ./...
- go build
- go install
- echo -n "timestampinterval?"
- read 
- cd ..
+#cd ./timestampinterval
+# go get -u ./...
+# go build
+# go install
+# echo -n "timestampinterval?"
+# read 
+# cd ..
 
 cd ./conditional
  go get -u ./...

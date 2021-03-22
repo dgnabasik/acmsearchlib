@@ -16,29 +16,23 @@ import (
 )
 
 func Version() string {
-	return "1.0.10"
-}
-
-// GetArticleCount func
-func GetArticleCount() int {
-	db, err := dbx.GetDatabaseReference()
-	defer db.Close()
-
-	var count int
-	err = db.QueryRow("SELECT COUNT(*) FROM AcmData").Scan(&count)
-	dbx.CheckErr(err)
-	return count
+	return "1.16.2"
 }
 
 // GetLastDateSavedFromDb returns the earliest and latest AcmData.ArchiveDate values else default time.
 func GetLastDateSavedFromDb() (nt.NullTime, nt.NullTime, error) {
-	articleCount := GetArticleCount()
+	db, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return nt.New_NullTime(""), nt.New_NullTime(""), err // default time.
+	}
+	defer db.Close()
+
+	var articleCount int
+	err = db.QueryRow("SELECT COUNT(*) FROM AcmData").Scan(&articleCount)
+	dbx.CheckErr(err)
 	if articleCount == 0 {
 		return nt.New_NullTime(""), nt.New_NullTime(""), nil // default time.
 	}
-
-	db, err := dbx.GetDatabaseReference()
-	defer db.Close()
 
 	var archiveDate1, archiveDate2 nt.NullTime // NullTime supports Scan() interface.
 
@@ -54,6 +48,9 @@ func GetLastDateSavedFromDb() (nt.NullTime, nt.NullTime, error) {
 // GetAcmArticleListByArchiveDates func
 func GetAcmArticleListByArchiveDates(dateList []string) ([]hd.AcmArticle, error) {
 	db, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return nil, err
+	}
 	defer db.Close()
 
 	inPhrase := dbx.CompileInClause(dateList)
@@ -97,6 +94,9 @@ func GetAcmArticleListByArchiveDates(dateList []string) ([]hd.AcmArticle, error)
 // GetAcmArticleListByDate PostgreSql allows for defining a generic get-all-rows stored proc and appending the WHERE clause to the select instead of defining the WHERE clause inside the stored proc, but it is slower.
 func GetAcmArticleListByDate(timeinterval nt.TimeInterval) ([]hd.AcmArticle, error) {
 	db, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return nil, err
+	}
 	defer db.Close()
 
 	SELECT := "SELECT * FROM GetAcmArticles() WHERE ArchiveDate >= '" + timeinterval.StartDate.StandardDate() + "' AND ArchiveDate <= '" + timeinterval.EndDate.StandardDate() + "'"
@@ -127,6 +127,9 @@ func GetAcmArticleListByDate(timeinterval nt.TimeInterval) ([]hd.AcmArticle, err
 // GetAcmArticlesByID func
 func GetAcmArticlesByID(idMap map[uint32]int, cutoff int) ([]hd.AcmArticle, error) {
 	db, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return nil, err
+	}
 	defer db.Close()
 
 	//inPhrase := "(" + strings.Trim(strings.Join(strings.Fields(fmt.Sprint(idMap)), ","), "[]") + ")" // beautiful! but only works with arrays and not maps.

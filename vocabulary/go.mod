@@ -1,13 +1,12 @@
 module github.com/dgnabasik/acmsearchlib/vocabulary
 
-// comment
-go 1.15
+go 1.16
 
 require (
-	github.com/dgnabasik/acmsearchlib/conditional v0.0.0-20210320194116-b0663c847efd
-	github.com/dgnabasik/acmsearchlib/database v0.0.0-20210320194116-b0663c847efd
-	github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210320194116-b0663c847efd
-	github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210320194116-b0663c847efd
+	github.com/dgnabasik/acmsearchlib/conditional v0.0.0-20210322142620-1dea691eef44
+	github.com/dgnabasik/acmsearchlib/database v0.0.0-20210322142620-1dea691eef44
+	github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210322142620-1dea691eef44
+	github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210322142620-1dea691eef44
 	github.com/golang/protobuf v1.5.1 // indirect
 	github.com/google/uuid v1.2.0 // indirect
 	github.com/lib/pq v1.10.0

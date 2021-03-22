@@ -24,6 +24,8 @@ github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210303203715-a3f25ab4f17c h1
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210303203715-a3f25ab4f17c/go.mod h1:im4Nlp2zAJ1XIxoCS5UCJSH5E85uZcD6eB5b1wwLiQA=
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210313144544-5f170d2a702d h1:ITHYAijN01zLSqpo3lckpM+SxKbZIzMEGrf8eSXtcPA=
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210313144544-5f170d2a702d/go.mod h1:im4Nlp2zAJ1XIxoCS5UCJSH5E85uZcD6eB5b1wwLiQA=
+github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210322142620-1dea691eef44 h1:0CSiIS6n1I0Zw9Dmx7V3eLvEq89XGSd6rnUPFov2SJg=
+github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210322142620-1dea691eef44/go.mod h1:dYaE77wLGNns26SzehkrmK6Pg5LDvUK89RIdxgxCnQs=
 github.com/envoyproxy/go-control-plane v0.9.1-0.20191026205805-5f8ba28d4473/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=
 github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7+kN2VEUnK/pcBlmesArF7c=
 github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b/go.mod h1:SBH7ygxi8pfUlaOkMMuAQtPIUF8ecWP5IEl/CR7VP2Q=

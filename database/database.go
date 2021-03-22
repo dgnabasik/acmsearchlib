@@ -41,7 +41,7 @@ import (
 
 // Version func
 func Version() string {
-	return "1.0.10"
+	return "1.16.2"
 }
 
 // DB struct
@@ -114,6 +114,9 @@ func TestDbConnection(db *sql.DB) (*sql.DB, error) {
 // CallTruncateTables truncates tables with sequences.
 func CallTruncateTables() error {
 	db, err := GetDatabaseReference()
+	if err != nil {
+		return err
+	}
 	defer db.Close()
 
 	_, err = db.Exec("call TruncateTables()")
