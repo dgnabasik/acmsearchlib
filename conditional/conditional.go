@@ -653,14 +653,14 @@ func GetProbabilityGraph(words []string, timeInterval nt.TimeInterval) ([]hd.Con
 
 		SELECT.WriteString("SELECT id, wordlist, probability, timeframetype, startDate, endDate, firstDate, lastDate, pmi, dateUpdated FROM Conditional ")
 		SELECT.WriteString("WHERE wordlist LIKE " + likeWord1 + " AND " + intervalClause)
-		SELECT.WriteString("AND pmi >= (SELECT pmi FROM Conditional WHERE wordlist=" + bigram + " AND " + intervalClause + ") ")
-		SELECT.WriteString("AND probability >= (SELECT probability FROM Conditional WHERE wordlist=" + bigram + " AND " + intervalClause + ") ")
+		SELECT.WriteString("AND pmi >= (SELECT MAX(pmi) FROM Conditional WHERE wordlist=" + bigram + " AND " + intervalClause + ") ")
+		SELECT.WriteString("AND probability >= (SELECT MAX(probability) FROM Conditional WHERE wordlist=" + bigram + " AND " + intervalClause + ") ")
 		SELECT.WriteString("AND SUBSTRING(wordlist from " + strconv.Itoa(len(leftWord)+2) + " for 32) IN (SELECT word FROM Wordscore WHERE score >= (SELECT MAX(score) FROM Wordscore WHERE word=" + leftWord + ")) ")
 		SELECT.WriteString("UNION ")
 		SELECT.WriteString("SELECT id, wordlist, probability, timeframetype, startDate, endDate, firstDate, lastDate, pmi, dateUpdated FROM Conditional ")
 		SELECT.WriteString("WHERE wordlist LIKE " + likeWord2 + " AND " + intervalClause)
-		SELECT.WriteString("AND pmi >= (SELECT pmi FROM Conditional WHERE wordlist=" + reverseBigram + " AND " + intervalClause + ") ")
-		SELECT.WriteString("AND probability >= (SELECT probability FROM Conditional WHERE wordlist=" + reverseBigram + " AND " + intervalClause + ") ")
+		SELECT.WriteString("AND pmi >= (SELECT MAX(pmi) FROM Conditional WHERE wordlist=" + reverseBigram + " AND " + intervalClause + ") ")
+		SELECT.WriteString("AND probability >= (SELECT MAX(probability) FROM Conditional WHERE wordlist=" + reverseBigram + " AND " + intervalClause + ") ")
 		SELECT.WriteString("AND SUBSTRING(wordlist FROM " + strconv.Itoa(len(rightWord)+2) + " for 32) IN (SELECT word FROM Wordscore WHERE score >= (SELECT MAX(score) FROM Wordscore WHERE word=" + rightWord + ")) ")
 
 		if index < len(bigrams)-1 {
