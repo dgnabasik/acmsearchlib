@@ -5,10 +5,10 @@ go 1.16
 require (
 	github.com/dgnabasik/acmsearchlib/category v0.0.0-20210322142620-1dea691eef44
 	github.com/dgnabasik/acmsearchlib/conditional v0.0.0-20210322142620-1dea691eef44
-	github.com/dgnabasik/acmsearchlib/database v0.0.0-20210322172523-c97930b80934
+	github.com/dgnabasik/acmsearchlib/database v0.0.0-20210325002052-704b7df69a8a
 	github.com/dgnabasik/acmsearchlib/filesystem v0.0.0-20210322142620-1dea691eef44
-	github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210322163022-e25dd13e0ed3
-	github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210322163022-e25dd13e0ed3
+	github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210325002052-704b7df69a8a
+	github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210325002052-704b7df69a8a
 	github.com/dgnabasik/acmsearchlib/timestampinterval v0.0.0-20210322142620-1dea691eef44
 	github.com/dgnabasik/acmsearchlib/vocabulary v0.0.0-20210322142620-1dea691eef44
 	github.com/go-log/log v0.2.0 // indirect
@@ -19,7 +19,6 @@ require (
 	github.com/micro/go-micro/v2 v2.9.1
 	github.com/miekg/dns v1.1.41 // indirect
 	golang.org/x/crypto v0.0.0-20210322153248-0c34fe9e7dc2 // indirect
-	golang.org/x/net v0.0.0-20210316092652-d523dce5a7f4 // indirect
-	golang.org/x/sys v0.0.0-20210320140829-1e4c9ba3b0c4 // indirect
+	golang.org/x/net v0.0.0-20210324205630-d1beb07c2056 // indirect
 	google.golang.org/protobuf v1.26.0
 )
