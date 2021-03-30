@@ -3,12 +3,12 @@ package category
 // category.go manages categories. Derived from ~/websites/dropdownlists/golang/listservice.go
 
 import (
+	"context"
 	"strconv"
 	"time"
 
 	dbx "github.com/dgnabasik/acmsearchlib/database"
 	hd "github.com/dgnabasik/acmsearchlib/headers"
-
 	"github.com/lib/pq"
 )
 
@@ -29,7 +29,7 @@ func InsertCategoryWords(categoryID uint64, words []string) error {
 	}
 	defer db.Close()
 
-	txn, err := db.Begin()
+	txn, err := db.Begin(context.Background())
 	dbx.CheckErr(err)
 
 	// Must use lowercase column names! First param is table name.
@@ -37,17 +37,17 @@ func InsertCategoryWords(categoryID uint64, words []string) error {
 	dbx.CheckErr(err)
 
 	for _, word := range words {
-		_, err = stmt.Exec(word, categoryID, dateupdated)
+		_, err = stmt.Exec(context.Background(), word, categoryID, dateupdated)
 		dbx.CheckErr(err)
 	}
 
-	_, err = stmt.Exec()
+	_, err = stmt.Exec(context.Background())
 	dbx.CheckErr(err)
 
 	err = stmt.Close()
 	dbx.CheckErr(err)
 
-	err = txn.Commit()
+	err = txn.Commit(context.Background())
 	dbx.CheckErr(err)
 
 	return nil

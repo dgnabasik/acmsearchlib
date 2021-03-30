@@ -3,6 +3,7 @@ package conditional
 //  manages conditional probabilities and occurrences.
 
 import (
+	"context"
 	"encoding/hex"
 	"fmt"
 	"log"
@@ -16,8 +17,6 @@ import (
 	dbx "github.com/dgnabasik/acmsearchlib/database"
 	hd "github.com/dgnabasik/acmsearchlib/headers"
 	nt "github.com/dgnabasik/acmsearchlib/nulltime"
-
-	// comment
 	"github.com/lib/pq"
 )
 
@@ -340,7 +339,7 @@ func BulkInsertConditionalProbability(conditionals []hd.ConditionalProbability) 
 	}
 	defer db.Close()
 
-	txn, err := db.Begin()
+	txn, err := db.Begin(context.Background())
 	dbx.CheckErr(err)
 
 	// Must use lowercase column names! First param is table name.
@@ -348,17 +347,17 @@ func BulkInsertConditionalProbability(conditionals []hd.ConditionalProbability) 
 	dbx.CheckErr(err)
 
 	for _, v := range conditionals {
-		_, err = stmt.Exec(v.WordList, v.Probability, v.Timeinterval.Timeframetype, v.Timeinterval.StartDate.DT, v.Timeinterval.EndDate.DT, v.FirstDate.DT, v.LastDate.DT, v.Pmi, v.DateUpdated.DT)
+		_, err = stmt.Exec(context.Background(), v.WordList, v.Probability, v.Timeinterval.Timeframetype, v.Timeinterval.StartDate.DT, v.Timeinterval.EndDate.DT, v.FirstDate.DT, v.LastDate.DT, v.Pmi, v.DateUpdated.DT)
 		dbx.CheckErr(err)
 	}
 
-	_, err = stmt.Exec()
+	_, err = stmt.Exec(context.Background())
 	dbx.CheckErr(err)
 
 	err = stmt.Close()
 	dbx.CheckErr(err)
 
-	err = txn.Commit()
+	err = txn.Commit(context.Background())
 	dbx.CheckErr(err)
 
 	return nil

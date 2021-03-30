@@ -22,7 +22,7 @@ package database
 */
 
 import (
-	"context" // pgx drives uses context: see https://golang.org/pkg/context/
+	"context" // pgx driver uses context: see https://golang.org/pkg/context/
 	"fmt"
 	"log"
 	"os"
@@ -31,7 +31,7 @@ import (
 	"time"
 
 	nt "github.com/dgnabasik/acmsearchlib/nulltime"
-
+	// https://pkg.go.dev/github.com/jackc/pgx/v4/pgxpool
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
@@ -215,7 +215,7 @@ func BulkUpdateVocabularySpeechpart() []string {
 	}
 
 	// part 2:
-	txn, err := db.Begin()
+	txn, err := db.Begin(context.Background())
 	CheckErr(err)
 
 	stmt, err := db.Prepare("UPDATE vocabulary SET SpeechPart= $1 WHERE Word= $2;")
@@ -226,14 +226,14 @@ func BulkUpdateVocabularySpeechpart() []string {
 		if speechPart == "" {
 			wordNetSpeechParts.Unknown = append(wordNetSpeechParts.Unknown, w)
 		}
-		_, err = stmt.Exec(context.Context, speechPart, w)
+		_, err = stmt.Exec(context.Background(), speechPart, w)
 		CheckErr(err)
 	}
 
 	err = stmt.Close()
 	CheckErr(err)
 
-	err = txn.Commit()
+	err = txn.Commit(context.Background())
 	CheckErr(err)
 
 	elapsed := time.Since(start)

@@ -3,15 +3,13 @@ package wordscore
 //  wordscore database interface
 
 import (
+	"context"
 	"log"
 	"time"
 
 	dbase "github.com/dgnabasik/acmsearchlib/database"
 	hd "github.com/dgnabasik/acmsearchlib/headers"
 	nt "github.com/dgnabasik/acmsearchlib/nulltime"
-
-	// comment
-	"github.com/lib/pq"
 )
 
 func Version() string {
@@ -27,7 +25,7 @@ func GetWordScores(word string) ([]hd.WordScore, error) {
 	defer db.Close()
 
 	SELECT := "SELECT id,word,timeframetype,startDate,endDate,density,linkage,growth,score FROM WordScore WHERE Word='" + word + "' ORDER BY startDate"
-	rows, err := db.Query(SELECT)
+	rows, err := db.Query(context.Background(), SELECT)
 	dbase.CheckErr(err)
 	defer rows.Close()
 
@@ -78,7 +76,7 @@ func GetWordScoreListByTimeInterval(words []string, timeInterval nt.TimeInterval
 	SELECT := "SELECT id,word,timeframetype,startDate,endDate,density,linkage,growth,score FROM WordScore WHERE word IN" + dbase.CompileInClause(words) +
 		"AND " + dbase.CompileDateClause(timeInterval, true)
 
-	rows, err := db.Query(SELECT)
+	rows, err := db.Query(context.Background(), SELECT)
 	dbase.CheckErr(err)
 	if err != nil {
 		log.Printf("GetWordScoreListByTimeInterval(1): %+v\n", err)
@@ -131,25 +129,25 @@ func BulkInsertWordScores(wordScoreList []hd.WordScore) error {
 	}
 	defer db.Close()
 
-	txn, err := db.Begin()
+	txn, err := db.Begin(context.Background())
 	dbase.CheckErr(err)
 
 	// Must use lowercase column names! First param is table name.
-	stmt, err := txn.Prepare(pq.CopyIn("wordscore", "word", "timeframetype", "startdate", "enddate", "density", "linkage", "growth", "score"))
+	stmt, err := txn.Prepare(CopyIn("wordscore", "word", "timeframetype", "startdate", "enddate", "density", "linkage", "growth", "score"))
 	dbase.CheckErr(err)
 
 	for _, v := range wordScoreList {
-		_, err = stmt.Exec(v.Word, int(v.Timeinterval.Timeframetype), v.Timeinterval.StartDate.DT, v.Timeinterval.EndDate.DT, v.Density, v.Linkage, v.Growth, v.Score)
+		_, err = stmt.Exec(context.Background(), v.Word, int(v.Timeinterval.Timeframetype), v.Timeinterval.StartDate.DT, v.Timeinterval.EndDate.DT, v.Density, v.Linkage, v.Growth, v.Score)
 		dbase.CheckErr(err)
 	}
 
-	_, err = stmt.Exec()
+	_, err = stmt.Exec(context.Background())
 	dbase.CheckErr(err)
 
 	err = stmt.Close()
 	dbase.CheckErr(err)
 
-	err = txn.Commit()
+	err = txn.Commit(context.Background())
 	dbase.CheckErr(err)
 
 	return err

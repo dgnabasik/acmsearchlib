@@ -3,6 +3,7 @@ package article
 //  manages articles.
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"strconv"
@@ -12,10 +13,7 @@ import (
 	dbx "github.com/dgnabasik/acmsearchlib/database"
 	hd "github.com/dgnabasik/acmsearchlib/headers"
 	nt "github.com/dgnabasik/acmsearchlib/nulltime"
-
-	// comment
 	"github.com/lib/pq"
-	_ "github.com/lib/pq"
 )
 
 func Version() string {
@@ -245,21 +243,21 @@ func BulkInsertAcmData(articleList []hd.AcmArticle) (int, error) {
 	sqlStatement := "SELECT MAX(id) FROM acmdata;"
 	_ = db.QueryRow(sqlStatement).Scan(&maxID) // row
 
-	txn, err := db.Begin()
+	txn, err := db.Begin(context.Background())
 	dbx.CheckErr(err)
 
 	// tableName, field list (except Id)
 	stmt, _ := txn.Prepare(pq.CopyIn("acmdata", "archivedate", "articlenumber", "title", "imagesource", "journalname", "authorname", "journaldate", "webreference", "summary"))
 	for _, rec := range articleList {
-		_, err := stmt.Exec(rec.ArchiveDate.DT, rec.ArticleNumber, rec.Title, rec.ImageSource, rec.JournalName, rec.AuthorName, rec.JournalDate.DT, rec.WebReference, rec.Summary)
+		_, err := stmt.Exec(context.Background(), rec.ArchiveDate.DT, rec.ArticleNumber, rec.Title, rec.ImageSource, rec.JournalName, rec.AuthorName, rec.JournalDate.DT, rec.WebReference, rec.Summary)
 		dbx.CheckErr(err)
 	}
 
-	_, err = stmt.Exec() // flush needed
+	_, err = stmt.Exec(context.Background()) // flush needed
 	dbx.CheckErr(err)
 	err = stmt.Close()
 	dbx.CheckErr(err)
-	err = txn.Commit()
+	err = txn.Commit(context.Background())
 	dbx.CheckErr(err)
 
 	// update articleList with new Id values

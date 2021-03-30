@@ -3,6 +3,7 @@ package vocabulary
 //  vocabulary.go manages hd.Vocabulary in database.
 
 import (
+	"context"
 	"log"
 	"os"
 	"strings"
@@ -11,8 +12,6 @@ import (
 	dbx "github.com/dgnabasik/acmsearchlib/database"
 	hd "github.com/dgnabasik/acmsearchlib/headers"
 	nt "github.com/dgnabasik/acmsearchlib/nulltime"
-
-	// comment
 	"github.com/lib/pq"
 )
 
@@ -264,21 +263,23 @@ func UpdateVocabulary(recordList []hd.Vocabulary) (int, error) {
 	}
 	defer DB.Close()
 
-	txn, err := DB.Begin()
+	txn, err := DB.Begin(context.Background())
 	dbx.CheckErr(err)
 
 	stmt, err := DB.Prepare("UPDATE vocabulary SET RowCount = $2, Frequency = $3, SpeechPart = $4 WHERE Word = $1;")
 	dbx.CheckErr(err)
 
 	for _, v := range recordList {
-		_, err = stmt.Exec(v.Word, v.RowCount, v.Frequency, v.SpeechPart) // lastId, err := res.LastInsertId()
+		_, err = stmt.Exec(context.Background(), v.Word, v.RowCount, v.Frequency, v.SpeechPart) // lastId, err := res.LastInsertId()
 		dbx.CheckErr(err)
 	}
 
+	_, err = stmt.Exec(context.Background()) // flush needed
+	dbx.CheckErr(err)
 	err = stmt.Close()
 	dbx.CheckErr(err)
 
-	err = txn.Commit()
+	err = txn.Commit(context.Background())
 	dbx.CheckErr(err)
 
 	return len(recordList), nil
@@ -332,7 +333,7 @@ func BulkInsertVocabulary(recordList []hd.Vocabulary) (int, error) {
 	}
 	defer DB.Close()
 
-	txn, err := DB.Begin()
+	txn, err := DB.Begin(context.Background())
 	dbx.CheckErr(err)
 
 	// tableName, field list (except Id)
@@ -340,16 +341,16 @@ func BulkInsertVocabulary(recordList []hd.Vocabulary) (int, error) {
 	for _, rec := range recordList {
 		_, rule := cond.FilteringRules(rec.Word)
 		if rule >= 0 {
-			_, err := stmt.Exec(rec.Word, rec.RowCount, rec.Frequency, rec.WordRank, rec.Probability, rec.SpeechPart)
+			_, err := stmt.Exec(context.Background(), rec.Word, rec.RowCount, rec.Frequency, rec.WordRank, rec.Probability, rec.SpeechPart)
 			dbx.CheckErr(err)
 		}
 	}
 
-	_, err = stmt.Exec() // flush needed
+	_, err = stmt.Exec(context.Background()) // flush needed
 	dbx.CheckErr(err)
 	err = stmt.Close()
 	dbx.CheckErr(err)
-	err = txn.Commit()
+	err = txn.Commit(context.Background())
 	dbx.CheckErr(err)
 
 	return len(recordList), nil
@@ -363,7 +364,7 @@ func CallUpdateVocabulary() error {
 	}
 	defer DB.Close()
 
-	_, err = DB.Exec("call UpdateVocabulary();")
+	_, err = DB.Exec(context.Background(), "call UpdateVocabulary();")
 	dbx.CheckErr(err)
 
 	return err
