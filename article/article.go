@@ -3,15 +3,18 @@ package article
 //  manages articles.
 
 import (
+	"fmt"
 	"log"
 	"strconv"
 	"strings"
 
+	cond "github.com/dgnabasik/acmsearchlib/conditional"
 	dbx "github.com/dgnabasik/acmsearchlib/database"
 	hd "github.com/dgnabasik/acmsearchlib/headers"
 	nt "github.com/dgnabasik/acmsearchlib/nulltime"
 
 	// comment
+	"github.com/lib/pq"
 	_ "github.com/lib/pq"
 )
 
@@ -164,4 +167,118 @@ func GetAcmArticlesByID(idMap map[uint32]int, cutoff int) ([]hd.AcmArticle, erro
 	dbx.CheckErr(err)
 
 	return articleList, err
+}
+
+// WordFrequencyList produces Word Frequency table using PostgreSql full-text methods. The exported wordfreq.txt file is currated to remove hex or decimal numbers, web references, etc, then bulk-loaded.
+// Postgres full-text searching supports: Stemming, Ranking / Boost, Multiple languages, Fuzzy search for misspelling, Accents.
+// 2 PostgreSql data types that support full-text search: tsvector-represents a document in a form optimized for text search; tsquery-represents a text query.
+// A tsvector value is a sorted list of distinct lexemes which are words that have been normalized to make different variants of the same word look alike.
+// A tsquery value stores lexemes that are to be searched for, and combines them honoring the Boolean operators & (AND), | (OR), and ! (NOT): SELECT to_tsvector('the impossible') @@ to_tsquery('impossible');
+// SELECT * FROM ts_stat('SELECT to_tsvector(''simple_english'',summary) from acmdata') ORDER BY nentry DESC, ndoc DESC, word LIMIT 4096;
+// The nested SELECT statement can be any select statement that yields a tsvector column, so you could substitute a function that applies the to_tsvector function to any number of text fields, and concatenates them into a single tsvector: SELECT * FROM ts_stat('SELECT to_tsvector(''simple_english'',title) || to_tsvector(''simple_english'',body) from acmdata') ORDER BY nentry DESC;
+// http://www.postgresql.org/docs/current/static/textsearch.html
+// https://www.w3resource.com/PostgreSQL/postgresql-text-search-function-and-operators.php
+// https://www.postgresql.org/docs/9.6/functions-textsearch.html
+// https://www.postgresql.org/docs/8.3/textsearch-features.html
+// wordFrequencyList assigns Vocabulary.Word,RowCount,Frequency. This is the only reference to [AcmData].
+func WordFrequencyList() ([]hd.Vocabulary, error) {
+	DB, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return nil, err
+	}
+	defer DB.Close()
+
+	//Parameterized form: rows, err := DB.Query("SELECT id, first_name FROM acmdata LIMIT $1", 3)
+	//psql: \copy (SELECT * FROM ts_stat('SELECT to_tsvector(''simple_english'',summary) from acmdata ') ORDER BY word, nentry DESC, ndoc DESC) to '/home/david/acm/processed.txt' with csv;
+	SELECT := "SELECT * FROM ts_stat('SELECT to_tsvector(''simple_english'',summary) from acmdata') ORDER BY word, nentry DESC, ndoc DESC;"
+	rows, err := DB.Query(SELECT)
+	dbx.CheckErr(err)
+	defer rows.Close()
+
+	// Use map to record duplicates when found.
+	var wordList []hd.Vocabulary
+	wordMap := make(map[string]int)
+	// fields to read: word | ndoc | nentry
+	var word string
+	var rowCount, frequency int
+
+	fmt.Print("Duplicates:")
+	for rows.Next() {
+		err = rows.Scan(&word, &rowCount, &frequency)
+		dbx.CheckErr(err)
+
+		newWord, rule := cond.FilteringRules(word)
+		if rule < 0 {
+			continue
+		} else if rule > 0 {
+			word = newWord
+		}
+
+		if wordMap[word] > 0 { // have duplicate; find previous entry and modify.
+			wordList[wordMap[word]-1].RowCount += rowCount
+			wordList[wordMap[word]-1].Frequency += frequency
+			fmt.Print(" " + word)
+		} else { // new entry
+			newVocabulary := hd.Vocabulary{Id: 0, Word: word, RowCount: rowCount, Frequency: frequency, WordRank: 0, Probability: 0, SpeechPart: " "} // id, word, rowCount, frequency, wordRank, probability, speechPart)
+			wordList = append(wordList, newVocabulary)
+			wordMap[word] = len(wordList)
+		}
+
+	}
+	fmt.Println("")
+	err = rows.Err()
+	dbx.CheckErr(err)
+
+	return wordList, nil
+}
+
+// BulkInsertAcmData includes query to retrieve new Id values and place them into articleList.
+// nov-26-2003.html ==> pq: invalid byte sequence for encoding "UTF8": 0xe9 0x67 0xe9
+func BulkInsertAcmData(articleList []hd.AcmArticle) (int, error) {
+	db, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return -1, err
+	}
+	defer db.Close()
+
+	var maxID uint32 = 0
+	sqlStatement := "SELECT MAX(id) FROM acmdata;"
+	_ = db.QueryRow(sqlStatement).Scan(&maxID) // row
+
+	txn, err := db.Begin()
+	dbx.CheckErr(err)
+
+	// tableName, field list (except Id)
+	stmt, _ := txn.Prepare(pq.CopyIn("acmdata", "archivedate", "articlenumber", "title", "imagesource", "journalname", "authorname", "journaldate", "webreference", "summary"))
+	for _, rec := range articleList {
+		_, err := stmt.Exec(rec.ArchiveDate.DT, rec.ArticleNumber, rec.Title, rec.ImageSource, rec.JournalName, rec.AuthorName, rec.JournalDate.DT, rec.WebReference, rec.Summary)
+		dbx.CheckErr(err)
+	}
+
+	_, err = stmt.Exec() // flush needed
+	dbx.CheckErr(err)
+	err = stmt.Close()
+	dbx.CheckErr(err)
+	err = txn.Commit()
+	dbx.CheckErr(err)
+
+	// update articleList with new Id values
+	SELECT := "SELECT id FROM acmdata WHERE id > " + strconv.FormatUint(uint64(maxID), 10) + ";"
+	var id, index uint32
+	rows, err := db.Query(SELECT)
+	dbx.CheckErr(err)
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&id)
+		dbx.CheckErr(err)
+		articleList[index].Id = id
+		index++
+	}
+
+	// get any iteration errors
+	err = rows.Err()
+	dbx.CheckErr(err)
+
+	return len(articleList), nil
 }

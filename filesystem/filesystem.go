@@ -4,7 +4,7 @@ package filesystem
 import (
 	"archive/zip"
 	"bufio"
-	"database/sql"
+	"database/sql" //<<<
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -32,7 +32,7 @@ type FileServiceInterface interface {
 
 // FileService struct implements FileServiceInterface.
 type FileService struct {
-	tableController TableController
+	//tableController TableController
 }
 
 // TableController struct
@@ -375,61 +375,3 @@ func (fss *FileService) GetTextFile(ctx *gin.Context) {
 		"LookupMap": lookupMap,
 	})
 }
-
-/*************************************************************************************/
-
-/* InitializeRoutes func: cannot rely upon the order of execution of init() functions!
-// Query string parameters are parsed using the existing underlying request object.
-func InitializeRoutes(qs *ListService, fss *FileService) *gin.Engine {
-	defer qs.tableController.DB.Close()
-
-	gin.SetMode(gin.ReleaseMode) // Switch to "release" mode in production; or export GIN_MODE=release
-	router := gin.Default()
-
-	// Credential is not supported if the CORS header ‘Access-Control-Allow-Origin’ is ‘*’
-	// The wildcard asterisk only works for AllowedOrigins. Using the asterisk in AllowedMethods and AllowedHeaders will have no affect.
-	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"*"},
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"User-Agent", "Referrer", "Host", "Token", "Accept", "Content-Type", "Origin", "Content-Length", "X-Requested-With", "Accept-Encoding"},
-		AllowCredentials: true,
-		AllowAllOrigins:  false,
-		ExposeHeaders:    []string{"Content-Length", "Content-Type"},
-		AllowOriginFunc: func(origin string) bool {
-			return true // origin == hostName
-		},
-		MaxAge: 86400,
-	}))
-
-	router.Use(ErrorHandler)
-	router.Static("/static", "./build/static") // use the loaded source
-	router.Use(static.Serve("/", static.LocalFile("./build", true)))
-
-	// Direct all routes to index.html:
-	router.GET("/", func(ctx *gin.Context) {
-		ctx.HTML(http.StatusOK, "index.html", nil)
-	})
-
-	list := router.Group("/list")
-	{
-		list.GET("", qs.GetCategoryMap)
-		list.GET("/:category", qs.GetSpecialMap) // number
-	}
-
-	file := router.Group("/file")
-	{
-		file.GET("/:name", fss.GetTextFile) // string
-		file.OPTIONS("", ContextOptions)
-		file.POST("", fss.SetWordCategory) // append formdata{description, filename}
-	}
-
-	apiPort := GetPort()
-	api := "Handling REST-API calls on " + GetHost() + ":" + apiPort
-	fmt.Println(api)
-	fmt.Println("  GET /list")
-	fmt.Println("  GET /list/:category")
-	fmt.Println("  GET /file/:name")
-
-	router.Run(":" + apiPort)
-	return router
-} */

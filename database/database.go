@@ -17,13 +17,12 @@ package database
    if the compiler cannot prove that the variable is not referenced after the function returns, then the compiler must allocate the variable on the garbage-collected heap to avoid dangling pointer errors. If you need to know where your variables are allocated pass the "-m" gc flag to "go build" or "go run" (e.g., go run -gcflags -m app.go).
    Most memory allocations are served from local thread caches.
 
-   Ddatabase driver: go get -u github.com/lib/pq	(_) include this package even though the package is not explicitly referenced in code.
-   pq driver: NullTime implements the sql.Scanner interface so it can be used as a scan destination, similar to sql.NullString.
+   Ddatabase driver: go get -u github.com/jackc/pgx	(_) include this package even though the package is not explicitly referenced in code.
    s.p. inserts into table Occurrence. The defer statement should come after you check for an error from DB.Query.
 */
 
 import (
-	"database/sql"
+	"context" // pgx drives uses context: see https://golang.org/pkg/context/
 	"fmt"
 	"log"
 	"os"
@@ -33,8 +32,7 @@ import (
 
 	nt "github.com/dgnabasik/acmsearchlib/nulltime"
 
-	// comment
-	_ "github.com/lib/pq"
+	"github.com/jackc/pgx/v4/pgxpool"
 )
 
 // mapset https://github.com/deckarep/golang-set/blob/master/README.md & https://godoc.org/github.com/deckarep/golang-set
@@ -45,10 +43,8 @@ func Version() string {
 }
 
 // DB struct
-// dbRef, err := dbase.GetDatabaseReference()
-// dbObj := &ArticleDatastore{db: dbRef}
 type DB struct {
-	*sql.DB
+	*pgxpool.Pool
 }
 
 // CheckErr database error handler.
@@ -72,20 +68,13 @@ func GetDatabaseConnectionString() string {
 }
 
 // GetDatabaseReference opens a database specified by its database driver name and a driver-specific data source name: db,err := GetDatabaseReference()
-// defer db.Close() must follow a call to this function in the calling function. sslmode is set to 'required' with lib/pq by default.
-func GetDatabaseReference() (*sql.DB, error) {
-	const (
-		dbDriver      = "postgres"
-		dbConnections = 20
-	)
-
+// defer db.Close() must follow a call to this function in the calling function. sslmode is set to 'required' by default.
+// This is a postgres-only database drive! Background() returns a non-nil, empty Context. It is never canceled, has no values, and has no deadline.
+func GetDatabaseReference() (*pgxpool.Pool, error) {
 	dbConn := GetDatabaseConnectionString()
-	db, err := sql.Open(dbDriver, dbConn)
+	db, err := pgxpool.Connect(context.Background(), dbConn)
 	CheckErr(err)
-	db.SetMaxIdleConns(0)
-	db.SetMaxOpenConns(dbConnections)
-	db.SetConnMaxLifetime(0)
-	err = db.Ping() // connects
+	err = db.Ping(context.Background())
 	if err != nil {
 		fmt.Println(err)
 		fmt.Print("Press Enter to continue...")
@@ -95,8 +84,8 @@ func GetDatabaseReference() (*sql.DB, error) {
 }
 
 // TestDbConnection returns a new connection after 1 attempt if db connection is dead else user prompt.
-func TestDbConnection(db *sql.DB) (*sql.DB, error) {
-	err := db.Ping()
+func TestDbConnection(db *pgxpool.Pool) (*pgxpool.Pool, error) {
+	err := db.Ping(context.Background())
 	if err != nil {
 		db.Close()
 		time.Sleep(1000)
@@ -119,7 +108,7 @@ func CallTruncateTables() error {
 	}
 	defer db.Close()
 
-	_, err = db.Exec("call TruncateTables()")
+	_, err = db.Exec(context.Background(), "call TruncateTables()")
 	CheckErr(err)
 
 	fmt.Println("CallTruncateTables() done.")
@@ -182,6 +171,23 @@ func CompileDateClause(timeInterval nt.TimeInterval, useTimeframetype bool) stri
 	return "startDate >= '" + timeInterval.StartDate.StandardDate() + "' AND endDate <= '" + timeInterval.EndDate.StandardDate() + "' "
 }
 
+/* Timestamptz support for pgx driver:
+func (tw *timeWrapper) Scan(in interface{}) error {
+	var t pgtype.Timestamptz
+	err := t.Scan(in)
+	if err != nil {
+		return err
+	}
+
+	tp, err := ptypes.TimestampProto(t.Time)
+	if err != nil {
+		return err
+	}
+
+	*tw = (timeWrapper)(*tp)
+	return nil
+} */
+
 /*************************************************************************************************/
 
 // BulkUpdateVocabularySpeechpart concatentates parts into output. Unknown list is returned.
@@ -220,7 +226,7 @@ func BulkUpdateVocabularySpeechpart() []string {
 		if speechPart == "" {
 			wordNetSpeechParts.Unknown = append(wordNetSpeechParts.Unknown, w)
 		}
-		_, err = stmt.Exec(speechPart, w)
+		_, err = stmt.Exec(context.Context, speechPart, w)
 		CheckErr(err)
 	}
 

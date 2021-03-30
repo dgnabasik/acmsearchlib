@@ -5,7 +5,6 @@ replace acmsearchlib/nulltime => ../nulltime
 go 1.16
 
 require (
-	github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210325002052-704b7df69a8a
-	github.com/golang/protobuf v1.5.1 // indirect
+	github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210325150222-343ad68a20dc
 	golang.org/x/text v0.3.5
 )

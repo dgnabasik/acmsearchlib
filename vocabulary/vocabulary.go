@@ -13,7 +13,7 @@ import (
 	nt "github.com/dgnabasik/acmsearchlib/nulltime"
 
 	// comment
-	_ "github.com/lib/pq"
+	"github.com/lib/pq"
 )
 
 // Version func
@@ -250,4 +250,121 @@ func GetTitleWordsBigramInterval(bigrams []string, timeInterval nt.TimeInterval,
 	dbx.CheckErr(err)
 
 	return titleList, nil
+}
+
+// UpdateVocabulary updates Vocabulary.RowCount, Frequency, SpeechPart for EVERY row!. AcmData table never needs updating.
+func UpdateVocabulary(recordList []hd.Vocabulary) (int, error) {
+	if len(recordList) == 0 {
+		return 0, nil
+	}
+
+	DB, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return -1, err
+	}
+	defer DB.Close()
+
+	txn, err := DB.Begin()
+	dbx.CheckErr(err)
+
+	stmt, err := DB.Prepare("UPDATE vocabulary SET RowCount = $2, Frequency = $3, SpeechPart = $4 WHERE Word = $1;")
+	dbx.CheckErr(err)
+
+	for _, v := range recordList {
+		_, err = stmt.Exec(v.Word, v.RowCount, v.Frequency, v.SpeechPart) // lastId, err := res.LastInsertId()
+		dbx.CheckErr(err)
+	}
+
+	err = stmt.Close()
+	dbx.CheckErr(err)
+
+	err = txn.Commit()
+	dbx.CheckErr(err)
+
+	return len(recordList), nil
+}
+
+// GetVocabularyMap reads all Vocabulary.Word,{Id, Frequency, Wordrank} values. Applys filtering.
+func GetVocabularyMap(fieldName string) (map[string]int, error) {
+	DB, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return nil, err
+	}
+	defer DB.Close()
+
+	wordIDmap := make(map[string]int)
+	var word string
+	var intField int
+	SELECT := "SELECT Word," + fieldName + " FROM vocabulary;" // WHERE word LIKE 'tech%'
+	rows, err := DB.Query(SELECT)
+	dbx.CheckErr(err)
+
+	for rows.Next() {
+		err = rows.Scan(&word, &intField)
+		dbx.CheckErr(err)
+
+		newWord, rule := cond.FilteringRules(word)
+		if rule < 0 {
+			continue
+		} else if rule > 0 {
+			word = newWord
+		}
+
+		wordIDmap[word] = intField
+	}
+
+	// get any iteration errors
+	err = rows.Err()
+	dbx.CheckErr(err)
+
+	return wordIDmap, err
+}
+
+// BulkInsertVocabulary gets []Vocabulary from wordFrequencyList(). Does not insert Scores!
+func BulkInsertVocabulary(recordList []hd.Vocabulary) (int, error) {
+	if len(recordList) == 0 {
+		return 0, nil
+	}
+
+	DB, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return -1, err
+	}
+	defer DB.Close()
+
+	txn, err := DB.Begin()
+	dbx.CheckErr(err)
+
+	// tableName, field list (except Id)
+	stmt, _ := txn.Prepare(pq.CopyIn("vocabulary", "word", "rowcount", "frequency", "wordrank", "probability", "speechpart"))
+	for _, rec := range recordList {
+		_, rule := cond.FilteringRules(rec.Word)
+		if rule >= 0 {
+			_, err := stmt.Exec(rec.Word, rec.RowCount, rec.Frequency, rec.WordRank, rec.Probability, rec.SpeechPart)
+			dbx.CheckErr(err)
+		}
+	}
+
+	_, err = stmt.Exec() // flush needed
+	dbx.CheckErr(err)
+	err = stmt.Close()
+	dbx.CheckErr(err)
+	err = txn.Commit()
+	dbx.CheckErr(err)
+
+	return len(recordList), nil
+}
+
+// CallUpdateVocabulary invokes Postgresql UpdateVocabulary() which updates every Vocabulary.WordRank,Probability value.
+func CallUpdateVocabulary() error {
+	DB, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return err
+	}
+	defer DB.Close()
+
+	_, err = DB.Exec("call UpdateVocabulary();")
+	dbx.CheckErr(err)
+
+	return err
 }

@@ -3,6 +3,7 @@ cd ~/go/src/github.com/dgnabasik/acmsearchlib
 
 cd ./nulltime
  go get -u ./...
+ go mod tidy 
  go build
  go install
  echo -n "nulltime?"
@@ -11,6 +12,7 @@ cd ./nulltime
 
 cd ./headers
  go get -u ./...
+ go mod tidy 
  go build
  go install
  echo -n "headers?"
@@ -19,6 +21,7 @@ cd ./headers
 
 cd ./database
  go get -u ./...
+ go mod tidy 
  go build
  go install
  echo -n "database?"
@@ -27,6 +30,7 @@ cd ./database
 
 cd ./filesystem
  go get -u ./...
+ go mod tidy 
  go build
  go install
  echo -n "filesystem?"
@@ -35,6 +39,7 @@ cd ./filesystem
 
 #cd ./timestampinterval
 # go get -u ./...
+# go mod tidy 
 # go build
 # go install
 # echo -n "timestampinterval?"
@@ -43,6 +48,7 @@ cd ./filesystem
 
 cd ./conditional
  go get -u ./...
+ go mod tidy 
  go build
  go install
  echo -n "conditional?"
@@ -51,6 +57,7 @@ cd ./conditional
 
 cd ./vocabulary
  go get -u ./...
+ go mod tidy 
  go build
  go install
  echo -n "vocabulary?"
@@ -59,6 +66,7 @@ cd ./vocabulary
 
 cd ./article
  go get -u ./...
+ go mod tidy 
  go build
  go install
  echo -n "article?"
@@ -67,6 +75,7 @@ cd ./article
 
 cd ./wordscore
  go get -u ./...
+ go mod tidy 
  go build
  go install
  echo -n "wordscore?"
@@ -75,6 +84,7 @@ cd ./wordscore
 
 cd ./category
  go get -u ./...
+ go mod tidy 
  go build
  go install
  echo -n "category?"
@@ -85,7 +95,7 @@ echo dgnabasik
 echo -n "push?"
 read
 git add --all :/
-git commit -am "Release 1.0.0"
+git commit -am "Release 1.0.1"
 git push -u origin main
 
 go get -u github.com/dgnabasik/acmsearchlib

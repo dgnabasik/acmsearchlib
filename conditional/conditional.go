@@ -38,14 +38,6 @@ func isHexWord(word string) bool {
 	return len(word) >= 10 && err == nil
 }
 
-// FormatDate func Put into utils.
-func FormatDate(t time.Time) string {
-	var a [20]byte
-	var b = a[:0]
-	b = t.AppendFormat(b, time.RFC3339)
-	return string(b[0:10])
-}
-
 // FilteringRules filters output from Postgres ts_stat select. Include 3d prefixes.
 // Return 0 for ok, -1 to completely ignore, 1 for modified word.
 func FilteringRules(word string) (string, int) {
@@ -423,8 +415,8 @@ func CalcConditionalProbability(startingWordgram string, wordMap map[string]floa
 	var firstDate, lastDate time.Time
 	var firstDateValue, lastDateValue nt.NullTime
 	var totalInserts int64
-	startDateParam := FormatDate(timeinterval.StartDate.DT)
-	endDateParam := FormatDate(timeinterval.EndDate.DT)
+	startDateParam := timeinterval.StartDate.StandardDate()
+	endDateParam := timeinterval.EndDate.StandardDate()
 
 	if permutations == 2 {
 		for wordA := 0; wordA < len(wordGrams)-1; wordA++ {
