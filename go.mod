@@ -13,6 +13,9 @@ require (
 	github.com/dgnabasik/acmsearchlib/vocabulary v0.0.0-20210330162513-89b3c44d1851
 	github.com/go-log/log v0.2.0 // indirect
 	github.com/golang/protobuf v1.5.2
+	github.com/jackc/pgproto3/v2 v2.0.7 // indirect
+	github.com/jackc/pgx v3.6.2+incompatible // indirect
+	github.com/jackc/pgx/v4 v4.11.0 // indirect
 	github.com/micro/go-micro v1.18.0
 	github.com/micro/go-micro/v2 v2.9.1
 	golang.org/x/net v0.0.0-20210330142815-c8897c278d10 // indirect

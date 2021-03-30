@@ -4,12 +4,16 @@ package wordscore
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 
-	dbase "github.com/dgnabasik/acmsearchlib/database"
+	dbx "github.com/dgnabasik/acmsearchlib/database"
 	hd "github.com/dgnabasik/acmsearchlib/headers"
 	nt "github.com/dgnabasik/acmsearchlib/nulltime"
+
+	//"github.com/jackc/pgx/v4"
+	pgx "github.com/jackc/pgx/v4"
 )
 
 func Version() string {
@@ -18,7 +22,7 @@ func Version() string {
 
 // GetWordScores func returns all wordscores.
 func GetWordScores(word string) ([]hd.WordScore, error) {
-	db, err := dbase.GetDatabaseReference()
+	db, err := dbx.GetDatabaseReference()
 	if err != nil {
 		return nil, err
 	}
@@ -26,7 +30,7 @@ func GetWordScores(word string) ([]hd.WordScore, error) {
 
 	SELECT := "SELECT id,word,timeframetype,startDate,endDate,density,linkage,growth,score FROM WordScore WHERE Word='" + word + "' ORDER BY startDate"
 	rows, err := db.Query(context.Background(), SELECT)
-	dbase.CheckErr(err)
+	dbx.CheckErr(err)
 	defer rows.Close()
 
 	// fields to read
@@ -60,24 +64,24 @@ func GetWordScores(word string) ([]hd.WordScore, error) {
 
 	// get any iteration errors
 	err = rows.Err()
-	dbase.CheckErr(err)
+	dbx.CheckErr(err)
 
 	return wordscoreList, nil
 }
 
 // GetWordScoreListByTimeInterval func
 func GetWordScoreListByTimeInterval(words []string, timeInterval nt.TimeInterval) ([]hd.WordScore, error) {
-	db, err := dbase.GetDatabaseReference()
+	db, err := dbx.GetDatabaseReference()
 	if err != nil {
 		return nil, err
 	}
 	defer db.Close()
 
-	SELECT := "SELECT id,word,timeframetype,startDate,endDate,density,linkage,growth,score FROM WordScore WHERE word IN" + dbase.CompileInClause(words) +
-		"AND " + dbase.CompileDateClause(timeInterval, true)
+	SELECT := "SELECT id,word,timeframetype,startDate,endDate,density,linkage,growth,score FROM WordScore WHERE word IN" + dbx.CompileInClause(words) +
+		"AND " + dbx.CompileDateClause(timeInterval, true)
 
 	rows, err := db.Query(context.Background(), SELECT)
-	dbase.CheckErr(err)
+	dbx.CheckErr(err)
 	if err != nil {
 		log.Printf("GetWordScoreListByTimeInterval(1): %+v\n", err)
 		return nil, err
@@ -116,39 +120,40 @@ func GetWordScoreListByTimeInterval(words []string, timeInterval nt.TimeInterval
 
 	// get any iteration errors
 	err = rows.Err()
-	dbase.CheckErr(err)
+	dbx.CheckErr(err)
 
 	return wordscoreList, nil
 }
 
 // BulkInsertWordScores func populates [WordScore] table. Uses CopyIn. Assumes explicit schema path (search_path=public) in connection string.
 func BulkInsertWordScores(wordScoreList []hd.WordScore) error {
-	db, err := dbase.GetDatabaseReference()
+	db, err := dbx.GetDatabaseReference()
 	if err != nil {
 		return err
 	}
 	defer db.Close()
 
 	txn, err := db.Begin(context.Background())
-	dbase.CheckErr(err)
+	dbx.CheckErr(err)
+	defer txn.Rollback(context.Background())
 
 	// Must use lowercase column names! First param is table name.
-	stmt, err := txn.Prepare(CopyIn("wordscore", "word", "timeframetype", "startdate", "enddate", "density", "linkage", "growth", "score"))
-	dbase.CheckErr(err)
+	//stmt, err := txn.Prepare(CopyIn("wordscore", "word", "timeframetype", "startdate", "enddate", "density", "linkage", "growth", "score"))
+	//stmt.Exec(context.Background(), wordScoreList.Word, int(wordScoreList.Timeinterval.Timeframetype), wordScoreList.Timeinterval.StartDate.DT, wordScoreList.Timeinterval.EndDate.DT, wordScoreList.Density, wordScoreList.Linkage, wordScoreList.Growth, wordScoreList.Score)
+	//dbx.CheckErr(err)
 
-	for _, v := range wordScoreList {
-		_, err = stmt.Exec(context.Background(), v.Word, int(v.Timeinterval.Timeframetype), v.Timeinterval.StartDate.DT, v.Timeinterval.EndDate.DT, v.Density, v.Linkage, v.Growth, v.Score)
-		dbase.CheckErr(err)
-	}
-
-	_, err = stmt.Exec(context.Background())
-	dbase.CheckErr(err)
-
-	err = stmt.Close()
-	dbase.CheckErr(err)
-
+	copyCount, err := db.CopyFrom(
+		context.Background(),
+		pgx.Identifier{"wordscore"}, // tablename
+		[]string{"wordscore", "word", "timeframetype", "startdate", "enddate", "density", "linkage", "growth", "score"},
+		pgx.CopyFromSlice(len(wordScoreList), func(i int) ([]interface{}, error) {
+			return []interface{}{wordScoreList[i].Word, int(wordScoreList[i].Timeinterval.Timeframetype), wordScoreList[i].Timeinterval.StartDate.DT, wordScoreList[i].Timeinterval.EndDate.DT, wordScoreList[i].Density, wordScoreList[i].Linkage, wordScoreList[i].Growth, wordScoreList[i].Score}, nil
+		}),
+	)
+	dbx.CheckErr(err)
+	fmt.Println(copyCount)
 	err = txn.Commit(context.Background())
-	dbase.CheckErr(err)
+	dbx.CheckErr(err)
 
 	return err
 }

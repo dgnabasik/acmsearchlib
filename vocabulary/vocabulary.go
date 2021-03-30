@@ -12,7 +12,7 @@ import (
 	dbx "github.com/dgnabasik/acmsearchlib/database"
 	hd "github.com/dgnabasik/acmsearchlib/headers"
 	nt "github.com/dgnabasik/acmsearchlib/nulltime"
-	"github.com/lib/pq"
+	//pgx "github.com/jackc/pgx/v4"
 )
 
 // Version func
@@ -33,7 +33,7 @@ func GetVocabularyByWord(wordX string) (hd.Vocabulary, error) {
 	var rowCount, frequency, wordRank int
 	var probability float32
 	SELECT := "SELECT id, word, rowcount, frequency, wordrank, probability, speechpart FROM Vocabulary WHERE Word='" + wordX + "'"
-	err = db.QueryRow(SELECT).Scan(&id, &word, &rowCount, &frequency, &wordRank, &probability, &speechPart)
+	err = db.QueryRow(context.Background(), SELECT).Scan(&id, &word, &rowCount, &frequency, &wordRank, &probability, &speechPart)
 	dbx.CheckErr(err)
 	return hd.Vocabulary{Id: id, Word: word, RowCount: rowCount, Frequency: frequency, WordRank: wordRank, Probability: probability, SpeechPart: speechPart}, nil
 }
@@ -48,7 +48,7 @@ func GetVocabularyList(words []string) ([]hd.Vocabulary, error) {
 
 	inPhrase := dbx.CompileInClause(words)
 	query := "SELECT id, word, rowcount, frequency, wordrank, probability, speechpart FROM vocabulary WHERE word IN " + inPhrase
-	rows, err := DB.Query(query)
+	rows, err := DB.Query(context.Background(), query)
 	dbx.CheckErr(err)
 	if err != nil {
 		log.Printf("GetVocabularyList(1): %+v\n", err)
@@ -103,7 +103,7 @@ func GetWordListMap(prefix string) ([]hd.LookupMap, error) {
 	if len(prefix) > 0 {
 		query = "SELECT id, word FROM vocabulary WHERE occurrenceCount > " + occurrenceCount + " AND word LIKE '" + strings.ToLower(prefix) + "%' ORDER BY word"
 	}
-	rows, err := DB.Query(query)
+	rows, err := DB.Query(context.Background(), query)
 	dbx.CheckErr(err)
 	if err != nil {
 		log.Printf("GetWordListMap(1): %+v\n", err)
@@ -138,7 +138,7 @@ func GetVocabularyListByDate(timeinterval nt.TimeInterval) ([]hd.Vocabulary, err
 	defer db.Close()
 
 	SELECT := "SELECT * FROM GetVocabularyByDate" + dbx.GetFormattedDatesForProcedure(timeinterval)
-	rows, err := db.Query(SELECT)
+	rows, err := db.Query(context.Background(), SELECT)
 	dbx.CheckErr(err)
 	defer rows.Close()
 
@@ -187,7 +187,7 @@ func GetVocabularyMapProbability(wordGrams []string, timeInterval nt.TimeInterva
 	} else {
 		SELECT = SELECT + "word in (SELECT DISTINCT(word) FROM Occurrence WHERE " + dbx.GetSingleDateWhereClause("archivedate", timeInterval) + ")"
 	}
-	rows, err := db.Query(SELECT)
+	rows, err := db.Query(context.Background(), SELECT)
 	dbx.CheckErr(err)
 
 	for rows.Next() {
@@ -229,7 +229,7 @@ func GetTitleWordsBigramInterval(bigrams []string, timeInterval nt.TimeInterval,
 	}
 	SELECT := "SELECT acmId, archiveDate, word, nentry FROM " + tableName + " WHERE word IN " + inPhrase + " AND " + dbx.GetSingleDateWhereClause("archiveDate", timeInterval)
 
-	rows, err := db.Query(SELECT)
+	rows, err := db.Query(context.Background(), SELECT)
 	dbx.CheckErr(err)
 	defer rows.Close()
 
@@ -297,7 +297,7 @@ func GetVocabularyMap(fieldName string) (map[string]int, error) {
 	var word string
 	var intField int
 	SELECT := "SELECT Word," + fieldName + " FROM vocabulary;" // WHERE word LIKE 'tech%'
-	rows, err := DB.Query(SELECT)
+	rows, err := DB.Query(context.Background(), SELECT)
 	dbx.CheckErr(err)
 
 	for rows.Next() {
@@ -336,8 +336,7 @@ func BulkInsertVocabulary(recordList []hd.Vocabulary) (int, error) {
 	txn, err := DB.Begin(context.Background())
 	dbx.CheckErr(err)
 
-	// tableName, field list (except Id)
-	stmt, _ := txn.Prepare(pq.CopyIn("vocabulary", "word", "rowcount", "frequency", "wordrank", "probability", "speechpart"))
+	/*<<<stmt, _ := txn.Prepare(pq.CopyIn("vocabulary", "word", "rowcount", "frequency", "wordrank", "probability", "speechpart"))
 	for _, rec := range recordList {
 		_, rule := cond.FilteringRules(rec.Word)
 		if rule >= 0 {
@@ -349,7 +348,7 @@ func BulkInsertVocabulary(recordList []hd.Vocabulary) (int, error) {
 	_, err = stmt.Exec(context.Background()) // flush needed
 	dbx.CheckErr(err)
 	err = stmt.Close()
-	dbx.CheckErr(err)
+	dbx.CheckErr(err)*/
 	err = txn.Commit(context.Background())
 	dbx.CheckErr(err)
 
