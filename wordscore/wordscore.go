@@ -12,7 +12,6 @@ import (
 	hd "github.com/dgnabasik/acmsearchlib/headers"
 	nt "github.com/dgnabasik/acmsearchlib/nulltime"
 
-	//"github.com/jackc/pgx/v4"
 	pgx "github.com/jackc/pgx/v4"
 )
 
@@ -88,7 +87,6 @@ func GetWordScoreListByTimeInterval(words []string, timeInterval nt.TimeInterval
 	}
 	defer rows.Close()
 
-	// fields to read
 	var id uint64
 	var word string
 	var timeframetype int
@@ -118,14 +116,13 @@ func GetWordScoreListByTimeInterval(words []string, timeInterval nt.TimeInterval
 		wordscoreList = append(wordscoreList, wordscore)
 	}
 
-	// get any iteration errors
 	err = rows.Err()
 	dbx.CheckErr(err)
 
 	return wordscoreList, nil
 }
 
-// BulkInsertWordScores func populates [WordScore] table. Uses CopyIn. Assumes explicit schema path (search_path=public) in connection string.
+// BulkInsertWordScores func populates [WordScore] table. Assumes explicit schema path (search_path=public) in connection string.
 func BulkInsertWordScores(wordScoreList []hd.WordScore) error {
 	db, err := dbx.GetDatabaseReference()
 	if err != nil {
@@ -137,11 +134,7 @@ func BulkInsertWordScores(wordScoreList []hd.WordScore) error {
 	dbx.CheckErr(err)
 	defer txn.Rollback(context.Background())
 
-	// Must use lowercase column names! First param is table name.
-	//stmt, err := txn.Prepare(CopyIn("wordscore", "word", "timeframetype", "startdate", "enddate", "density", "linkage", "growth", "score"))
-	//stmt.Exec(context.Background(), wordScoreList.Word, int(wordScoreList.Timeinterval.Timeframetype), wordScoreList.Timeinterval.StartDate.DT, wordScoreList.Timeinterval.EndDate.DT, wordScoreList.Density, wordScoreList.Linkage, wordScoreList.Growth, wordScoreList.Score)
-	//dbx.CheckErr(err)
-
+	// Must use lowercase column names!
 	copyCount, err := db.CopyFrom(
 		context.Background(),
 		pgx.Identifier{"wordscore"}, // tablename
@@ -151,7 +144,9 @@ func BulkInsertWordScores(wordScoreList []hd.WordScore) error {
 		}),
 	)
 	dbx.CheckErr(err)
-	fmt.Println(copyCount)
+	if copyCount == 0 {
+		fmt.Println("BulkInsertWordScores: no rows inserted")
+	}
 	err = txn.Commit(context.Background())
 	dbx.CheckErr(err)
 

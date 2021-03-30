@@ -4,6 +4,7 @@ package vocabulary
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -12,7 +13,7 @@ import (
 	dbx "github.com/dgnabasik/acmsearchlib/database"
 	hd "github.com/dgnabasik/acmsearchlib/headers"
 	nt "github.com/dgnabasik/acmsearchlib/nulltime"
-	//pgx "github.com/jackc/pgx/v4"
+	pgx "github.com/jackc/pgx/v4"
 )
 
 // Version func
@@ -40,15 +41,15 @@ func GetVocabularyByWord(wordX string) (hd.Vocabulary, error) {
 
 // GetVocabularyList method does NOT apply filtering to imported []words. Func places single quotes around each words element.
 func GetVocabularyList(words []string) ([]hd.Vocabulary, error) {
-	DB, err := dbx.GetDatabaseReference()
+	db, err := dbx.GetDatabaseReference()
 	if err != nil {
 		return nil, err
 	}
-	defer DB.Close()
+	defer db.Close()
 
 	inPhrase := dbx.CompileInClause(words)
 	query := "SELECT id, word, rowcount, frequency, wordrank, probability, speechpart FROM vocabulary WHERE word IN " + inPhrase
-	rows, err := DB.Query(context.Background(), query)
+	rows, err := db.Query(context.Background(), query)
 	dbx.CheckErr(err)
 	if err != nil {
 		log.Printf("GetVocabularyList(1): %+v\n", err)
@@ -91,11 +92,11 @@ func getAcmGraphCount() string {
 
 // GetWordListMap method returns all words if prefix is blank. Also filters by REACT_ACM_GRAPH_COUNT.
 func GetWordListMap(prefix string) ([]hd.LookupMap, error) {
-	DB, err := dbx.GetDatabaseReference()
+	db, err := dbx.GetDatabaseReference()
 	if err != nil {
 		return nil, err
 	}
-	defer DB.Close()
+	defer db.Close()
 
 	occurrenceCount := getAcmGraphCount()
 
@@ -103,7 +104,7 @@ func GetWordListMap(prefix string) ([]hd.LookupMap, error) {
 	if len(prefix) > 0 {
 		query = "SELECT id, word FROM vocabulary WHERE occurrenceCount > " + occurrenceCount + " AND word LIKE '" + strings.ToLower(prefix) + "%' ORDER BY word"
 	}
-	rows, err := DB.Query(context.Background(), query)
+	rows, err := db.Query(context.Background(), query)
 	dbx.CheckErr(err)
 	if err != nil {
 		log.Printf("GetWordListMap(1): %+v\n", err)
@@ -257,16 +258,16 @@ func UpdateVocabulary(recordList []hd.Vocabulary) (int, error) {
 		return 0, nil
 	}
 
-	DB, err := dbx.GetDatabaseReference()
+	db, err := dbx.GetDatabaseReference()
 	if err != nil {
 		return -1, err
 	}
-	defer DB.Close()
+	defer db.Close()
 
-	txn, err := DB.Begin(context.Background())
+	txn, err := db.Begin(context.Background())
 	dbx.CheckErr(err)
 
-	stmt, err := DB.Prepare("UPDATE vocabulary SET RowCount = $2, Frequency = $3, SpeechPart = $4 WHERE Word = $1;")
+	stmt, err := db.Prepare("UPDATE vocabulary SET RowCount = $2, Frequency = $3, SpeechPart = $4 WHERE Word = $1;")
 	dbx.CheckErr(err)
 
 	for _, v := range recordList {
@@ -274,8 +275,6 @@ func UpdateVocabulary(recordList []hd.Vocabulary) (int, error) {
 		dbx.CheckErr(err)
 	}
 
-	_, err = stmt.Exec(context.Background()) // flush needed
-	dbx.CheckErr(err)
 	err = stmt.Close()
 	dbx.CheckErr(err)
 
@@ -287,17 +286,17 @@ func UpdateVocabulary(recordList []hd.Vocabulary) (int, error) {
 
 // GetVocabularyMap reads all Vocabulary.Word,{Id, Frequency, Wordrank} values. Applys filtering.
 func GetVocabularyMap(fieldName string) (map[string]int, error) {
-	DB, err := dbx.GetDatabaseReference()
+	db, err := dbx.GetDatabaseReference()
 	if err != nil {
 		return nil, err
 	}
-	defer DB.Close()
+	defer db.Close()
 
 	wordIDmap := make(map[string]int)
 	var word string
 	var intField int
 	SELECT := "SELECT Word," + fieldName + " FROM vocabulary;" // WHERE word LIKE 'tech%'
-	rows, err := DB.Query(context.Background(), SELECT)
+	rows, err := db.Query(context.Background(), SELECT)
 	dbx.CheckErr(err)
 
 	for rows.Next() {
@@ -327,28 +326,35 @@ func BulkInsertVocabulary(recordList []hd.Vocabulary) (int, error) {
 		return 0, nil
 	}
 
-	DB, err := dbx.GetDatabaseReference()
+	db, err := dbx.GetDatabaseReference()
 	if err != nil {
 		return -1, err
 	}
-	defer DB.Close()
+	defer db.Close()
 
-	txn, err := DB.Begin(context.Background())
+	txn, err := db.Begin(context.Background())
 	dbx.CheckErr(err)
 
-	/*<<<stmt, _ := txn.Prepare(pq.CopyIn("vocabulary", "word", "rowcount", "frequency", "wordrank", "probability", "speechpart"))
+	vocabList := make([]hd.Vocabulary, 0)
 	for _, rec := range recordList {
 		_, rule := cond.FilteringRules(rec.Word)
 		if rule >= 0 {
-			_, err := stmt.Exec(context.Background(), rec.Word, rec.RowCount, rec.Frequency, rec.WordRank, rec.Probability, rec.SpeechPart)
-			dbx.CheckErr(err)
+			vocabList = append(vocabList, rec)
 		}
 	}
 
-	_, err = stmt.Exec(context.Background()) // flush needed
+	copyCount, err := db.CopyFrom(
+		context.Background(),
+		pgx.Identifier{"vocabulary"}, // tablename
+		[]string{"word", "rowcount", "frequency", "wordrank", "probability", "speechpart"},
+		pgx.CopyFromSlice(len(vocabList), func(i int) ([]interface{}, error) {
+			return []interface{}{vocabList[i].Word, vocabList[i].RowCount, vocabList[i].Frequency, vocabList[i].WordRank, vocabList[i].Probability, vocabList[i].SpeechPart}, nil
+		}),
+	)
 	dbx.CheckErr(err)
-	err = stmt.Close()
-	dbx.CheckErr(err)*/
+	if copyCount == 0 {
+		fmt.Println("BulkInsertVocabulary: no rows inserted")
+	}
 	err = txn.Commit(context.Background())
 	dbx.CheckErr(err)
 
@@ -357,13 +363,13 @@ func BulkInsertVocabulary(recordList []hd.Vocabulary) (int, error) {
 
 // CallUpdateVocabulary invokes Postgresql UpdateVocabulary() which updates every Vocabulary.WordRank,Probability value.
 func CallUpdateVocabulary() error {
-	DB, err := dbx.GetDatabaseReference()
+	db, err := dbx.GetDatabaseReference()
 	if err != nil {
 		return err
 	}
-	defer DB.Close()
+	defer db.Close()
 
-	_, err = DB.Exec(context.Background(), "call UpdateVocabulary();")
+	_, err = db.Exec(context.Background(), "call UpdateVocabulary();")
 	dbx.CheckErr(err)
 
 	return err

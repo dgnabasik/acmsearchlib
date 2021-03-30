@@ -17,7 +17,7 @@ import (
 	dbx "github.com/dgnabasik/acmsearchlib/database"
 	hd "github.com/dgnabasik/acmsearchlib/headers"
 	nt "github.com/dgnabasik/acmsearchlib/nulltime"
-	//pgx "github.com/jackc/pgx/v4"
+	pgx "github.com/jackc/pgx/v4"
 )
 
 // comment
@@ -136,7 +136,7 @@ func GetOccurrenceListByDate(timeinterval nt.TimeInterval) ([]hd.Occurrence, map
 	defer db.Close()
 
 	SELECT := "SELECT * FROM GetOccurrencesByDate" + dbx.GetFormattedDatesForProcedure(timeinterval)
-	rows, err := db.Query(context.Background(), context.Background(), SELECT)
+	rows, err := db.Query(context.Background(), SELECT)
 	dbx.CheckErr(err)
 	defer rows.Close()
 
@@ -225,7 +225,7 @@ func GetOccurrencesByAcmid(xacmid uint32) ([]hd.Occurrence, error) {
 	defer db.Close()
 
 	SELECT := "SELECT acmId, archiveDate, word, nentry FROM Occurrence WHERE acmId=" + strconv.FormatUint(uint64(xacmid), 10)
-	rows, err := db.Query(context.Background(), context.Background(), SELECT)
+	rows, err := db.Query(context.Background(), SELECT)
 	dbx.CheckErr(err)
 	defer rows.Close()
 
@@ -339,26 +339,26 @@ func BulkInsertConditionalProbability(conditionals []hd.ConditionalProbability) 
 	}
 	defer db.Close()
 
-	/*<<<txn, err := db.Begin(context.Background())
+	txn, err := db.Begin(context.Background())
 	dbx.CheckErr(err)
 
-	// Must use lowercase column names! First param is table name.
-	stmt, err := txn.Prepare(pq.CopyIn("conditional", "wordlist", "probability", "timeframetype", "startdate", "enddate", "firstdate", "lastdate", "pmi", "dateupdated"))
-	dbx.CheckErr(err)
+	// Must use lowercase column names!
+	copyCount, err := db.CopyFrom(
+		context.Background(),
+		pgx.Identifier{"conditional"}, // tablename
+		[]string{"wordlist", "probability", "timeframetype", "startdate", "enddate", "firstdate", "lastdate", "pmi", "dateupdated"},
+		pgx.CopyFromSlice(len(conditionals), func(i int) ([]interface{}, error) {
+			return []interface{}{conditionals[i].WordList, conditionals[i].Probability, int(conditionals[i].Timeinterval.Timeframetype), conditionals[i].Timeinterval.StartDate.DT,
+				conditionals[i].Timeinterval.EndDate.DT, conditionals[i].FirstDate.DT, conditionals[i].LastDate.DT, conditionals[i].Pmi, conditionals[i].DateUpdated.DT}, nil
+		}),
+	)
 
-	for _, v := range conditionals {
-		_, err = stmt.Exec(context.Background(), v.WordList, v.Probability, v.Timeinterval.Timeframetype, v.Timeinterval.StartDate.DT, v.Timeinterval.EndDate.DT, v.FirstDate.DT, v.LastDate.DT, v.Pmi, v.DateUpdated.DT)
-		dbx.CheckErr(err)
+	dbx.CheckErr(err)
+	if copyCount == 0 {
+		fmt.Println("BulkInsertWordScores: no rows inserted")
 	}
-
-	_, err = stmt.Exec(context.Background())
-	dbx.CheckErr(err)
-
-	err = stmt.Close()
-	dbx.CheckErr(err)
-
 	err = txn.Commit(context.Background())
-	dbx.CheckErr(err)*/
+	dbx.CheckErr(err)
 
 	return nil
 }
@@ -571,7 +571,7 @@ func GetConditionalList(words []string, timeInterval nt.TimeInterval, permute bo
 	compileInClause := dbx.CompileInClause(bigrams)
 	SELECT := "SELECT id, wordlist, probability, timeframetype, startDate, endDate, firstDate, lastDate, pmi, dateUpdated FROM Conditional WHERE wordlist IN " +
 		compileInClause + " AND " + intervalClause
-	rows, err := db.Query(context.Background(), context.Background(), SELECT)
+	rows, err := db.Query(context.Background(), SELECT)
 	dbx.CheckErr(err)
 	defer rows.Close()
 
@@ -605,7 +605,7 @@ func GetExistingConditionalBigrams(bigrams []string, intervalClause string) ([]s
 	bigramList := make([]string, 0)
 	compileInClause := dbx.CompileInClause(bigrams)
 	query := "SELECT wordlist FROM Conditional WHERE wordlist IN " + compileInClause + " AND " + intervalClause
-	rows, err := db.Query(context.Background(), context.Background(), query)
+	rows, err := db.Query(context.Background(), query)
 	dbx.CheckErr(err)
 	defer rows.Close()
 
@@ -660,7 +660,7 @@ func GetProbabilityGraph(words []string, timeInterval nt.TimeInterval) ([]hd.Con
 	}
 	SELECT.WriteString(";")
 
-	rows, err := db.Query(context.Background(), context.Background(), SELECT.String())
+	rows, err := db.Query(context.Background(), SELECT.String())
 	dbx.CheckErr(err)
 	defer rows.Close()
 
@@ -688,7 +688,7 @@ func GetProbabilityGraph(words []string, timeInterval nt.TimeInterval) ([]hd.Con
 	}
 	compileInClause := dbx.CompileInClause(reverseWordlist)
 	query := "SELECT id, wordlist, probability, timeframetype, startDate, endDate, firstDate, lastDate, pmi, dateUpdated FROM Conditional WHERE wordlist IN " + compileInClause + " AND " + intervalClause
-	rows, err = db.Query(context.Background(), context.Background(), query)
+	rows, err = db.Query(context.Background(), query)
 	dbx.CheckErr(err)
 	defer rows.Close()
 	for rows.Next() {
@@ -714,7 +714,7 @@ func GetWordgramConditionalsByInterval(words []string, timeInterval nt.TimeInter
 	SELECT := "SELECT w.word, c.wordlist, w.score, c.pmi, c.timeframetype, c.startDate, c.endDate, c.firstdate, c.lastdate FROM Wordscore AS w INNER JOIN Conditional AS c ON w.word=c.wordarray[1] WHERE w.startdate=c.startDate AND w.endDate=c.endDate " +
 		"AND w.word='" + words[0] + "' AND w.startDate='" + timeInterval.StartDate.StandardDate() + "' AND w.endDate='" + timeInterval.EndDate.StandardDate() + "' ORDER BY c.wordlist"
 
-	rows, err := db.Query(context.Background(), context.Background(), SELECT)
+	rows, err := db.Query(context.Background(), SELECT)
 	dbx.CheckErr(err)
 	defer rows.Close()
 

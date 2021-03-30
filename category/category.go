@@ -4,12 +4,13 @@ package category
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 	"time"
 
 	dbx "github.com/dgnabasik/acmsearchlib/database"
 	hd "github.com/dgnabasik/acmsearchlib/headers"
-	"github.com/lib/pq"
+	pgx "github.com/jackc/pgx/v4"
 )
 
 /*************************************************************************************/
@@ -21,8 +22,6 @@ func Version() string {
 
 // InsertCategoryWords func. 32k statement limit.
 func InsertCategoryWords(categoryID uint64, words []string) error {
-	dateupdated := time.Now()
-
 	db, err := dbx.GetDatabaseReference()
 	if err != nil {
 		return err
@@ -31,22 +30,22 @@ func InsertCategoryWords(categoryID uint64, words []string) error {
 
 	txn, err := db.Begin(context.Background())
 	dbx.CheckErr(err)
+	dateUpdated := time.Now().UTC()
 
-	// Must use lowercase column names! First param is table name.
-	stmt, err := txn.Prepare(pq.CopyIn("special", "word", "category", "dateupdated"))
+	// Must use lowercase column names!
+	copyCount, err := db.CopyFrom(
+		context.Background(),
+		pgx.Identifier{"special"}, // tablename
+		[]string{"word", "category", "dateupdated"},
+		pgx.CopyFromSlice(len(words), func(i int) ([]interface{}, error) {
+			return []interface{}{words[i], categoryID, dateUpdated}, nil
+		}),
+	)
+
 	dbx.CheckErr(err)
-
-	for _, word := range words {
-		_, err = stmt.Exec(context.Background(), word, categoryID, dateupdated)
-		dbx.CheckErr(err)
+	if copyCount == 0 {
+		fmt.Println("InsertCategoryWords: no rows inserted")
 	}
-
-	_, err = stmt.Exec(context.Background())
-	dbx.CheckErr(err)
-
-	err = stmt.Close()
-	dbx.CheckErr(err)
-
 	err = txn.Commit(context.Background())
 	dbx.CheckErr(err)
 
@@ -64,7 +63,7 @@ func InsertWordCategory(description string) (hd.CategoryTable, error) {
 
 	var id uint64
 	INSERT := "INSERT INTO Wordcategory (description, dateupdated) VALUES ($1, $2) returning id"
-	err = db.QueryRow(INSERT, description, dateupdated).Scan(&id)
+	err = db.QueryRow(context.Background(), INSERT, description, dateupdated).Scan(&id)
 	dbx.CheckErr(err)
 
 	categoryTable := hd.CategoryTable{Id: id, Description: description, DateUpdated: dateupdated}
@@ -80,7 +79,7 @@ func GetSpecialMap(category int) ([]hd.SpecialTable, error) {
 	defer db.Close()
 
 	SELECT := "SELECT id, word, category, dateupdated FROM Special WHERE category=" + strconv.Itoa(category) + " ORDER BY word"
-	rows, err := db.Query(SELECT)
+	rows, err := db.Query(context.Background(), SELECT)
 	dbx.CheckErr(err)
 	defer rows.Close()
 
@@ -107,7 +106,7 @@ func GetCategoryMap() ([]hd.CategoryTable, error) {
 	defer db.Close()
 
 	SELECT := "SELECT id, description, dateupdated FROM Wordcategory"
-	rows, err := db.Query(SELECT)
+	rows, err := db.Query(context.Background(), SELECT)
 	dbx.CheckErr(err)
 	defer rows.Close()
 

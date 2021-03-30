@@ -3,7 +3,9 @@ module github.com/dgnabasik/acmsearchlib/category
 go 1.16
 
 require (
-	github.com/dgnabasik/acmsearchlib/database v0.0.0-20210325150222-343ad68a20dc
-	github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210325150222-343ad68a20dc
-	github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210325150222-343ad68a20dc // indirect
+	github.com/dgnabasik/acmsearchlib/database v0.0.0-20210330203704-4d6c0764bfa2
+	github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210330203704-4d6c0764bfa2
+	github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210330203704-4d6c0764bfa2 // indirect
+	github.com/jackc/pgx/v4 v4.11.0
+	github.com/lib/pq v1.10.0 // indirect
 )

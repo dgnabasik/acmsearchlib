@@ -448,8 +448,6 @@ func (om OrderedArticleMap) PrintMap() {
 /*************************************************************************************************/
 
 // ConditionalProbability struct
-// pq.bigint: 9,223,372,036,854,775,807
-// go:uint64:18,446,744,073,709,551,615
 type ConditionalProbability struct {
 	Id           uint64          `json:"id"`
 	WordList     string          `json:"wordlist"`     // concatenated("|")
