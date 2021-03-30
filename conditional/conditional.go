@@ -703,3 +703,38 @@ func GetProbabilityGraph(words []string, timeInterval nt.TimeInterval) ([]hd.Con
 
 	return condProbList, nil
 }
+
+// GetWordgramConditionalsByInterval func assings negative id values.
+func GetWordgramConditionalsByInterval(words []string, timeInterval nt.TimeInterval) ([]hd.WordScoreConditionalFlat, error) {
+	db, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return nil, err
+	}
+	defer db.Close()
+
+	SELECT := "SELECT w.word, c.wordlist, w.score, c.pmi, c.timeframetype, c.startDate, c.endDate, c.firstdate, c.lastdate FROM Wordscore AS w INNER JOIN Conditional AS c ON w.word=c.wordarray[1] WHERE w.startdate=c.startDate AND w.endDate=c.endDate " +
+		"AND w.word='" + words[0] + "' AND w.startDate='" + timeInterval.StartDate.StandardDate() + "' AND w.endDate='" + timeInterval.EndDate.StandardDate() + "' ORDER BY c.wordlist"
+
+	rows, err := db.Query(SELECT)
+	dbx.CheckErr(err)
+	defer rows.Close()
+
+	var score, pmi float32
+	var timeframetype int
+	var startDate, endDate, firstDate, lastDate time.Time
+	var wordScoreConditionalList []hd.WordScoreConditionalFlat
+	var word, wordlist string
+	var id int = 0
+	for rows.Next() {
+		err = rows.Scan(&word, &wordlist, &score, &pmi, &timeframetype, &startDate, &endDate, &firstDate, &lastDate)
+		dbx.CheckErr(err)
+		wordArray := strings.Split(wordlist, SEP)
+		id--
+		wordScoreConditionalList = append(wordScoreConditionalList, hd.WordScoreConditionalFlat{ID: id, WordArray: wordArray, Wordlist: wordlist, Score: score, Pmi: pmi, Timeframetype: timeframetype, StartDate: startDate, EndDate: endDate, FirstDate: firstDate, LastDate: lastDate})
+	}
+
+	err = rows.Err()
+	dbx.CheckErr(err)
+
+	return wordScoreConditionalList, nil
+}

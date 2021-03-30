@@ -479,3 +479,17 @@ type CategoryTable struct {
 }
 
 /*************************************************************************************************/
+
+// WordScoreConditionalFlat struct has extracted Timeinterval.
+type WordScoreConditionalFlat struct {
+	ID            int       `json:"id"` // negative values
+	WordArray     []string  `json:"wordarray"`
+	Wordlist      string    `json:"wordlist"`
+	Score         float32   `json:"score"`
+	Pmi           float32   `json:"pmi"`
+	Timeframetype int       `json:"timeframetype"`
+	StartDate     time.Time `json:"startdate"`
+	EndDate       time.Time `json:"enddate"`
+	FirstDate     time.Time `json:"firstdate"`
+	LastDate      time.Time `json:"lastdate"`
+}

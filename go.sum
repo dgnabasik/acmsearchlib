@@ -95,7 +95,10 @@ github.com/deckarep/golang-set v1.7.1/go.mod h1:93vsz/8Wt4joVM7c2AVqh+YRMiUSc14y
 github.com/decker502/dnspod-go v0.2.0/go.mod h1:qsurYu1FgxcDwfSwXJdLt4kRsBLZeosEb9uq4Sy+08g=
 github.com/dgnabasik/acmsearchlib/category v0.0.0-20210325002052-704b7df69a8a h1:EMt9AXpvngdG6FVLkSifRMzJIclpL9qfoF2vhT+d9WY=
 github.com/dgnabasik/acmsearchlib/category v0.0.0-20210325002052-704b7df69a8a/go.mod h1:ENO5tEZ0lTvCBtXVcIXUrkCqCGAm7wM32lO6CmLt8MY=
+github.com/dgnabasik/acmsearchlib/category v0.0.0-20210325150222-343ad68a20dc h1:POcL7Z8gpDH+3y7hQwpa9yuczYgyEiPdV48m+ujU0f8=
+github.com/dgnabasik/acmsearchlib/category v0.0.0-20210325150222-343ad68a20dc/go.mod h1:WS1kWJIwHbsZbGt7UZEMbX87rLupjZtpTGdpBP5d1wo=
 github.com/dgnabasik/acmsearchlib/conditional v0.0.0-20210322163022-e25dd13e0ed3/go.mod h1:cgxvZ+jQr2oBUAEFps33smJc5lQOLGtio+b+09brd+E=
+github.com/dgnabasik/acmsearchlib/conditional v0.0.0-20210325002052-704b7df69a8a/go.mod h1:t8SKeJWgy58I8VSBb0cJmYZzc4xbydU7NVPcJeklhqo=
 github.com/dgnabasik/acmsearchlib/conditional v0.0.0-20210325150222-343ad68a20dc h1:IDSsR5rmPYNSfbAymOQUWyU9JaEl7iSBahUILLNgdZU=
 github.com/dgnabasik/acmsearchlib/conditional v0.0.0-20210325150222-343ad68a20dc/go.mod h1:wV8pzaKgj7xpwtCCdxrKIUyEKA7Hopm1s9L1iGcr7UU=
 github.com/dgnabasik/acmsearchlib/database v0.0.0-20210322142620-1dea691eef44/go.mod h1:beQO3IQgnKsjMrsh9BWWegkWHYURnXmOr2/17d5v+kI=
@@ -105,6 +108,8 @@ github.com/dgnabasik/acmsearchlib/database v0.0.0-20210325150222-343ad68a20dc h1
 github.com/dgnabasik/acmsearchlib/database v0.0.0-20210325150222-343ad68a20dc/go.mod h1:HSV015Vdi33+MDYtjrQ9O8f1nuwWzlzvAGjES7/C/fY=
 github.com/dgnabasik/acmsearchlib/filesystem v0.0.0-20210325002052-704b7df69a8a h1:hzr0rln1+IsDHeu1PCNqULckDjZUdGwsyNfsiXtVa6s=
 github.com/dgnabasik/acmsearchlib/filesystem v0.0.0-20210325002052-704b7df69a8a/go.mod h1:kQZbW80zsaii/nFcVVIBnf0mZu4p7LosJVrLblbw13k=
+github.com/dgnabasik/acmsearchlib/filesystem v0.0.0-20210325150222-343ad68a20dc h1:3lb+ES5AgD8FrIJBuJQn+jxxoZPbx5jx/0VVLShF6TM=
+github.com/dgnabasik/acmsearchlib/filesystem v0.0.0-20210325150222-343ad68a20dc/go.mod h1:qSSrBw+LJ3nBZCyZuzyT2obFI0xrn+1BIE3no3QXVOg=
 github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210322142620-1dea691eef44/go.mod h1:dltiteovEwXVCU/cS+du/+hB1bBvU4nhO7ij7gYxVzQ=
 github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210322163022-e25dd13e0ed3/go.mod h1:+0hZbV9vS3BTFmm5lSaiuOxoOySBNqeTTJDRKHlbQTM=
 github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210325002052-704b7df69a8a/go.mod h1:cHD7QMC3rQsQ7GJKY3vmlE1ztgZZulAy4tb8QVJ6OvA=
@@ -118,8 +123,12 @@ github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210325150222-343ad68a20dc h1
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210325150222-343ad68a20dc/go.mod h1:HMl70IS0tW4deMnmvcs8/LoE5jiLJ0bvcQEdjxRISfE=
 github.com/dgnabasik/acmsearchlib/timestampinterval v0.0.0-20210325002052-704b7df69a8a h1:LLvHhkIQXNPP8yd2/aeu9y/4qKTiiSCw5hXbctJVOEw=
 github.com/dgnabasik/acmsearchlib/timestampinterval v0.0.0-20210325002052-704b7df69a8a/go.mod h1:o22HZax4huQwUcgjrzzLVPJe/VhMdK5YCsYAK/SOMR0=
+github.com/dgnabasik/acmsearchlib/timestampinterval v0.0.0-20210325150222-343ad68a20dc h1:AHNs3wefWSN2udDaRfdpLvtWk70dZH18t95F+L3I/1w=
+github.com/dgnabasik/acmsearchlib/timestampinterval v0.0.0-20210325150222-343ad68a20dc/go.mod h1:o22HZax4huQwUcgjrzzLVPJe/VhMdK5YCsYAK/SOMR0=
 github.com/dgnabasik/acmsearchlib/vocabulary v0.0.0-20210325002052-704b7df69a8a h1:ILZCeRRPRS0ZTpmC6pOJLkPoZ6O/Zm6Fm39kCm41umw=
 github.com/dgnabasik/acmsearchlib/vocabulary v0.0.0-20210325002052-704b7df69a8a/go.mod h1:R7DM/i0O1PVnZ43fCP1zw9TvsP29Js0+Z9NIdcTDS7s=
+github.com/dgnabasik/acmsearchlib/vocabulary v0.0.0-20210325150222-343ad68a20dc h1:BzH+ufVKd6zAGr5OiVYcmlekjx5uUdkN+C9o79BG6V0=
+github.com/dgnabasik/acmsearchlib/vocabulary v0.0.0-20210325150222-343ad68a20dc/go.mod h1:C7I4kNps+btsaL4vEssLKoGQyxzLEdPmQCSESHUbDWY=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible/go.mod h1:E3ru+11k8xSBh+hMPgOLZmtrrCbhqsmaPHjLKYnJCaQ=
 github.com/dimchansky/utfbom v1.1.0/go.mod h1:rO41eb7gLfo8SF1jd9F8HplJm1Fewwi4mQvIirEdv+8=
 github.com/dnaeon/go-vcr v0.0.0-20180814043457-aafff18a5cc2/go.mod h1:aBB1+wY4s93YsC3HHjMBMrwTj2R9FHDzUr9KyGc8n1E=
