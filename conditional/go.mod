@@ -6,7 +6,7 @@ require (
 	github.com/deckarep/golang-set v1.7.1
 	github.com/dgnabasik/acmsearchlib/database v0.0.0-20210330203704-4d6c0764bfa2
 	github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210330203704-4d6c0764bfa2
-	github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210330203704-4d6c0764bfa2
+	github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210330235806-6e1f326aad45
 	github.com/golang/protobuf v1.5.2
 	github.com/google/uuid v1.2.0 // indirect
 	github.com/jackc/pgx/v4 v4.11.0
