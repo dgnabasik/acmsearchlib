@@ -46,6 +46,36 @@ func GetLastDateSavedFromDb() (nt.NullTime, nt.NullTime, error) {
 	return archiveDate1, archiveDate2, nil
 }
 
+// CallUpdateOccurrence invokes Postgresql UpdateOccurrence('2017-02-01', true) which populates the Occurrence table.
+func CallUpdateOccurrence(timeinterval nt.TimeInterval) error {
+	db, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	stmt := "call UpdateOccurrence('" + timeinterval.StartDate.StandardDate() + "', '" + timeinterval.EndDate.StandardDate() + "');"
+	_, err = db.Exec(context.Background(), stmt)
+	dbx.CheckErr(err)
+
+	return err
+}
+
+// CallUpdateTitle invokes GetTitleByDate(startDate, endDate) which populates the Title table.
+func CallUpdateTitle(timeinterval nt.TimeInterval) error {
+	db, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	stmt := "call UpdateTitle('" + timeinterval.StartDate.StandardDate() + "', '" + timeinterval.EndDate.StandardDate() + "');"
+	_, err = db.Exec(context.Background(), stmt)
+	dbx.CheckErr(err)
+
+	return err
+}
+
 // GetAcmArticleListByArchiveDates func
 func GetAcmArticleListByArchiveDates(dateList []string) ([]hd.AcmArticle, error) {
 	db, err := dbx.GetDatabaseReference()
