@@ -267,17 +267,20 @@ func UpdateVocabulary(recordList []hd.Vocabulary) (int, error) {
 	txn, err := db.Begin(context.Background())
 	dbx.CheckErr(err)
 
-	stmt, err := db.Prepare("UPDATE vocabulary SET RowCount = $2, Frequency = $3, SpeechPart = $4 WHERE Word = $1;")
-	dbx.CheckErr(err)
-
+	batch := &pgx.Batch{} // prepare batch updates
 	for _, v := range recordList {
-		_, err = stmt.Exec(context.Background(), v.Word, v.RowCount, v.Frequency, v.SpeechPart) // lastId, err := res.LastInsertId()
-		dbx.CheckErr(err)
+		sqlStatement := "UPDATE vocabulary SET RowCount = $2, Frequency = $3, SpeechPart = $4 WHERE Word = $1;"
+		batch.Queue(sqlStatement, v.Word, v.RowCount, v.Frequency, v.SpeechPart)
 	}
 
-	err = stmt.Close()
-	dbx.CheckErr(err)
+	batchResults := txn.SendBatch(context.Background(), batch)
 
+	var qerr error
+	var rows pgx.Rows
+	for qerr == nil {
+		rows, qerr = batchResults.Query()
+		rows.Close()
+	}
 	err = txn.Commit(context.Background())
 	dbx.CheckErr(err)
 
