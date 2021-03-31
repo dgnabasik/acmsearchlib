@@ -180,16 +180,16 @@ func GetAcmArticlesByID(idMap map[uint32]int, cutoff int) ([]hd.AcmArticle, erro
 // https://www.postgresql.org/docs/8.3/textsearch-features.html
 // wordFrequencyList assigns Vocabulary.Word,RowCount,Frequency. This is the only reference to [AcmData].
 func WordFrequencyList() ([]hd.Vocabulary, error) {
-	DB, err := dbx.GetDatabaseReference()
+	db, err := dbx.GetDatabaseReference()
 	if err != nil {
 		return nil, err
 	}
-	defer DB.Close()
+	defer db.Close()
 
-	//Parameterized form: rows, err := DB.Query("SELECT id, first_name FROM acmdata LIMIT $1", 3)
+	//Parameterized form: rows, err := db.Query("SELECT id, first_name FROM acmdata LIMIT $1", 3)
 	//psql: \copy (SELECT * FROM ts_stat('SELECT to_tsvector(''simple_english'',summary) from acmdata ') ORDER BY word, nentry DESC, ndoc DESC) to '/home/david/acm/processed.txt' with csv;
 	SELECT := "SELECT * FROM ts_stat('SELECT to_tsvector(''simple_english'',summary) from acmdata') ORDER BY word, nentry DESC, ndoc DESC;"
-	rows, err := DB.Query(context.Background(), SELECT)
+	rows, err := db.Query(context.Background(), SELECT)
 	dbx.CheckErr(err)
 	defer rows.Close()
 
