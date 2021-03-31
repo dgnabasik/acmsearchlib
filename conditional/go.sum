@@ -112,8 +112,8 @@ github.com/deckarep/golang-set v1.7.1 h1:SCQV0S6gTtp6itiFrTqI+pfmJ4LN85S1YzhDf9r
 github.com/deckarep/golang-set v1.7.1/go.mod h1:93vsz/8Wt4joVM7c2AVqh+YRMiUSc14yDtF28KmMOgQ=
 github.com/dgnabasik/acmsearchlib/database v0.0.0-20210331000416-d150d893efce h1:mpWrf6CHJKV136oDgAoe9yC1qdNOjNa+f90Y0qNNY0s=
 github.com/dgnabasik/acmsearchlib/database v0.0.0-20210331000416-d150d893efce/go.mod h1:vuBOIkSTzNgZdEXXYpL3wWzXeT2PScJWp3fc8Bc3Yl0=
-github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210331000416-d150d893efce h1:8dEJxhlNUVxogPq4EhRs3g03E++xLSaVVovyx2KB5hw=
-github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210331000416-d150d893efce/go.mod h1:iO3iWC3BwyM0F2IOCROenv/l9atVaoJ6lNOGCeOyQlk=
+github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210331003009-156fa9c32534 h1:o3H8Fha3ubh5LzjULoXVOvVye4gmMJvfHm9FgtTeqOA=
+github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210331003009-156fa9c32534/go.mod h1:iO3iWC3BwyM0F2IOCROenv/l9atVaoJ6lNOGCeOyQlk=
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210330235806-6e1f326aad45/go.mod h1:EzXlVSG2YC+za3MbY7Z+9PPf2mX0Tv63MWt78oZz1LU=
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210331000416-d150d893efce h1:Y+q+GGl1MSjKAS6ChV17DZ96jCCrVkphOmFOc/r8OgY=
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210331000416-d150d893efce/go.mod h1:EzXlVSG2YC+za3MbY7Z+9PPf2mX0Tv63MWt78oZz1LU=

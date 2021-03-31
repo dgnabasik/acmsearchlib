@@ -20,12 +20,12 @@ func Test_SupportFunctions(t *testing.T) {
 	}
 
 	data := make([]string, 0)
-	ndx, found := stringSliceContains(data, "dec")
+	ndx, found := StringSliceContains(data, "dec")
 	if ndx >= 0 || found {
 		t.Error("a3:Expected -1, got ", ndx)
 	}
 	data = append(data, "dec")
-	ndx, found = stringSliceContains(data, "dec")
+	ndx, found = StringSliceContains(data, "dec")
 	if ndx < 0 || !found {
 		t.Error("a4:Expected 0, got ", ndx)
 	}
@@ -51,7 +51,7 @@ func Test_NullTime(t *testing.T) {
 		t.Error("b3: Expected " + NullDate)
 	}
 
-	ti = New_NullTime("2000-01-38")
+	ti = New_NullTime("2000-01-08")
 	if ti.StandardDate() != NullDate {
 		t.Error("b4: Expected " + NullDate)
 	}
