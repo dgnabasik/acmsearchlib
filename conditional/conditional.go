@@ -723,12 +723,12 @@ func GetWordgramConditionalsByInterval(words []string, timeInterval nt.TimeInter
 	var startDate, endDate, firstDate, lastDate time.Time
 	var wordScoreConditionalList []hd.WordScoreConditionalFlat
 	var word, wordlist string
-	var id int = 0
+	var id int = 10000
 	for rows.Next() {
 		err = rows.Scan(&word, &wordlist, &score, &pmi, &timeframetype, &startDate, &endDate, &firstDate, &lastDate)
 		dbx.CheckErr(err)
 		wordArray := strings.Split(wordlist, SEP)
-		id--
+		id++
 		wordScoreConditionalList = append(wordScoreConditionalList, hd.WordScoreConditionalFlat{ID: id, WordArray: wordArray, Wordlist: wordlist, Score: score, Pmi: pmi, Timeframetype: timeframetype, StartDate: startDate, EndDate: endDate, FirstDate: firstDate, LastDate: lastDate})
 	}
 
