@@ -703,7 +703,7 @@ func GetProbabilityGraph(words []string, timeInterval nt.TimeInterval) ([]hd.Con
 	return condProbList, nil
 }
 
-// GetWordgramConditionalsByInterval func assings negative id values.
+// GetWordgramConditionalsByInterval func assigns consecutive id values.  'Common' column not in database.
 func GetWordgramConditionalsByInterval(words []string, timeInterval nt.TimeInterval) ([]hd.WordScoreConditionalFlat, error) {
 	db, err := dbx.GetDatabaseReference()
 	if err != nil {

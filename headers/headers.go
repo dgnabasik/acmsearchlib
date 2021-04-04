@@ -490,4 +490,5 @@ type WordScoreConditionalFlat struct {
 	EndDate       time.Time `json:"enddate"`
 	FirstDate     time.Time `json:"firstdate"`
 	LastDate      time.Time `json:"lastdate"`
+	Common        bool      `json:"common"` // intersection; not in database.
 }
