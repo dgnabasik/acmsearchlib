@@ -703,7 +703,7 @@ func GetProbabilityGraph(words []string, timeInterval nt.TimeInterval) ([]hd.Con
 	return condProbList, nil
 }
 
-// GetWordgramConditionalsByInterval func assigns consecutive id values.  'Common' column not in database.
+// GetWordgramConditionalsByInterval func assigns consecutive id values.  'Common' column not in database. Id values start at 10000 to avoid js Select Id conflicts.
 func GetWordgramConditionalsByInterval(words []string, timeInterval nt.TimeInterval) ([]hd.WordScoreConditionalFlat, error) {
 	db, err := dbx.GetDatabaseReference()
 	if err != nil {
@@ -711,8 +711,9 @@ func GetWordgramConditionalsByInterval(words []string, timeInterval nt.TimeInter
 	}
 	defer db.Close()
 
+	inPhrase := dbx.CompileInClause(words) // Can't use dbx.CompileDateClause() because of w alias.
 	SELECT := "SELECT w.word, c.wordlist, w.score, c.pmi, c.timeframetype, c.startDate, c.endDate, c.firstdate, c.lastdate FROM Wordscore AS w INNER JOIN Conditional AS c ON w.word=c.wordarray[1] WHERE w.startdate=c.startDate AND w.endDate=c.endDate " +
-		"AND w.word='" + words[0] + "' AND w.startDate='" + timeInterval.StartDate.StandardDate() + "' AND w.endDate='" + timeInterval.EndDate.StandardDate() + "' ORDER BY c.wordlist"
+		"AND w.word IN " + inPhrase + " AND w.startDate='" + timeInterval.StartDate.StandardDate() + "' AND w.endDate='" + timeInterval.EndDate.StandardDate() + "' ORDER BY c.wordlist"
 
 	rows, err := db.Query(context.Background(), SELECT)
 	dbx.CheckErr(err)
