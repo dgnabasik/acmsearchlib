@@ -361,7 +361,7 @@ type WordScore struct {
 
 // New_WordScore func
 func New_WordScore(id uint64, word string, timeframetype nt.TimeFrameType, startDate nt.NullTime, endDate nt.NullTime, density float32, linkage float32, growth float32, score float32) WordScore {
-	timeInterval := nt.TimeInterval{timeframetype, startDate, endDate}
+	timeInterval := nt.TimeInterval{Timeframetype: timeframetype, StartDate: startDate, EndDate: endDate}
 	return WordScore{id, word, timeInterval, density, linkage, growth, score}
 }
 
