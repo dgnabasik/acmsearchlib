@@ -134,11 +134,12 @@ type Vocabulary struct {
 	WordRank    int     `json:"wordrank"`
 	Probability float32 `json:"probability"` // Probability of word at rank.
 	SpeechPart  string  `json:"speechpart"`  // Assign using BulkInsert_Vocabulary_Speechpart().
+	Stem        string  `json:"stem"`        // Assign using libstemmer program
 }
 
 // GetKeyValuePairs method
 func (v Vocabulary) GetKeyValuePairs() (map[string]string, map[int]string) {
-	fieldNames := []string{"Id", "Word", "RowCount", "Frequency", "WordRank", "Probability", "SpeechPart"}
+	fieldNames := []string{"Id", "Word", "RowCount", "Frequency", "WordRank", "Probability", "SpeechPart", "Stem"}
 	orderedMap := GetOrderedMap(fieldNames)
 
 	predicateMap := make(map[string]string, len(fieldNames))
@@ -149,13 +150,14 @@ func (v Vocabulary) GetKeyValuePairs() (map[string]string, map[int]string) {
 	predicateMap[fieldNames[4]] = strconv.Itoa(v.WordRank)
 	predicateMap[fieldNames[5]] = fmt.Sprintf(floatFormatter, v.Probability)
 	predicateMap[fieldNames[6]] = v.SpeechPart
+	predicateMap[fieldNames[7]] = v.Stem
 
 	return predicateMap, orderedMap
 }
 
 // Print method
 func (v Vocabulary) Print() string {
-	return fmt.Sprintf("%d : %s : %d : %d : %d : %f : %s", v.Id, v.Word, v.RowCount, v.Frequency, v.WordRank, v.Probability, v.SpeechPart)
+	return fmt.Sprintf("%d : %s : %d : %d : %d : %f : %s : %s", v.Id, v.Word, v.RowCount, v.Frequency, v.WordRank, v.Probability, v.SpeechPart, v.Stem)
 }
 
 // VocabularySorterFreq Sort interface by Frequency. Len() is the number of elements in the collection.
@@ -176,7 +178,7 @@ func GetVocabularyItem(word string, vocabList []Vocabulary) int {
 	return -1
 }
 
-// GetVocabularyItemIndex is concurrent version of GetVocabularyItem().	HAS A BUG!
+// GetVocabularyItemIndex is concurrent version of GetVocabularyItem().
 func GetVocabularyItemIndex(word string, vocabList []Vocabulary) int {
 	numCPU := runtime.GOMAXPROCS(0)
 	c := make(chan int, numCPU) // Buffering optional but sensible.

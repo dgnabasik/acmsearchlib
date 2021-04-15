@@ -29,14 +29,14 @@ func GetVocabularyByWord(wordX string) (hd.Vocabulary, error) {
 	}
 	defer db.Close()
 
-	var word, speechPart string
+	var word, speechPart, stem string
 	var id uint32
 	var rowCount, frequency, wordRank int
 	var probability float32
-	SELECT := "SELECT id, word, rowcount, frequency, wordrank, probability, speechpart FROM Vocabulary WHERE Word='" + wordX + "'"
-	err = db.QueryRow(context.Background(), SELECT).Scan(&id, &word, &rowCount, &frequency, &wordRank, &probability, &speechPart)
+	SELECT := "SELECT id, word, rowcount, frequency, wordrank, probability, speechpart, stem FROM Vocabulary WHERE Word='" + wordX + "'"
+	err = db.QueryRow(context.Background(), SELECT).Scan(&id, &word, &rowCount, &frequency, &wordRank, &probability, &speechPart, &stem)
 	dbx.CheckErr(err)
-	return hd.Vocabulary{Id: id, Word: word, RowCount: rowCount, Frequency: frequency, WordRank: wordRank, Probability: probability, SpeechPart: speechPart}, nil
+	return hd.Vocabulary{Id: id, Word: word, RowCount: rowCount, Frequency: frequency, WordRank: wordRank, Probability: probability, SpeechPart: speechPart, Stem: stem}, nil
 }
 
 // GetVocabularyList method does NOT apply filtering to imported []words. Func places single quotes around each words element.
@@ -48,7 +48,7 @@ func GetVocabularyList(words []string) ([]hd.Vocabulary, error) {
 	defer db.Close()
 
 	inPhrase := dbx.CompileInClause(words)
-	query := "SELECT id, word, rowcount, frequency, wordrank, probability, speechpart FROM vocabulary WHERE word IN " + inPhrase
+	query := "SELECT id, word, rowcount, frequency, wordrank, probability, speechpart, stem FROM vocabulary WHERE word IN " + inPhrase
 	rows, err := db.Query(context.Background(), query)
 	dbx.CheckErr(err)
 	if err != nil {
@@ -67,7 +67,8 @@ func GetVocabularyList(words []string) ([]hd.Vocabulary, error) {
 			&vocabulary.Frequency,
 			&vocabulary.WordRank,
 			&vocabulary.Probability,
-			&vocabulary.SpeechPart)
+			&vocabulary.SpeechPart,
+			&vocabulary.Stem)
 		if err != nil {
 			log.Printf("GetVocabularyList(2): %+v\n", err)
 			return nil, err
@@ -143,14 +144,14 @@ func GetVocabularyListByDate(timeinterval nt.TimeInterval) ([]hd.Vocabulary, err
 	dbx.CheckErr(err)
 	defer rows.Close()
 
-	var word, speechPart string
+	var word, speechPart, stem string
 	var id uint32
 	var rowCount, frequency, wordRank int
 	var probability float32
 	var vocabList []hd.Vocabulary
 
 	for rows.Next() { // this order follows the \d Vocabulary description:
-		err = rows.Scan(&id, &word, &rowCount, &frequency, &wordRank, &probability, &speechPart)
+		err = rows.Scan(&id, &word, &rowCount, &frequency, &wordRank, &probability, &speechPart, &stem)
 		dbx.CheckErr(err)
 
 		newWord, rule := cond.FilteringRules(word)
@@ -160,7 +161,7 @@ func GetVocabularyListByDate(timeinterval nt.TimeInterval) ([]hd.Vocabulary, err
 			word = newWord
 		}
 
-		vocabList = append(vocabList, hd.Vocabulary{Id: id, Word: word, RowCount: rowCount, Frequency: frequency, WordRank: wordRank, Probability: probability, SpeechPart: speechPart})
+		vocabList = append(vocabList, hd.Vocabulary{Id: id, Word: word, RowCount: rowCount, Frequency: frequency, WordRank: wordRank, Probability: probability, SpeechPart: speechPart, Stem: stem})
 	}
 
 	err = rows.Err()
@@ -252,7 +253,7 @@ func GetTitleWordsBigramInterval(bigrams []string, timeInterval nt.TimeInterval,
 	return titleList, nil
 }
 
-// UpdateVocabulary updates Vocabulary.RowCount, Frequency, SpeechPart for EVERY row!. AcmData table never needs updating.
+// UpdateVocabulary updates Vocabulary.RowCount, Frequency, SpeechPart, Stem for EVERY row!. AcmData table never needs updating.
 func UpdateVocabulary(recordList []hd.Vocabulary) (int, error) {
 	if len(recordList) == 0 {
 		return 0, nil
@@ -269,8 +270,8 @@ func UpdateVocabulary(recordList []hd.Vocabulary) (int, error) {
 
 	batch := &pgx.Batch{} // prepare batch updates
 	for _, v := range recordList {
-		sqlStatement := "UPDATE vocabulary SET RowCount = $2, Frequency = $3, SpeechPart = $4 WHERE Word = $1;"
-		batch.Queue(sqlStatement, v.Word, v.RowCount, v.Frequency, v.SpeechPart)
+		sqlStatement := "UPDATE vocabulary SET RowCount=$2, Frequency=$3, SpeechPart=$4, Stem=$5 WHERE Word = $1;"
+		batch.Queue(sqlStatement, v.Word, v.RowCount, v.Frequency, v.SpeechPart, v.Stem)
 	}
 
 	batchResults := txn.SendBatch(context.Background(), batch)
@@ -349,9 +350,9 @@ func BulkInsertVocabulary(recordList []hd.Vocabulary) (int, error) {
 	copyCount, err := db.CopyFrom(
 		context.Background(),
 		pgx.Identifier{"vocabulary"}, // tablename
-		[]string{"word", "rowcount", "frequency", "wordrank", "probability", "speechpart"},
+		[]string{"word", "rowcount", "frequency", "wordrank", "probability", "speechpart", "stem"},
 		pgx.CopyFromSlice(len(vocabList), func(i int) ([]interface{}, error) {
-			return []interface{}{vocabList[i].Word, vocabList[i].RowCount, vocabList[i].Frequency, vocabList[i].WordRank, vocabList[i].Probability, vocabList[i].SpeechPart}, nil
+			return []interface{}{vocabList[i].Word, vocabList[i].RowCount, vocabList[i].Frequency, vocabList[i].WordRank, vocabList[i].Probability, vocabList[i].SpeechPart, vocabList[i].Stem}, nil
 		}),
 	)
 	dbx.CheckErr(err)

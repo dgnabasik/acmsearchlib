@@ -247,7 +247,7 @@ func WordFrequencyList() ([]hd.Vocabulary, error) {
 			wordList[wordMap[word]-1].Frequency += frequency
 			fmt.Print(" " + word)
 		} else { // new entry
-			newVocabulary := hd.Vocabulary{Id: 0, Word: word, RowCount: rowCount, Frequency: frequency, WordRank: 0, Probability: 0, SpeechPart: " "} // id, word, rowCount, frequency, wordRank, probability, speechPart)
+			newVocabulary := hd.Vocabulary{Id: 0, Word: word, RowCount: rowCount, Frequency: frequency, WordRank: 0, Probability: 0, SpeechPart: " ", Stem: ""}
 			wordList = append(wordList, newVocabulary)
 			wordMap[word] = len(wordList)
 		}
