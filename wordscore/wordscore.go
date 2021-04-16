@@ -138,7 +138,7 @@ func BulkInsertWordScores(wordScoreList []hd.WordScore) error {
 	copyCount, err := db.CopyFrom(
 		context.Background(),
 		pgx.Identifier{"wordscore"}, // tablename
-		[]string{"wordscore", "word", "timeframetype", "startdate", "enddate", "density", "linkage", "growth", "score"},
+		[]string{"word", "timeframetype", "startdate", "enddate", "density", "linkage", "growth", "score"},
 		pgx.CopyFromSlice(len(wordScoreList), func(i int) ([]interface{}, error) {
 			return []interface{}{wordScoreList[i].Word, int(wordScoreList[i].Timeinterval.Timeframetype), wordScoreList[i].Timeinterval.StartDate.DT, wordScoreList[i].Timeinterval.EndDate.DT, wordScoreList[i].Density, wordScoreList[i].Linkage, wordScoreList[i].Growth, wordScoreList[i].Score}, nil
 		}),
