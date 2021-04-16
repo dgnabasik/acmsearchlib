@@ -20,6 +20,20 @@ func Version() string {
 	return "1.16.2"
 }
 
+// GetArticleCount func
+func GetArticleCount() (int, error) {
+	db, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return -1, err // default time.
+	}
+	defer db.Close()
+
+	var articleCount int
+	err = db.QueryRow(context.Background(), "SELECT COUNT(*) FROM AcmData").Scan(&articleCount)
+	dbx.CheckErr(err)
+	return articleCount, nil
+}
+
 // GetLastDateSavedFromDb returns the earliest and latest AcmData.ArchiveDate values else default time.
 func GetLastDateSavedFromDb() (nt.NullTime, nt.NullTime, error) {
 	db, err := dbx.GetDatabaseReference()
