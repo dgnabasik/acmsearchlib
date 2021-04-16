@@ -7,7 +7,7 @@ replace acmsearchlib/headers => ../headers
 replace acmsearchlib/nulltime => ../nulltime
 
 require (
-	github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210414034655-44c089598523
+	github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210415195604-04a6bb511bda
 	github.com/jackc/pgproto3/v2 v2.0.7 // indirect
 	github.com/jackc/pgx/v4 v4.11.0
 	golang.org/x/crypto v0.0.0-20210415154028-4f45737414dc // indirect
