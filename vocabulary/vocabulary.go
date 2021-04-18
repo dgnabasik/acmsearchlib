@@ -356,11 +356,11 @@ func BulkInsertVocabulary(recordList []hd.Vocabulary) (int, error) {
 		}),
 	)
 	dbx.CheckErr(err)
+	err = txn.Commit(context.Background())
+	dbx.CheckErr(err)
 	if copyCount == 0 {
 		fmt.Println("BulkInsertVocabulary: no rows inserted")
 	}
-	err = txn.Commit(context.Background())
-	dbx.CheckErr(err)
 
 	return len(recordList), nil
 }
