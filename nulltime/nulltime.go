@@ -283,25 +283,25 @@ type NullTime struct {
 
 // Scan implements the Scanner interface. Modifies self.
 func (nt *NullTime) Scan(value interface{}) error {
-	DT, IsValid = value.(time.Time)
+	nt.DT, nt.IsValid = value.(time.Time)
 	return nil
 }
 
 // AdvanceNextNullTime Method to return next Mon-Wed-Fri. Modifies self.
 func (nt *NullTime) AdvanceNextNullTime() {
-	weekday := DT.Weekday()
+	weekday := nt.DT.Weekday()
 	addDays := 0
 	if weekday == time.Weekday(1) || weekday == time.Weekday(3) { // Mon || Wed
 		addDays = 2
 	} else if weekday == time.Weekday(5) { // Fri
 		addDays = 3
 	}
-	DT = DT.AddDate(0, 0, addDays)
+	nt.DT = nt.DT.AddDate(0, 0, addDays)
 }
 
 // FileSystemDate method to return dec-30-2005
 func (nt NullTime) FileSystemDate() string {
-	year, month, day := DT.Date()
+	year, month, day := nt.DT.Date()
 	var m int = int(month)
 	tstr := GetShortMonthName(m) + "-" + leadingZeroNumbers[day] + "-" + strconv.Itoa(year)
 	return tstr
@@ -309,7 +309,7 @@ func (nt NullTime) FileSystemDate() string {
 
 // HtmlArchiveDate method to return 2019-07-jul (month number = month name)
 func (nt NullTime) HtmlArchiveDate() string {
-	year, month, _ := DT.Date()
+	year, month, _ := nt.DT.Date()
 	var m int = int(month)
 	tstr := strconv.Itoa(year) + "-" + leadingZeroNumbers[m] + "-" + GetShortMonthName(m)
 	return tstr
@@ -319,14 +319,14 @@ func (nt NullTime) HtmlArchiveDate() string {
 // RFC3339 = "2006-01-02T15:04:05Z07:00"
 func (nt NullTime) StandardDate() string {
 	var a [20]byte
-	var b = a[:0]                        // Using the a[:0] notation converts the fixed-size array to a slice type represented by b that is backed by this array.
-	b = DT.AppendFormat(b, time.RFC3339) // AppendFormat() accepts type []byte. The allocated memory a is passed to AppendFormat().
+	var b = a[:0]                           // Using the a[:0] notation converts the fixed-size array to a slice type represented by b that is backed by this array.
+	b = nt.DT.AppendFormat(b, time.RFC3339) // AppendFormat() accepts type []byte. The allocated memory a is passed to AppendFormat().
 	return string(b[0:10])
 }
 
 // NonStandardDate method to return mm/dd/yy string else default time.
 func (nt NullTime) NonStandardDate() string {
-	year, month, day := DT.Date()
+	year, month, day := nt.DT.Date()
 	var m int = int(month)
 	var d int = int(day)
 	tstr := leadingZeroNumbers[m] + "/" + leadingZeroNumbers[d] + "/" + leadingZeroNumbers[year-VeryFirstYear] //  strconv.Itoa(year)[2:3]
@@ -335,45 +335,45 @@ func (nt NullTime) NonStandardDate() string {
 
 // Value implements the driver Value interface.
 func (nt NullTime) Value() (driver.Value, error) {
-	if !IsValid {
+	if !nt.IsValid {
 		return nil, nil
 	}
-	return DT, nil
+	return nt.DT, nil
 }
 
 // IsScheduledDate method Use time.After() to test if on scheduled date.
 func (nt NullTime) IsScheduledDate(when TimeFrameType) bool {
-	year, month, _ := DT.Date()
+	year, month, _ := nt.DT.Date()
 	baseStartTime := NullTimeToday()
 
 	switch when {
 	case TFUnknown: // Is it past 11 am today? Articles are published around 10 am.
 		baseStartTime.DT = baseStartTime.DT.Add(time.Hour * 11)
-		return baseStartTime.DT.After(DT)
+		return baseStartTime.DT.After(nt.DT)
 
 	case TFWeek: // Is today the start of the week?  (Sunday)
 		startOfWeek, _ := GetStartEndOfWeek(nt)
-		return (DT == startOfWeek.DT)
+		return (nt.DT == startOfWeek.DT)
 
 	case TFMonth: // Is today the start of the month?
 		startOfMonth := New_NullTime2(time.Date(year, month, 1, 0, 0, 0, 0, time.UTC))
-		return (DT == startOfMonth.DT)
+		return (nt.DT == startOfMonth.DT)
 
 	case TFQuarter: // Is today the start of the quarter?
 		qStart := []int{0, 1, 1, 1, 4, 4, 4, 7, 7, 7, 10, 10, 10}
 		startOfQuarter := New_NullTime2(time.Date(year, time.Month(qStart[month]), 1, 0, 0, 0, 0, time.UTC))
-		return (DT == startOfQuarter.DT)
+		return (nt.DT == startOfQuarter.DT)
 
 	case TFYear: // Is today the start of the year?
 		startOfYear := New_NullTime2(time.Date(year, 1, 1, 0, 0, 0, 0, time.UTC))
-		return (DT == startOfYear.DT)
+		return (nt.DT == startOfYear.DT)
 
 	case TFTerm: // Is today the start of the term? Jan 1 of [2000, 2004, 2008, 2012, 2016, 2020]
 		startOfTerm := New_NullTime2(time.Date(year, 1, 1, 0, 0, 0, 0, time.UTC))
-		return (DT == startOfTerm.DT) && (year == 2000 || year == 2004 || year == 2008 || year == 2012 || year == 2016 || year == 2020 || year == 2024)
+		return (nt.DT == startOfTerm.DT) && (year == 2000 || year == 2004 || year == 2008 || year == 2012 || year == 2016 || year == 2020 || year == 2024)
 
 	case TFSpan: // Set manually by testing for yesterday.
-		return DT.Before(baseStartTime.DT)
+		return nt.DT.Before(baseStartTime.DT)
 	}
 
 	return false
@@ -413,8 +413,8 @@ func New_TimeFrame(timeInterval TimeInterval) TimeFrame {
 	nt := timeInterval.StartDate // by convention
 	p := new(TimeFrame)
 	p.Timeframetype = timeInterval.Timeframetype
-	p.GivenDate = New_NullTime(StandardDate())
-	if DT.Year() < VeryFirstYear {
+	p.GivenDate = New_NullTime(nt.StandardDate())
+	if nt.DT.Year() < VeryFirstYear {
 		return *p
 	}
 
