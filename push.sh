@@ -1,4 +1,5 @@
 echo dgnabasik
+echo aaf61ad438e564e493589b929e74437baba79df5
 git pull https://github.com/dgnabasik/acmsearchlib
 echo -n "push?"
 read
