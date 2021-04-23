@@ -449,7 +449,7 @@ func (om OrderedArticleMap) PrintMap() {
 
 /*************************************************************************************************/
 
-// ConditionalProbability struct
+// ConditionalProbability struct does NOT include the wordarray text[] column in [Conditional].
 type ConditionalProbability struct {
 	Id           uint64          `json:"id"`
 	WordList     string          `json:"wordlist"`     // concatenated("|")

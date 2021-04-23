@@ -55,7 +55,7 @@ func GetShortMonthName(m int) string {
 	}
 }
 
-// indexOfMonth(string) returns default 0th element. ONLY for shortMonthNames & longMonthNames!
+// indexOfMonth(string) returns default 0th eleme ONLY for shortMonthNames & longMonthNames!
 func indexOfMonth(element string, data []string) int {
 	for k, v := range data {
 		if element == v {
@@ -117,91 +117,59 @@ func New_TimeInterval(timeframetype TimeFrameType, startDate NullTime, endDate N
 	return *p
 }
 
-// GetTimeIntervalDatePartitionList Partition date ranges for concurrent processing for given StartDate, EndDates.
-func (ti TimeInterval) GetTimeIntervalDatePartitionList() []TimeInterval {
-	var timeIntervalList []TimeInterval
+// GetTimeIntervalDatePartitionList func returns the COMPLETE embedded list of {TFMonth, TFQuarter, TFYear, TFTerm, TFSpan} intervals.
+func GetTimeIntervalDatePartitionList(baseTimeInterval TimeInterval) []TimeInterval {
+	startDate := baseTimeInterval.StartDate.DT
+	endDate := baseTimeInterval.EndDate.DT
+	intervalList := make([]TimeInterval, 0) // return value
 
-	if ti.Timeframetype == TFUnknown { // same dates
-		interval := New_TimeInterval(ti.Timeframetype, ti.StartDate, ti.EndDate)
-		timeIntervalList = append(timeIntervalList, interval)
+	deltaDays := endDate.Sub(startDate).Hours() / 24
+	if deltaDays < 30 || baseTimeInterval.Timeframetype == TFWeek { // current month
+		thisMonth := New_NullTime2(time.Date(startDate.Year(), startDate.Month(), 1, 0, 0, 0, 0, time.UTC))
+		currentMonth := TimeInterval{Timeframetype: TFMonth, StartDate: thisMonth, EndDate: New_NullTime2(thisMonth.DT.AddDate(0, 1, -1))}
+		intervalList = append(intervalList, currentMonth)
+		return intervalList
 	}
 
-	if ti.Timeframetype == TFWeek {
-		dYears, dMonths, dDays, _, _, _ := NullTimeDiff(ti.StartDate, ti.EndDate)
-		diffWeeks := dYears*52 + dMonths*4 + dDays/7 + 2
-		startOfWeek, endOfWeek := GetStartEndOfWeek(ti.StartDate)
-		for weekIndex := 0; weekIndex <= diffWeeks; weekIndex++ {
-			newInterval := New_TimeInterval(ti.Timeframetype, startOfWeek, endOfWeek)
-			timeIntervalList = append(timeIntervalList, newInterval)
-			if endOfWeek.DT.After(ti.EndDate.DT) {
-				break
-			}
-			startOfWeek.DT = startOfWeek.DT.AddDate(0, 0, 7)
-			endOfWeek.DT = startOfWeek.DT.AddDate(0, 0, 6)
-		}
-	}
-
-	if ti.Timeframetype == TFMonth { // get start of month of StartDate
-		dYears, dMonths, _, _, _, _ := NullTimeDiff(ti.StartDate, ti.EndDate)
-		diffMonths := dYears*12 + dMonths
-		startOfMonth := New_NullTime2(time.Date(ti.StartDate.DT.Year(), ti.StartDate.DT.Month(), 1, 0, 0, 0, 0, time.UTC))
-		for monthIndex := 0; monthIndex <= diffMonths; monthIndex++ {
+	switch baseTimeInterval.Timeframetype {
+	case TFMonth:
+		startOfMonth := New_NullTime2(time.Date(startDate.Year(), startDate.Month(), 1, 0, 0, 0, 0, time.UTC))
+		for ok := true; ok; ok = startOfMonth.DT.Before(endDate) {
 			endOfMonth := New_NullTime2(startOfMonth.DT.AddDate(0, 1, -1))
-			newInterval := New_TimeInterval(ti.Timeframetype, startOfMonth, endOfMonth)
-			timeIntervalList = append(timeIntervalList, newInterval)
-			startOfMonth.DT = startOfMonth.DT.AddDate(0, 1, 0)
-			if endOfMonth.DT.After(ti.EndDate.DT) {
-				break
-			}
+			intervalList = append(intervalList, TimeInterval{Timeframetype: TFMonth, StartDate: startOfMonth, EndDate: endOfMonth})
+			startOfMonth = New_NullTime2(startOfMonth.DT.AddDate(0, 1, 0)) // start of next month
 		}
-	}
 
-	if ti.Timeframetype == TFQuarter {
-		dYears, dMonths, _, _, _, _ := NullTimeDiff(ti.StartDate, ti.EndDate)
-		diffQuarters := dYears*4 + dMonths/3 + 1
-		xMonth := ti.StartDate.DT.Month()/3 + 1
-		startOfQuarter := New_NullTime2(time.Date(ti.StartDate.DT.Year(), xMonth, 1, 0, 0, 0, 0, time.UTC))
-		for quarterIndex := 0; quarterIndex <= diffQuarters; quarterIndex++ {
-			endOfQuarter := New_NullTime2(startOfQuarter.DT.AddDate(0, 4, 0)) // add 4 months
-			endOfQuarter = New_NullTime2(endOfQuarter.DT.AddDate(0, -1, -1))  // sub 1 day
-			newInterval := New_TimeInterval(ti.Timeframetype, startOfQuarter, endOfQuarter)
-			timeIntervalList = append(timeIntervalList, newInterval)
-			startOfQuarter.DT = startOfQuarter.DT.AddDate(0, 3, 0)
-			if endOfQuarter.DT.After(ti.EndDate.DT) {
-				break
-			}
+	case TFQuarter:
+		startOfQuarter := New_NullTime2(time.Date(startDate.Year(), startDate.Month()/3+1, 1, 0, 0, 0, 0, time.UTC))
+		for ok := true; ok; ok = startOfQuarter.DT.Before(endDate) {
+			endOfQuarter := New_NullTime2(startOfQuarter.DT.AddDate(0, 3, -1)) // start of next quarter
+			intervalList = append(intervalList, TimeInterval{Timeframetype: TFQuarter, StartDate: startOfQuarter, EndDate: endOfQuarter})
+			startOfQuarter = New_NullTime2(startOfQuarter.DT.AddDate(0, 3, 0)) // start of next month
 		}
-	}
 
-	if ti.Timeframetype == TFYear {
-		for yearIndex := ti.StartDate.DT.Year(); yearIndex <= ti.EndDate.DT.Year(); yearIndex++ {
-			startOfYear := New_NullTime(strconv.Itoa(yearIndex) + "-01-01")
-			endOfYear := New_NullTime(strconv.Itoa(yearIndex) + "-12-31")
-			if yearIndex == ti.EndDate.DT.Year() {
-				endOfYear = NullTimeToday()
-			}
-			newInterval := New_TimeInterval(ti.Timeframetype, startOfYear, endOfYear)
-			timeIntervalList = append(timeIntervalList, newInterval)
+	case TFYear:
+		for year := startDate.Year(); year <= endDate.Year(); year++ {
+			startOfYear := New_NullTime2(time.Date(year, time.Month(1), 1, 0, 0, 0, 0, time.UTC))
+			endOfYear := New_NullTime2(time.Date(year, time.Month(12), 31, 0, 0, 0, 0, time.UTC))
+			intervalList = append(intervalList, TimeInterval{Timeframetype: TFYear, StartDate: startOfYear, EndDate: endOfYear})
 		}
-	}
 
-	if ti.Timeframetype == TFTerm {
-		for termIndex := ti.StartDate.DT.Year(); termIndex <= ti.EndDate.DT.Year(); termIndex = termIndex + 3 {
-			startOfTerm := New_NullTime(strconv.Itoa(termIndex) + "-01-01")
-			endOfTerm := New_NullTime(strconv.Itoa(termIndex) + "-12-31")
-			if termIndex == ti.EndDate.DT.Year() {
-				endOfTerm = NullTimeToday()
-			}
-			newInterval := New_TimeInterval(ti.Timeframetype, startOfTerm, endOfTerm)
-			timeIntervalList = append(timeIntervalList, newInterval)
+	case TFTerm:
+		startTermDate := New_NullTime2(time.Date(startDate.Year()-(startDate.Year()-2000)%4, time.Month(1), 1, 0, 0, 0, 0, time.UTC))
+		for year := startTermDate.DT.Year(); year < endDate.Year(); year = year + 4 {
+			startOfYear := New_NullTime2(time.Date(startTermDate.DT.Year(), time.Month(1), 1, 0, 0, 0, 0, time.UTC))
+			endOfYear := New_NullTime2(time.Date(startTermDate.DT.Year()+3, time.Month(12), 31, 0, 0, 0, 0, time.UTC))
+			intervalList = append(intervalList, TimeInterval{Timeframetype: TFTerm, StartDate: startOfYear, EndDate: endOfYear})
+			startTermDate = New_NullTime2(time.Date(year+4, time.Month(1), 1, 0, 0, 0, 0, time.UTC))
 		}
+
+	default: // TFUnknown & TFSpan:
+		span := TimeInterval{Timeframetype: TFSpan, StartDate: New_NullTime(VeryFirstDate), EndDate: NullTimeToday()}
+		intervalList = append(intervalList, span)
 	}
 
-	if ti.Timeframetype == TFSpan {
-		timeIntervalList = append(timeIntervalList, ti)
-	}
-
-	return timeIntervalList
+	return intervalList
 }
 
 // ToString method
@@ -315,25 +283,25 @@ type NullTime struct {
 
 // Scan implements the Scanner interface. Modifies self.
 func (nt *NullTime) Scan(value interface{}) error {
-	nt.DT, nt.IsValid = value.(time.Time)
+	DT, IsValid = value.(time.Time)
 	return nil
 }
 
 // AdvanceNextNullTime Method to return next Mon-Wed-Fri. Modifies self.
 func (nt *NullTime) AdvanceNextNullTime() {
-	weekday := nt.DT.Weekday()
+	weekday := DT.Weekday()
 	addDays := 0
 	if weekday == time.Weekday(1) || weekday == time.Weekday(3) { // Mon || Wed
 		addDays = 2
 	} else if weekday == time.Weekday(5) { // Fri
 		addDays = 3
 	}
-	nt.DT = nt.DT.AddDate(0, 0, addDays)
+	DT = DT.AddDate(0, 0, addDays)
 }
 
 // FileSystemDate method to return dec-30-2005
 func (nt NullTime) FileSystemDate() string {
-	year, month, day := nt.DT.Date()
+	year, month, day := DT.Date()
 	var m int = int(month)
 	tstr := GetShortMonthName(m) + "-" + leadingZeroNumbers[day] + "-" + strconv.Itoa(year)
 	return tstr
@@ -341,7 +309,7 @@ func (nt NullTime) FileSystemDate() string {
 
 // HtmlArchiveDate method to return 2019-07-jul (month number = month name)
 func (nt NullTime) HtmlArchiveDate() string {
-	year, month, _ := nt.DT.Date()
+	year, month, _ := DT.Date()
 	var m int = int(month)
 	tstr := strconv.Itoa(year) + "-" + leadingZeroNumbers[m] + "-" + GetShortMonthName(m)
 	return tstr
@@ -351,14 +319,14 @@ func (nt NullTime) HtmlArchiveDate() string {
 // RFC3339 = "2006-01-02T15:04:05Z07:00"
 func (nt NullTime) StandardDate() string {
 	var a [20]byte
-	var b = a[:0]                           // Using the a[:0] notation converts the fixed-size array to a slice type represented by b that is backed by this array.
-	b = nt.DT.AppendFormat(b, time.RFC3339) // AppendFormat() accepts type []byte. The allocated memory a is passed to AppendFormat().
+	var b = a[:0]                        // Using the a[:0] notation converts the fixed-size array to a slice type represented by b that is backed by this array.
+	b = DT.AppendFormat(b, time.RFC3339) // AppendFormat() accepts type []byte. The allocated memory a is passed to AppendFormat().
 	return string(b[0:10])
 }
 
 // NonStandardDate method to return mm/dd/yy string else default time.
 func (nt NullTime) NonStandardDate() string {
-	year, month, day := nt.DT.Date()
+	year, month, day := DT.Date()
 	var m int = int(month)
 	var d int = int(day)
 	tstr := leadingZeroNumbers[m] + "/" + leadingZeroNumbers[d] + "/" + leadingZeroNumbers[year-VeryFirstYear] //  strconv.Itoa(year)[2:3]
@@ -367,45 +335,45 @@ func (nt NullTime) NonStandardDate() string {
 
 // Value implements the driver Value interface.
 func (nt NullTime) Value() (driver.Value, error) {
-	if !nt.IsValid {
+	if !IsValid {
 		return nil, nil
 	}
-	return nt.DT, nil
+	return DT, nil
 }
 
 // IsScheduledDate method Use time.After() to test if on scheduled date.
 func (nt NullTime) IsScheduledDate(when TimeFrameType) bool {
-	year, month, _ := nt.DT.Date()
+	year, month, _ := DT.Date()
 	baseStartTime := NullTimeToday()
 
 	switch when {
 	case TFUnknown: // Is it past 11 am today? Articles are published around 10 am.
 		baseStartTime.DT = baseStartTime.DT.Add(time.Hour * 11)
-		return baseStartTime.DT.After(nt.DT)
+		return baseStartTime.DT.After(DT)
 
 	case TFWeek: // Is today the start of the week?  (Sunday)
 		startOfWeek, _ := GetStartEndOfWeek(nt)
-		return (nt.DT == startOfWeek.DT)
+		return (DT == startOfWeek.DT)
 
 	case TFMonth: // Is today the start of the month?
 		startOfMonth := New_NullTime2(time.Date(year, month, 1, 0, 0, 0, 0, time.UTC))
-		return (nt.DT == startOfMonth.DT)
+		return (DT == startOfMonth.DT)
 
 	case TFQuarter: // Is today the start of the quarter?
 		qStart := []int{0, 1, 1, 1, 4, 4, 4, 7, 7, 7, 10, 10, 10}
 		startOfQuarter := New_NullTime2(time.Date(year, time.Month(qStart[month]), 1, 0, 0, 0, 0, time.UTC))
-		return (nt.DT == startOfQuarter.DT)
+		return (DT == startOfQuarter.DT)
 
 	case TFYear: // Is today the start of the year?
 		startOfYear := New_NullTime2(time.Date(year, 1, 1, 0, 0, 0, 0, time.UTC))
-		return (nt.DT == startOfYear.DT)
+		return (DT == startOfYear.DT)
 
 	case TFTerm: // Is today the start of the term? Jan 1 of [2000, 2004, 2008, 2012, 2016, 2020]
 		startOfTerm := New_NullTime2(time.Date(year, 1, 1, 0, 0, 0, 0, time.UTC))
-		return (nt.DT == startOfTerm.DT) && (year == 2000 || year == 2004 || year == 2008 || year == 2012 || year == 2016 || year == 2020 || year == 2024)
+		return (DT == startOfTerm.DT) && (year == 2000 || year == 2004 || year == 2008 || year == 2012 || year == 2016 || year == 2020 || year == 2024)
 
 	case TFSpan: // Set manually by testing for yesterday.
-		return nt.DT.Before(baseStartTime.DT)
+		return DT.Before(baseStartTime.DT)
 	}
 
 	return false
@@ -445,8 +413,8 @@ func New_TimeFrame(timeInterval TimeInterval) TimeFrame {
 	nt := timeInterval.StartDate // by convention
 	p := new(TimeFrame)
 	p.Timeframetype = timeInterval.Timeframetype
-	p.GivenDate = New_NullTime(nt.StandardDate())
-	if nt.DT.Year() < VeryFirstYear {
+	p.GivenDate = New_NullTime(StandardDate())
+	if DT.Year() < VeryFirstYear {
 		return *p
 	}
 
