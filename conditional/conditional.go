@@ -392,7 +392,7 @@ func CalcConditionalProbability(startingWordgram string, wordMap map[string]floa
 	}
 	permutations := 2
 	var cutoffProbability float32 = 0.000001 // 1.0x10^-6
-	index := strings.Index(startingWordgram, "|")
+	index := strings.Index(startingWordgram, SEP)
 	wordAstart := startingWordgram[0:index]
 	wordBstart := startingWordgram[index+1:]
 
@@ -441,9 +441,9 @@ func CalcConditionalProbability(startingWordgram string, wordMap map[string]floa
 					dbx.CheckErr(err)                            // firstDate, lastDate can be null!
 					firstDateValue = nt.New_NullTime2(firstDate) // must match function RETURNS TABLE names.
 					lastDateValue = nt.New_NullTime2(lastDate)
-					wordlist := wordGrams[wordA] + "|" + wordGrams[wordB]
+					wordlist := wordGrams[wordA] + SEP + wordGrams[wordB]
 					conditionals = append(conditionals, hd.ConditionalProbability{Id: 0, WordList: wordlist, Probability: pAgivenB, Timeinterval: timeinterval, FirstDate: firstDateValue, LastDate: lastDateValue, Pmi: pmi, DateUpdated: today})
-					wordlist = wordGrams[wordB] + "|" + wordGrams[wordA]
+					wordlist = wordGrams[wordB] + SEP + wordGrams[wordA]
 					conditionals = append(conditionals, hd.ConditionalProbability{Id: 0, WordList: wordlist, Probability: pBgivenA, Timeinterval: timeinterval, FirstDate: firstDateValue, LastDate: lastDateValue, Pmi: pmi, DateUpdated: today})
 				}
 			}
@@ -462,10 +462,11 @@ func CalcConditionalProbability(startingWordgram string, wordMap map[string]floa
 }
 
 // GetConditionalByTimeInterval func modifies condProbList pointer which should be declared beforehand. bigramMap does not need to be a pointer.
-func GetConditionalByTimeInterval(bigrams []string, timeInterval nt.TimeInterval, condProbList *[]hd.ConditionalProbability, bigramMap map[string]bool, includeTimeframetype bool) error {
+func GetConditionalByTimeInterval(bigrams []string, timeInterval nt.TimeInterval, bigramMap map[string]bool, includeTimeframetype bool) ([]hd.ConditionalProbability, error) {
+	condProbList := make([]hd.ConditionalProbability, 0)
 	db, err := dbx.GetDatabaseReference()
 	if err != nil {
-		return err
+		return condProbList, err
 	}
 	defer db.Close()
 
@@ -476,7 +477,7 @@ func GetConditionalByTimeInterval(bigrams []string, timeInterval nt.TimeInterval
 	dbx.CheckErr(err)
 	if err != nil {
 		log.Printf("GetConditionalByTimeInterval(1): %+v\n", err)
-		return err
+		return condProbList, err
 	}
 	defer rows.Close()
 
@@ -485,21 +486,21 @@ func GetConditionalByTimeInterval(bigrams []string, timeInterval nt.TimeInterval
 	var startDate time.Time
 	var endDate time.Time
 
-	for rows.Next() { // 720,066 total rows per TFTerm.
+	for rows.Next() {
 		err := rows.Scan(&cProb.Id, &cProb.WordList, &cProb.Probability, &timeframetype, &startDate, &endDate, &cProb.FirstDate, &cProb.LastDate, &cProb.Pmi, &cProb.DateUpdated)
 		if err != nil {
 			log.Printf("GetConditionalByTimeInterval(2): %+v\n", err)
-			return err
+			return condProbList, err
 		}
 		bigramMap[cProb.WordList] = true
 		cProb.Timeinterval = nt.New_TimeInterval(nt.TimeFrameType(timeframetype), nt.New_NullTime2(startDate), nt.New_NullTime2(endDate))
-		*condProbList = append(*condProbList, cProb)
+		condProbList = append(condProbList, cProb)
 	}
 
 	// get any iteration errors
 	err = rows.Err()
 	dbx.CheckErr(err)
-	return err
+	return condProbList, err
 }
 
 // GetConditionalByProbability func
@@ -535,7 +536,7 @@ func GetConditionalByProbability(word string, probabilityCutoff float32, timeInt
 			log.Printf("GetConditionalByProbability(2): %+v\n", err)
 			return err
 		}
-		if cProb.Probability >= probabilityCutoff && (strings.HasPrefix(cProb.WordList, word+"|") || strings.HasSuffix(cProb.WordList, "|"+word)) { // remove prefix-postfix words.
+		if cProb.Probability >= probabilityCutoff && (strings.HasPrefix(cProb.WordList, word+SEP) || strings.HasSuffix(cProb.WordList, SEP+word)) { // remove prefix-postfix words.
 			cProb.Timeinterval = nt.New_TimeInterval(nt.TimeFrameType(timeframetype), nt.New_NullTime2(startDate), nt.New_NullTime2(endDate))
 			*condProbList = append(*condProbList, cProb)
 		}
