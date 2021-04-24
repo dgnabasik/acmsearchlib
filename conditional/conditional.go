@@ -41,7 +41,7 @@ func isHexWord(word string) bool {
 // FilteringRules filters output from Postgres ts_stat select. Include 3d prefixes.
 // Return 0 for ok, -1 to completely ignore, 1 for modified word.
 func FilteringRules(word string) (string, int) {
-	if len(strings.TrimSpace(word)) <= 1 || word == "says" {
+	if len(strings.TrimSpace(word)) <= 1 {
 		return word, -1
 	}
 
@@ -361,7 +361,7 @@ func BulkInsertConditionalProbability(conditionals []hd.ConditionalProbability) 
 	err = txn.Commit(context.Background())
 	dbx.CheckErr(err)
 
-	// Execute wordarray update stored proc:
+	//// Execute wordarray update stored proc:
 	_, err = db.Exec(context.Background(), "call UpdateVocabularyWordarray();")
 	dbx.CheckErr(err)
 
@@ -514,7 +514,7 @@ func GetConditionalByProbability(word string, probabilityCutoff float32, timeInt
 	//postfix := "'%|" + word + "'"
 	query := "SELECT id, wordlist, probability, timeframetype, startDate, endDate, firstDate, lastDate, pmi, dateUpdated FROM conditional WHERE " + dbx.CompileDateClause(timeInterval, false) +
 		" AND (wordarray[1]=word OR wordarray[2]=word)"
-		// OLD: " AND (wordlist LIKE " + prefix + " OR wordlist LIKE " + postfix + ")"
+		//// " AND (wordlist LIKE " + prefix + " OR wordlist LIKE " + postfix + ")"
 
 	rows, err := db.Query(context.Background(), query)
 	dbx.CheckErr(err)
@@ -645,22 +645,24 @@ func GetProbabilityGraph(words []string, timeInterval nt.TimeInterval) ([]hd.Con
 		leftWord := "'" + bigrams[index][0:ndxSep] + "'"
 		rightWord := "'" + bigrams[index][ndxSep+1:] + "'"
 		reverseBigram := "'" + bigrams[index][ndxSep+1:] + SEP + bigrams[index][0:ndxSep] + "'"
-		likeWord1 := "'" + bigrams[index][0:ndxSep]  // + SEP + "%'"
-		likeWord2 := "'" + bigrams[index][ndxSep+1:] // + SEP + "%'"
+		likeWord1 := "'" + bigrams[index][0:ndxSep] + "'"  // + SEP + "%'"
+		likeWord2 := "'" + bigrams[index][ndxSep+1:] + "'" // + SEP + "%'"
 
 		SELECT.WriteString("SELECT id, wordlist, probability, timeframetype, startDate, endDate, firstDate, lastDate, pmi, dateUpdated FROM Conditional ")
-		// SELECT.WriteString("WHERE wordlist LIKE " + likeWord1 + " AND " + intervalClause)
+		//// SELECT.WriteString("WHERE wordlist LIKE " + likeWord1 + " AND " + intervalClause)
 		SELECT.WriteString("WHERE wordarray[1]=" + likeWord1 + " AND " + intervalClause)
 		SELECT.WriteString("AND pmi >= (SELECT MAX(pmi) FROM Conditional WHERE wordlist=" + bigram + " AND " + intervalClause + ") ")
 		SELECT.WriteString("AND probability >= (SELECT MAX(probability) FROM Conditional WHERE wordlist=" + bigram + " AND " + intervalClause + ") ")
-		SELECT.WriteString("AND SUBSTRING(wordlist from " + strconv.Itoa(len(leftWord)+2) + " for 32) IN (SELECT word FROM Wordscore WHERE score >= (SELECT MAX(score) FROM Wordscore WHERE word=" + leftWord + ")) ")
+		//// SELECT.WriteString("AND SUBSTRING(wordlist from " + strconv.Itoa(len(leftWord)+2) + " for 32) IN (SELECT word FROM Wordscore WHERE score >= (SELECT MAX(score) FROM Wordscore WHERE word=" + leftWord + ")) ")
+		SELECT.WriteString("AND wordarray[1] IN (SELECT word FROM Wordscore WHERE score >= (SELECT MAX(score) FROM Wordscore WHERE word=" + leftWord + ")) ")
 		SELECT.WriteString("UNION ")
 		SELECT.WriteString("SELECT id, wordlist, probability, timeframetype, startDate, endDate, firstDate, lastDate, pmi, dateUpdated FROM Conditional ")
-		// SELECT.WriteString("WHERE wordlist LIKE " + likeWord2 + " AND " + intervalClause)
+		//// SELECT.WriteString("WHERE wordlist LIKE " + likeWord2 + " AND " + intervalClause)
 		SELECT.WriteString("WHERE wordarray[2]=" + likeWord2 + " AND " + intervalClause)
 		SELECT.WriteString("AND pmi >= (SELECT MAX(pmi) FROM Conditional WHERE wordlist=" + reverseBigram + " AND " + intervalClause + ") ")
 		SELECT.WriteString("AND probability >= (SELECT MAX(probability) FROM Conditional WHERE wordlist=" + reverseBigram + " AND " + intervalClause + ") ")
-		SELECT.WriteString("AND SUBSTRING(wordlist FROM " + strconv.Itoa(len(rightWord)+2) + " for 32) IN (SELECT word FROM Wordscore WHERE score >= (SELECT MAX(score) FROM Wordscore WHERE word=" + rightWord + ")) ")
+		//// SELECT.WriteString("AND SUBSTRING(wordlist FROM " + strconv.Itoa(len(rightWord)+2) + " for 32) IN (SELECT word FROM Wordscore WHERE score >= (SELECT MAX(score) FROM Wordscore WHERE word=" + rightWord + ")) ")
+		SELECT.WriteString("AND wordarray[2] IN (SELECT word FROM Wordscore WHERE score >= (SELECT MAX(score) FROM Wordscore WHERE word=" + rightWord + ")) ")
 
 		if index < len(bigrams)-1 {
 			SELECT.WriteString("UNION ")
