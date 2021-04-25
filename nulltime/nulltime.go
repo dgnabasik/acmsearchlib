@@ -174,7 +174,11 @@ func GetTimeIntervalDatePartitionList(baseTimeInterval TimeInterval) []TimeInter
 
 // ToString method
 func (ti TimeInterval) ToString() string {
-	return ti.Timeframetype.ToString() + "|" + ti.StartDate.StandardDate() + "|" + ti.EndDate.StandardDate()
+	if ti.Timeframetype >= 0 {
+		return ti.Timeframetype.ToString() + ": " + ti.StartDate.StandardDate() + " through " + ti.EndDate.StandardDate()
+	} else {
+		return Unknown
+	}
 }
 
 /********************************************************************************/
