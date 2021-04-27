@@ -458,7 +458,7 @@ type ConditionalProbability struct {
 	FirstDate    nt.NullTime     `json:"firstdate"`
 	LastDate     nt.NullTime     `json:"lastdate"`
 	Pmi          float32         `json:"pmi"` // point mutual information.
-	DateUpdated  nt.NullTime     `json:"dateupdated"`
+	DateUpdated  time.Time       `json:"dateupdated"`
 }
 
 /*************************************************************************************************/

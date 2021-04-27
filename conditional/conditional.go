@@ -350,7 +350,7 @@ func BulkInsertConditionalProbability(conditionals []hd.ConditionalProbability) 
 		[]string{"wordlist", "probability", "timeframetype", "startdate", "enddate", "firstdate", "lastdate", "pmi", "dateupdated"},
 		pgx.CopyFromSlice(len(conditionals), func(i int) ([]interface{}, error) {
 			return []interface{}{conditionals[i].WordList, conditionals[i].Probability, int(conditionals[i].Timeinterval.Timeframetype), conditionals[i].Timeinterval.StartDate.DT,
-				conditionals[i].Timeinterval.EndDate.DT, conditionals[i].FirstDate.DT, conditionals[i].LastDate.DT, conditionals[i].Pmi, conditionals[i].DateUpdated.DT}, nil
+				conditionals[i].Timeinterval.EndDate.DT, conditionals[i].FirstDate.DT, conditionals[i].LastDate.DT, conditionals[i].Pmi, conditionals[i].DateUpdated}, nil
 		}),
 	)
 
