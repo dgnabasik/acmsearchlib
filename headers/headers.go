@@ -486,6 +486,7 @@ type WordScoreConditionalFlat struct {
 	WordArray     []string  `json:"wordarray"`
 	Wordlist      string    `json:"wordlist"`
 	Score         float32   `json:"score"`
+	Probability   float32   `json:"probability"`
 	Pmi           float32   `json:"pmi"`
 	Timeframetype int       `json:"timeframetype"`
 	StartDate     time.Time `json:"startdate"`

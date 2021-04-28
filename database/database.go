@@ -190,56 +190,28 @@ func (tw *timeWrapper) Scan(in interface{}) error {
 
 /*************************************************************************************************/
 
-// BulkUpdateVocabularySpeechpart concatentates parts into output. Unknown list is returned.
-// Change to root word. See https://www.datamuse.com/api/ & https://www.wordsapi.com/
-// curl "https://wordsapiv1.p.mashape.com/words/soliloquy" -H "X-Mashape-Key: <APIkey>"
-/*
-func BulkUpdateVocabularySpeechpart() []string {
-	fmt.Print("BulkInsertVocabulary_Speechpart: ")
-	var wordNetSpeechParts = hd.New_WordNetSpeechParts()
-	var word string
-	var wordSet []string
+type UserProfile struct {
+	ID          int       `json:"id"`
+	UserName    string    `json:"username"`
+	Password    string    `json:"password"`
+	DateUpdated time.Time `json:"dateupdated"`
+}
 
-	start := time.Now()
+// GetUser func assumes unique case-insensitive userName.
+func GetUser(userName string) (UserProfile, error) {
+	var user UserProfile
 	db, err := GetDatabaseReference()
+	if err != nil {
+		return user, err
+	}
 	defer db.Close()
 
-	// part 1: WHERE SpeechPart not assigned.
-	SELECT := "SELECT word FROM Vocabulary WHERE SpeechPart='';"
-	rows, err := db.Query(SELECT)
+	SELECT := "SELECT id, UserName, Password, DateUpdated FROM Vocabulary WHERE LOWER(UserName)='" + strings.ToLower(userName) + "'"
+	err = db.QueryRow(context.Background(), SELECT).Scan(&user.ID, &user.UserName, &user.Password, &user.DateUpdated)
 	CheckErr(err)
-	for rows.Next() {
-		err = rows.Scan(&word)
-		CheckErr(err)
-		wordSet = append(wordSet, word)
+	if err != nil {
+		return user, err
 	}
 
-	// part 2:
-	txn, err := db.Begin(context.Background())
-	CheckErr(err)
-
-	stmt, err := db.Prepare("UPDATE vocabulary SET SpeechPart= $1 WHERE Word= $2;")
-	CheckErr(err)
-
-	for _, w := range wordSet {
-		speechPart := wordNetSpeechParts.GetSpeechpart(w)
-		if speechPart == "" {
-			wordNetSpeechParts.Unknown = append(wordNetSpeechParts.Unknown, w)
-		}
-		_, err = stmt.Exec(context.Background(), speechPart, w)
-		CheckErr(err)
-	}
-
-	err = stmt.Close()
-	CheckErr(err)
-
-	err = txn.Commit(context.Background())
-	CheckErr(err)
-
-	elapsed := time.Since(start)
-	fmt.Println(elapsed.String())
-
-	return wordNetSpeechParts.Unknown
+	return user, nil
 }
-*/
-/*************************************************************************************************/

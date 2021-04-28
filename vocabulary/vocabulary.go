@@ -378,3 +378,31 @@ func CallUpdateVocabulary() error {
 
 	return err
 }
+
+/***********************************************************************************************/
+
+// GetLookupValues func
+func GetLookupValues(tableName, columnName string) ([]string, error) {
+	db, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return []string{}, err
+	}
+	defer db.Close()
+
+	items := make([]string, 0)
+	var item string
+	SELECT := "SELECT itemValue FROM Lookup WHERE tableName='" + strings.ToLower(tableName) + "' AND columnName='" + strings.ToLower(columnName) + "' ORDER BY itemOrder"
+	rows, err := db.Query(context.Background(), SELECT)
+	dbx.CheckErr(err)
+
+	for rows.Next() {
+		err = rows.Scan(&item)
+		dbx.CheckErr(err)
+		items = append(items, item)
+	}
+
+	err = rows.Err()
+	dbx.CheckErr(err)
+
+	return items, nil
+}
