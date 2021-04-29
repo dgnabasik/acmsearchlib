@@ -100,21 +100,6 @@ func TestDbConnection(db *pgxpool.Pool) (*pgxpool.Pool, error) {
 	return db, nil
 }
 
-// CallTruncateTables truncates tables with sequences.
-func CallTruncateTables() error {
-	db, err := GetDatabaseReference()
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	_, err = db.Exec(context.Background(), "call TruncateTables()")
-	CheckErr(err)
-
-	fmt.Println("CallTruncateTables() done.")
-	return nil
-}
-
 // NoRowsReturned func
 func NoRowsReturned(err error) bool {
 	if err == nil {
