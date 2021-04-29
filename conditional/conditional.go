@@ -5,6 +5,7 @@ package conditional
 
 import (
 	"context"
+	"crypto/rand"
 	"encoding/hex"
 	"fmt"
 	"log"
@@ -16,6 +17,7 @@ import (
 
 	mapset "github.com/deckarep/golang-set"
 	dbx "github.com/dgnabasik/acmsearchlib/database"
+	fs "github.com/dgnabasik/acmsearchlib/filesystem"
 	hd "github.com/dgnabasik/acmsearchlib/headers"
 	nt "github.com/dgnabasik/acmsearchlib/nulltime"
 	pgx "github.com/jackc/pgx/v4"
@@ -710,7 +712,39 @@ func GetProbabilityGraph(words []string, timeInterval nt.TimeInterval) ([]hd.Con
 	return condProbList, nil
 }
 
-// GetWordgramConditionalsByInterval func assigns consecutive id values.  'Common' column not in database. Id values start at 10000 to avoid js Select Id conflicts.
+// RandomHex func: use n=12 for [aidata.keycode]
+func RandomHex(n int) (string, error) {
+	bytes := make([]byte, n)
+	if _, err := rand.Read(bytes); err != nil {
+		return "", err
+	}
+	return hex.EncodeToString(bytes), nil
+}
+
+// WriteOFFfile func must write to a unique URL. <<<
+func WriteOFFfile(wordScoreConditionalList []hd.WordScoreConditionalFlat) (string, error) {
+	if len(wordScoreConditionalList) == 0 {
+		return "", nil
+	}
+	lines := make([]string, 0)
+	lines = append(lines, "OFF")
+	params := strconv.Itoa(len(wordScoreConditionalList)) + " 0 0"
+	lines = append(lines, params)
+	url, err := RandomHex(16)
+	if err != nil {
+		url = "0123456789ABCDEF"
+	}
+	url = "../datafiles/" + url + ".off"
+	for _, item := range wordScoreConditionalList {
+		params = fmt.Sprintf("%8.6f", item.Pmi) + " " + fmt.Sprintf("%8.6f", item.Probability) + " " + strconv.Itoa(item.FirstDate)
+		lines = append(lines, params)
+	}
+	err = fs.WriteTextLines(lines, url, false)
+	return url, err
+}
+
+// GetWordgramConditionalsByInterval func assigns consecutive id values.  Common:bool column not in database.
+// Id values start at 10000 to avoid js Select Id conflicts. Writes OFF file to central location.
 func GetWordgramConditionalsByInterval(words []string, timeInterval nt.TimeInterval) ([]hd.WordScoreConditionalFlat, error) {
 	db, err := dbx.GetDatabaseReference()
 	if err != nil {
@@ -729,9 +763,10 @@ func GetWordgramConditionalsByInterval(words []string, timeInterval nt.TimeInter
 	var score, pmi, probability float32
 	var timeframetype int
 	var startDate, endDate, firstDate, lastDate time.Time
-	var wordScoreConditionalList []hd.WordScoreConditionalFlat
 	var word, wordlist string
 	var id int = 10000
+	wordScoreConditionalList := make([]hd.WordScoreConditionalFlat, 0)
+
 	for rows.Next() {
 		err = rows.Scan(&word, &wordlist, &score, &probability, &pmi, &timeframetype, &startDate, &endDate, &firstDate, &lastDate)
 		dbx.CheckErr(err)
@@ -739,9 +774,9 @@ func GetWordgramConditionalsByInterval(words []string, timeInterval nt.TimeInter
 		id++
 		wordScoreConditionalList = append(wordScoreConditionalList, hd.WordScoreConditionalFlat{ID: id, WordArray: wordArray, Wordlist: wordlist, Score: score, Probability: probability, Pmi: pmi, Timeframetype: timeframetype, StartDate: startDate, EndDate: endDate, FirstDate: firstDate, LastDate: lastDate})
 	}
-
 	err = rows.Err()
 	dbx.CheckErr(err)
 
-	return wordScoreConditionalList, nil
+	err = WriteOFFfile(wordScoreConditionalList)
+	return wordScoreConditionalList, err
 }

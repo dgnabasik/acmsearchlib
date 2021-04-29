@@ -27,7 +27,6 @@ import (
 // FileServiceInterface interface functions are not placed into acmsearchlib.
 type FileServiceInterface interface {
 	GetTextFile(ctx *gin.Context)
-	SetWordCategory(ctx *gin.Context)
 }
 
 // FileService struct implements FileServiceInterface.
