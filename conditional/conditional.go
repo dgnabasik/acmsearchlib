@@ -435,7 +435,7 @@ func CalcConditionalProbability(startingWordgram string, wordMap map[string]floa
 				if strings.Compare(wordGrams[wordB], wordBstart) <= 0 {
 					continue
 				}
-				today := nt.NullTimeToday()
+				today := nt.NullTimeToday().DT
 				err = DB1.QueryRow(context.Background(), `SELECT pAgivenB, pBgivenA, pmi FROM GetConditionalProbabilities($1, $2, $3, $4)`, wordGrams[wordA], wordGrams[wordB], startDateParam, endDateParam).Scan(&pAgivenB, &pBgivenA, &pmi)
 				dbx.CheckErr(err)
 				if pAgivenB > cutoffProbability && pBgivenA > cutoffProbability {
@@ -721,7 +721,7 @@ func RandomHex(n int) (string, error) {
 	return hex.EncodeToString(bytes), nil
 }
 
-// WriteOFFfile func must write to a unique URL. <<<
+// WriteOFFfile func must write to a unique URL so the web server can find it.
 func WriteOFFfile(wordScoreConditionalList []hd.WordScoreConditionalFlat) (string, error) {
 	if len(wordScoreConditionalList) == 0 {
 		return "", nil
@@ -736,7 +736,7 @@ func WriteOFFfile(wordScoreConditionalList []hd.WordScoreConditionalFlat) (strin
 	}
 	url = "../datafiles/" + url + ".off"
 	for _, item := range wordScoreConditionalList {
-		params = fmt.Sprintf("%8.6f", item.Pmi) + " " + fmt.Sprintf("%8.6f", item.Probability) + " " + strconv.Itoa(item.FirstDate)
+		params = fmt.Sprintf("%8.6f", item.Pmi) + " " + fmt.Sprintf("%8.6f", item.Probability) + " " + fmt.Sprintf("%10.0f", item.FirstDate.Unix())
 		lines = append(lines, params)
 	}
 	err = fs.WriteTextLines(lines, url, false)
@@ -753,8 +753,9 @@ func GetWordgramConditionalsByInterval(words []string, timeInterval nt.TimeInter
 	defer db.Close()
 
 	inPhrase := dbx.CompileInClause(words) // Can't use dbx.CompileDateClause() because of w alias.
-	SELECT := "SELECT w.word, c.wordlist, w.score, c.probability, c.pmi, c.timeframetype, c.startDate, c.endDate, c.firstdate, c.lastdate FROM Wordscore AS w INNER JOIN Conditional AS c ON w.word=c.wordarray[1] WHERE w.startdate=c.startDate AND w.endDate=c.endDate " +
-		"AND w.word IN " + inPhrase + " AND w.startDate='" + timeInterval.StartDate.StandardDate() + "' AND w.endDate='" + timeInterval.EndDate.StandardDate() + "' ORDER BY c.wordlist"
+	SELECT := `SELECT w.word, c.wordlist, w.score, c.probability, c.pmi, c.timeframetype, c.startDate, c.endDate, c.firstdate, c.lastdate FROM Wordscore AS w 
+		INNER JOIN Conditional AS c ON w.word=c.wordarray[1] WHERE w.startdate=c.startDate AND w.endDate=c.endDate`
+	SELECT += "AND w.word IN " + inPhrase + " AND w.startDate='" + timeInterval.StartDate.StandardDate() + "' AND w.endDate='" + timeInterval.EndDate.StandardDate() + "' ORDER BY c.wordlist"
 
 	rows, err := db.Query(context.Background(), SELECT)
 	dbx.CheckErr(err)
@@ -772,11 +773,13 @@ func GetWordgramConditionalsByInterval(words []string, timeInterval nt.TimeInter
 		dbx.CheckErr(err)
 		wordArray := strings.Split(wordlist, SEP)
 		id++
-		wordScoreConditionalList = append(wordScoreConditionalList, hd.WordScoreConditionalFlat{ID: id, WordArray: wordArray, Wordlist: wordlist, Score: score, Probability: probability, Pmi: pmi, Timeframetype: timeframetype, StartDate: startDate, EndDate: endDate, FirstDate: firstDate, LastDate: lastDate})
+		wordScoreConditionalList = append(wordScoreConditionalList, hd.WordScoreConditionalFlat{ID: id, WordArray: wordArray,
+			Wordlist: wordlist, Score: score, Probability: probability, Pmi: pmi, Timeframetype: timeframetype, StartDate: startDate, EndDate: endDate, FirstDate: firstDate, LastDate: lastDate})
 	}
 	err = rows.Err()
 	dbx.CheckErr(err)
 
-	err = WriteOFFfile(wordScoreConditionalList)
+	url, err := WriteOFFfile(wordScoreConditionalList)
+	fmt.Println(url)
 	return wordScoreConditionalList, err
 }
