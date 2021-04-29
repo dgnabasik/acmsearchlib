@@ -719,25 +719,25 @@ func GetWordgramConditionalsByInterval(words []string, timeInterval nt.TimeInter
 	defer db.Close()
 
 	inPhrase := dbx.CompileInClause(words) // Can't use dbx.CompileDateClause() because of w alias.
-	SELECT := "SELECT w.word, c.wordlist, w.score, c.pmi, c.timeframetype, c.startDate, c.endDate, c.firstdate, c.lastdate FROM Wordscore AS w INNER JOIN Conditional AS c ON w.word=c.wordarray[1] WHERE w.startdate=c.startDate AND w.endDate=c.endDate " +
+	SELECT := "SELECT w.word, c.wordlist, w.score, c.probability, c.pmi, c.timeframetype, c.startDate, c.endDate, c.firstdate, c.lastdate FROM Wordscore AS w INNER JOIN Conditional AS c ON w.word=c.wordarray[1] WHERE w.startdate=c.startDate AND w.endDate=c.endDate " +
 		"AND w.word IN " + inPhrase + " AND w.startDate='" + timeInterval.StartDate.StandardDate() + "' AND w.endDate='" + timeInterval.EndDate.StandardDate() + "' ORDER BY c.wordlist"
 
 	rows, err := db.Query(context.Background(), SELECT)
 	dbx.CheckErr(err)
 	defer rows.Close()
 
-	var score, pmi float32
+	var score, pmi, probability float32
 	var timeframetype int
 	var startDate, endDate, firstDate, lastDate time.Time
 	var wordScoreConditionalList []hd.WordScoreConditionalFlat
 	var word, wordlist string
 	var id int = 10000
 	for rows.Next() {
-		err = rows.Scan(&word, &wordlist, &score, &pmi, &timeframetype, &startDate, &endDate, &firstDate, &lastDate)
+		err = rows.Scan(&word, &wordlist, &score, &probability, &pmi, &timeframetype, &startDate, &endDate, &firstDate, &lastDate)
 		dbx.CheckErr(err)
 		wordArray := strings.Split(wordlist, SEP)
 		id++
-		wordScoreConditionalList = append(wordScoreConditionalList, hd.WordScoreConditionalFlat{ID: id, WordArray: wordArray, Wordlist: wordlist, Score: score, Pmi: pmi, Timeframetype: timeframetype, StartDate: startDate, EndDate: endDate, FirstDate: firstDate, LastDate: lastDate})
+		wordScoreConditionalList = append(wordScoreConditionalList, hd.WordScoreConditionalFlat{ID: id, WordArray: wordArray, Wordlist: wordlist, Score: score, Probability: probability, Pmi: pmi, Timeframetype: timeframetype, StartDate: startDate, EndDate: endDate, FirstDate: firstDate, LastDate: lastDate})
 	}
 
 	err = rows.Err()
