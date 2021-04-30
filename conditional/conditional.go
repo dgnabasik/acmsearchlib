@@ -755,7 +755,7 @@ func GetWordgramConditionalsByInterval(words []string, timeInterval nt.TimeInter
 	inPhrase := dbx.CompileInClause(words) // Can't use dbx.CompileDateClause() because of w alias.
 	SELECT := `SELECT w.word, c.wordlist, w.score, c.probability, c.pmi, c.timeframetype, c.startDate, c.endDate, c.firstdate, c.lastdate FROM Wordscore AS w 
 		INNER JOIN Conditional AS c ON w.word=c.wordarray[1] WHERE w.startdate=c.startDate AND w.endDate=c.endDate`
-	SELECT += "AND w.word IN " + inPhrase + " AND w.startDate='" + timeInterval.StartDate.StandardDate() + "' AND w.endDate='" + timeInterval.EndDate.StandardDate() + "' ORDER BY c.wordlist"
+	SELECT += " AND w.word IN " + inPhrase + " AND w.startDate='" + timeInterval.StartDate.StandardDate() + "' AND w.endDate='" + timeInterval.EndDate.StandardDate() + "' ORDER BY c.wordlist"
 
 	rows, err := db.Query(context.Background(), SELECT)
 	dbx.CheckErr(err)
