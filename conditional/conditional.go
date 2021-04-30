@@ -721,8 +721,8 @@ func RandomHex(n int) (string, error) {
 	return hex.EncodeToString(bytes), nil
 }
 
-// WriteOFFfile func must write to a unique URL so the web server can find it.
-func WriteOFFfile(wordScoreConditionalList []hd.WordScoreConditionalFlat) (string, error) {
+// WriteOFFfile func must write to a unique URL so the web server can find it. Format assumes 3 dimensions.
+func WriteOFFfile(wordScoreConditionalList []hd.WordScoreConditionalFlat, dimensions int) (string, error) {
 	if len(wordScoreConditionalList) == 0 {
 		return "", nil
 	}
@@ -734,9 +734,15 @@ func WriteOFFfile(wordScoreConditionalList []hd.WordScoreConditionalFlat) (strin
 	if err != nil {
 		url = "0123456789ABCDEF"
 	}
-	url = "../datafiles/" + url + ".off"
+	url = "../datafiles/" + url + ".off" //<<<
+	// conditional Probability is independent variable (x); pmi is dependent variable (y).
+	// Could include log(score)
 	for _, item := range wordScoreConditionalList {
-		params = fmt.Sprintf("%8.6f", item.Pmi) + " " + fmt.Sprintf("%8.6f", item.Probability) + " " + fmt.Sprintf("%10.0f", item.FirstDate.Unix())
+		if dimensions == 2 {
+			params = fmt.Sprintf("%8.6f", item.Probability) + " " + fmt.Sprintf("%8.6f", item.Pmi) + " 0.0"
+		} else { // dimensions == 3
+			params = fmt.Sprintf("%8.6f", item.Probability) + " " + fmt.Sprintf("%8.6f", item.Pmi) + " " + strconv.FormatInt(item.FirstDate.Unix(), 10)
+		}
 		lines = append(lines, params)
 	}
 	err = fs.WriteTextLines(lines, url, false)
@@ -745,10 +751,10 @@ func WriteOFFfile(wordScoreConditionalList []hd.WordScoreConditionalFlat) (strin
 
 // GetWordgramConditionalsByInterval func assigns consecutive id values.  Common:bool column not in database.
 // Id values start at 10000 to avoid js Select Id conflicts. Writes OFF file to central location.
-func GetWordgramConditionalsByInterval(words []string, timeInterval nt.TimeInterval) ([]hd.WordScoreConditionalFlat, error) {
+func GetWordgramConditionalsByInterval(words []string, timeInterval nt.TimeInterval, dimensions int) ([]hd.WordScoreConditionalFlat, string, error) {
 	db, err := dbx.GetDatabaseReference()
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	defer db.Close()
 
@@ -779,7 +785,6 @@ func GetWordgramConditionalsByInterval(words []string, timeInterval nt.TimeInter
 	err = rows.Err()
 	dbx.CheckErr(err)
 
-	url, err := WriteOFFfile(wordScoreConditionalList)
-	fmt.Println(url)
-	return wordScoreConditionalList, err
+	url, err := WriteOFFfile(wordScoreConditionalList, dimensions)
+	return wordScoreConditionalList, url, err
 }

@@ -13,10 +13,6 @@ import (
 	nt "github.com/dgnabasik/acmsearchlib/nulltime"
 )
 
-const (
-	SEP = "|"
-)
-
 // BigramPresenceMap struct.
 type BigramPresenceMap struct {
 	Presence map[string]bool `json:"presence"`
