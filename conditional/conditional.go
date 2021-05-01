@@ -463,7 +463,7 @@ func CalcConditionalProbability(startingWordgram string, wordMap map[string]floa
 	return len(wordGrams), nil
 }
 
-// GetConditionalByTimeInterval func modifies condProbList pointer which should be declared beforehand. bigramMap does not need to be a pointer.
+// GetConditionalByTimeInterval func modifies condProbList.
 func GetConditionalByTimeInterval(bigrams []string, timeInterval nt.TimeInterval, bigramMap map[string]bool, includeTimeframetype bool) ([]hd.ConditionalProbability, error) {
 	condProbList := make([]hd.ConditionalProbability, 0)
 	db, err := dbx.GetDatabaseReference()
@@ -751,6 +751,7 @@ func WriteOFFfile(wordScoreConditionalList []hd.WordScoreConditionalFlat, dimens
 
 // GetWordgramConditionalsByInterval func assigns consecutive id values.  Common:bool column not in database.
 // Id values start at 10000 to avoid js Select Id conflicts. Writes OFF file to central location.
+// ISSUE: the index on WordArray[1] will return a row where word1 is a prefix of word2: (e.g., '3d|3ds')
 func GetWordgramConditionalsByInterval(words []string, timeInterval nt.TimeInterval, dimensions int) ([]hd.WordScoreConditionalFlat, string, error) {
 	db, err := dbx.GetDatabaseReference()
 	if err != nil {
