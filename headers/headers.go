@@ -3,7 +3,11 @@ package headers
 // Provide structs and their methods. These structs may or may not relect table schemas!
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
+	"os"
+	"os/exec"
 	"runtime"
 	"strconv"
 	"strings"
@@ -70,6 +74,62 @@ func GetOrderedMap(fieldNames []string) map[int]string {
 type LookupMap struct {
 	Value int    `json:"value" binding:"required"`
 	Label string `json:"label" binding:"required"`
+}
+
+// TimeEventService | WebpageService | ArticleService >>> WordScoreService | ConditionalService | GraphService
+func StartNextProgram(pgmName string, args []string) {
+	program := "../" + pgmName + "/" + pgmName + " "
+	argument := strings.Join(args, " ")
+	fmt.Print("Press Enter to execute: " + program + argument)
+	os.Stdin.Read([]byte{0})
+	cmd := exec.Command(program, argument)
+	cmd.Start() // asynchronous
+}
+
+// RemoveDuplicateStrings func also removes empty strings.
+func RemoveDuplicateStrings(stringSlice []string) []string {
+	keys := make(map[string]bool)
+	list := []string{}
+	for _, entry := range stringSlice {
+		if _, value := keys[entry]; !value {
+			if len(strings.TrimSpace(entry)) > 0 {
+				keys[entry] = true
+				list = append(list, entry)
+			}
+		}
+	}
+	return list
+}
+
+// DeleteStringSliceElement func maintains order.
+func DeleteStringSliceElement(a []string, str string) []string {
+	ndx := -1
+	for i := 0; i < len(a); i++ {
+		if str == a[i] {
+			ndx = i
+			break
+		}
+	}
+	if ndx > 0 {
+		copy(a[ndx:], a[ndx+1:]) // Shift a[i+1:] left one index.
+		a[len(a)-1] = ""         // Erase last element (write zero value).
+		a = a[:len(a)-1]
+	}
+	return a
+}
+
+// RandomHex func returns max 128 bits. Returns lowercase unless error. Use n=12 for [aidata.keycode]
+func RandomHex(n int) string {
+	if n > 128 {
+		n = 128
+	} else if n <= 0 {
+		n = 16
+	}
+	bytes := make([]byte, n)
+	if _, err := rand.Read(bytes); err != nil {
+		return "0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF"[0:n]
+	}
+	return hex.EncodeToString(bytes)
 }
 
 /*************************************************************************************************/
@@ -362,12 +422,6 @@ type WordScore struct {
 	Linkage      float32         `json:"linkage"`
 	Growth       float32         `json:"growth"`
 	Score        float32         `json:"score"`
-}
-
-// New_WordScore func
-func New_WordScore(id uint64, word string, timeframetype nt.TimeFrameType, startDate nt.NullTime, endDate nt.NullTime, density float32, linkage float32, growth float32, score float32) WordScore {
-	timeInterval := nt.TimeInterval{Timeframetype: timeframetype, StartDate: startDate, EndDate: endDate}
-	return WordScore{id, word, timeInterval, density, linkage, growth, score}
 }
 
 // Print method

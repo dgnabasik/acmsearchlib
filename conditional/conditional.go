@@ -5,7 +5,6 @@ package conditional
 
 import (
 	"context"
-	"crypto/rand"
 	"encoding/hex"
 	"fmt"
 	"log"
@@ -17,7 +16,6 @@ import (
 
 	mapset "github.com/deckarep/golang-set"
 	dbx "github.com/dgnabasik/acmsearchlib/database"
-	fs "github.com/dgnabasik/acmsearchlib/filesystem"
 	hd "github.com/dgnabasik/acmsearchlib/headers"
 	nt "github.com/dgnabasik/acmsearchlib/nulltime"
 	pgx "github.com/jackc/pgx/v4"
@@ -712,50 +710,13 @@ func GetProbabilityGraph(words []string, timeInterval nt.TimeInterval) ([]hd.Con
 	return condProbList, nil
 }
 
-// RandomHex func: use n=12 for [aidata.keycode]
-func RandomHex(n int) (string, error) {
-	bytes := make([]byte, n)
-	if _, err := rand.Read(bytes); err != nil {
-		return "", err
-	}
-	return hex.EncodeToString(bytes), nil
-}
-
-// WriteOFFfile func must write to a unique URL so the web server can find it. Format assumes 3 dimensions.
-func WriteOFFfile(wordScoreConditionalList []hd.WordScoreConditionalFlat, dimensions int) (string, error) {
-	if len(wordScoreConditionalList) == 0 {
-		return "", nil
-	}
-	lines := make([]string, 0)
-	lines = append(lines, "OFF")
-	params := strconv.Itoa(len(wordScoreConditionalList)) + " 0 0"
-	lines = append(lines, params)
-	url, err := RandomHex(16)
-	if err != nil {
-		url = "0123456789ABCDEF"
-	}
-	url = "../datafiles/" + url + ".off" //<<<
-	// conditional Probability is independent variable (x); pmi is dependent variable (y).
-	// Could include log(score)
-	for _, item := range wordScoreConditionalList {
-		if dimensions == 2 {
-			params = fmt.Sprintf("%8.6f", item.Probability) + " " + fmt.Sprintf("%8.6f", item.Pmi) + " 0.0"
-		} else { // dimensions == 3
-			params = fmt.Sprintf("%8.6f", item.Probability) + " " + fmt.Sprintf("%8.6f", item.Pmi) + " " + strconv.FormatInt(item.FirstDate.Unix(), 10)
-		}
-		lines = append(lines, params)
-	}
-	err = fs.WriteTextLines(lines, url, false)
-	return url, err
-}
-
 // GetWordgramConditionalsByInterval func assigns consecutive id values.  Common:bool column not in database.
-// Id values start at 10000 to avoid js Select Id conflicts. Writes OFF file to central location.
+// Id values start at 10000 to avoid js Select Id conflicts.
 // ISSUE: the index on WordArray[1] will return a row where word1 is a prefix of word2: (e.g., '3d|3ds')
-func GetWordgramConditionalsByInterval(words []string, timeInterval nt.TimeInterval, dimensions int) ([]hd.WordScoreConditionalFlat, string, error) {
+func GetWordgramConditionalsByInterval(words []string, timeInterval nt.TimeInterval, dimensions int) ([]hd.WordScoreConditionalFlat, error) {
 	db, err := dbx.GetDatabaseReference()
 	if err != nil {
-		return nil, "", err
+		return nil, err
 	}
 	defer db.Close()
 
@@ -786,6 +747,5 @@ func GetWordgramConditionalsByInterval(words []string, timeInterval nt.TimeInter
 	err = rows.Err()
 	dbx.CheckErr(err)
 
-	url, err := WriteOFFfile(wordScoreConditionalList, dimensions)
-	return wordScoreConditionalList, url, err
+	return wordScoreConditionalList, err
 }
