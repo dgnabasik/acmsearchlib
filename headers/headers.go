@@ -630,7 +630,7 @@ type SimplexComplex struct {
 
 // SimplexBarcode struct
 type SimplexBarcode struct {
-	SimplexID           uint64          `json:"id"` // FK to SimplexComplex.ID
+	ComplexID           uint64          `json:"complexid"` // FK to [SimplexComplex]
 	ConnectedComponents int             `json:"connectedcomponents"`
 	NumberHoles         int             `json:"numberholes"`
 	ScaleParameter      float32         `json:"scaleparameter"` // neighborhood radius
