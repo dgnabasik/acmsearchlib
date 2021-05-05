@@ -156,6 +156,15 @@ func CompileDateClause(timeInterval nt.TimeInterval, useTimeframetype bool) stri
 	return "startDate >= '" + timeInterval.StartDate.StandardDate() + "' AND endDate <= '" + timeInterval.EndDate.StandardDate() + "' "
 }
 
+// FormatArrayForStorage func. PostgreSQL uses string format for storing arrays.
+func FormatArrayForStorage(arr []int) string {
+	strArr := make([]string, len(arr))
+	for ndx := 0; ndx < len(arr); ndx++ {
+		strArr[ndx] = strconv.Itoa(arr[ndx])
+	}
+	return "'{" + strings.Join(strArr, ",") + "}'"
+}
+
 /* Timestamptz support for pgx driver:
 func (tw *timeWrapper) Scan(in interface{}) error {
 	var t pgtype.Timestamptz
@@ -172,31 +181,3 @@ func (tw *timeWrapper) Scan(in interface{}) error {
 	*tw = (timeWrapper)(*tp)
 	return nil
 } */
-
-/*************************************************************************************************/
-
-type UserProfile struct {
-	ID          int       `json:"id"`
-	UserName    string    `json:"username"`
-	Password    string    `json:"password"`
-	DateUpdated time.Time `json:"dateupdated"`
-}
-
-// GetUser func assumes unique case-insensitive userName.
-func GetUser(userName string) (UserProfile, error) {
-	var user UserProfile
-	db, err := GetDatabaseReference()
-	if err != nil {
-		return user, err
-	}
-	defer db.Close()
-
-	SELECT := "SELECT id, UserName, Password, DateUpdated FROM Vocabulary WHERE LOWER(UserName)='" + strings.ToLower(userName) + "'"
-	err = db.QueryRow(context.Background(), SELECT).Scan(&user.ID, &user.UserName, &user.Password, &user.DateUpdated)
-	CheckErr(err)
-	if err != nil {
-		return user, err
-	}
-
-	return user, nil
-}

@@ -74,10 +74,13 @@ type LookupMap struct {
 
 /*************************************************************************************************/
 
-// KeyValuePairInterface interface for AcmArticle, Vocabulary, Occurrence, WordScore structs.
-type KeyValuePairInterface interface {
-	Print() string
-	GetKeyValuePairs() (map[string]string, map[int]string)
+// Authorization struct
+type Authorization struct {
+	Auth0Domain       string `json:"auth0domain" binding:"required"`
+	Auth0ClientID     string `json:"auth0clientid" binding:"required"`
+	Auth0Audience     string `json:"auth0audience" binding:"required"`
+	Auth0Callback     string `json:"auth0callback" binding:"required"`
+	Auth0ClientSecret string `json:"auth0clientsecret" binding:"required"`
 }
 
 // AcmArticle struct Wrap the nullable cols in sql statements with a COALESCE(fieldName, '')
@@ -461,8 +464,6 @@ type ConditionalProbability struct {
 	DateUpdated  time.Time       `json:"dateupdated"`
 }
 
-/*************************************************************************************************/
-
 // SpecialTable struct
 type SpecialTable struct {
 	Id          uint64    `json:"id"`
@@ -478,8 +479,6 @@ type CategoryTable struct {
 	DateUpdated time.Time `json:"dateupdated"`
 }
 
-/*************************************************************************************************/
-
 // WordScoreConditionalFlat struct has extracted Timeinterval.
 type WordScoreConditionalFlat struct {
 	ID            int       `json:"id"` // negative values
@@ -494,4 +493,92 @@ type WordScoreConditionalFlat struct {
 	FirstDate     time.Time `json:"firstdate"`
 	LastDate      time.Time `json:"lastdate"`
 	Common        bool      `json:"common"` // intersection; not in database.
+}
+
+// WordScoreConditionalFlatSorter sort interface by ID.
+type WordScoreConditionalFlatSorter []WordScoreConditionalFlat
+
+func (a WordScoreConditionalFlatSorter) Len() int           { return len(a) }
+func (a WordScoreConditionalFlatSorter) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a WordScoreConditionalFlatSorter) Less(i, j int) bool { return a[i].ID < a[j].ID }
+
+type UserProfile struct {
+	ID          int       `json:"id"`
+	UserName    string    `json:"username"`
+	Password    string    `json:"password"`
+	DateUpdated time.Time `json:"dateupdated"`
+}
+
+// GraphNode struct reflects IGraphNode interface in react-app-env.d.ts
+type GraphNode struct {
+	NodeID       int             `json:"nodeid"`       // Vertices of all graphs are uniquely numbered 0..n-1.
+	ID           int             `json:"id"`           // Vocabulary.Id	but this requires slight change in D3 to use nodeid instead of default id!
+	Word         string          `json:"word"`         // Vocabulary
+	RowCount     int             `json:"rowcount"`     // Vocabulary
+	Frequency    int             `json:"frequency"`    // Vocabulary
+	WordRank     int             `json:"wordrank"`     // Vocabulary
+	Probability  float32         `json:"probability"`  // Vocabulary
+	SpeechPart   string          `json:"speechpart"`   // Vocabulary
+	Timeinterval nt.TimeInterval `json:"timeinterval"` // WordScore
+	Density      float32         `json:"density"`      // WordScore
+	Linkage      float32         `json:"linkage"`      // WordScore
+	Growth       float32         `json:"growth"`       // WordScore
+	Score        float32         `json:"score"`        // WordScore
+}
+
+// GraphLink struct consolidates 2 ConditionalProbability objects.
+type GraphLink struct {
+	SourceNodeID int       `json:"source"` // json must be named 'source' to be D3-compatible.
+	TargetNodeID int       `json:"target"` // json must be named 'target' to be D3-compatible.
+	Level        int       `json:"level"`
+	WordList1    string    `json:"wordlist1"` // concatenated("|")
+	CondProb1    float32   `json:"condprob1"`
+	WordList2    string    `json:"wordlist2"`
+	CondProb2    float32   `json:"condprob2"`
+	FirstDate    time.Time `json:"firstdate"`
+	LastDate     time.Time `json:"lastdate"`
+	Pmi          float32   `json:"pmi"` // point mutual information.
+}
+
+// KeyValuePairInterface interface for AcmArticle, Vocabulary, Occurrence, WordScore structs.
+type KeyValuePairInterface interface {
+	Print() string
+	GetKeyValuePairs() (map[string]string, map[int]string)
+}
+
+// SimplexFacet struct.	Vertices of all graphs are uniquely numbered 0..n-1.  Undirected.
+type SimplexFacet struct {
+	ComplexID      uint64  `json:"complexid"` // FK to [SimplexComplex]
+	SourceVertexID int     `json:"source"`    // json must be named 'source' to be D3-compatible.
+	TargetVertexID int     `json:"target"`    // json must be named 'target' to be D3-compatible.
+	SourceWord     string  `json:"sourceword"`
+	TargetWord     string  `json:"targetword"`
+	Weight         float32 `json:"weight"` // usually Pmi
+}
+
+// SimplexComplex struct implements ISimplexInterface. Reflects [Simplex] & [Facet] tables.
+type SimplexComplex struct {
+	ID                  uint64          `json:"id"`
+	UserID              int             `json:"userid"`      // FK to [User] table; default 0.
+	SimplexName         string          `json:"simplexname"` // assigned by user
+	SimplexType         string          `json:"simplextype"` // could be chosen by user: {Rips, Čech, Alpha, Cubical, Hasse}
+	EulerCharacteristic int             `json:"eulercharacteristic"`
+	Dimension           int             `json:"dimension"`
+	FiltrationValue     float32         `json:"filtrationvalue"`
+	NumSimplices        int             `json:"numsimplices"`
+	BettiNumbers        []int           `json:"bettinumbers"` // max(3)
+	Timeinterval        nt.TimeInterval `json:"timeinterval"` // split out in db table.
+	Enabled             int             `json:"enabled"`      // 0 is disabled, >0 is enabled.
+	DateCreated         time.Time       `json:"datecreated"`  // server time
+	DateUpdated         time.Time       `json:"dateupdated"`  // server time
+	FacetVector         []SimplexFacet  `json:"facetvector"`
+}
+
+// SimplexBarcode struct
+type SimplexBarcode struct {
+	SimplexID           uint64          `json:"id"` // FK to SimplexComplex.ID
+	ConnectedComponents int             `json:"connectedcomponents"`
+	NumberHoles         int             `json:"numberholes"`
+	ScaleParameter      float32         `json:"scaleparameter"` // neighborhood radius
+	Timeinterval        nt.TimeInterval `json:"timeinterval"`   // this orders []SimplexBarcode
 }

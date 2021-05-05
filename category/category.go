@@ -30,15 +30,14 @@ func InsertCategoryWords(categoryID uint64, words []string) error {
 
 	txn, err := db.Begin(context.Background())
 	dbx.CheckErr(err)
-	dateUpdated := time.Now().UTC()
 
 	// Must use lowercase column names!
 	copyCount, err := db.CopyFrom(
 		context.Background(),
-		pgx.Identifier{"special"}, // tablename
-		[]string{"word", "category", "dateupdated"},
+		pgx.Identifier{"special"},    // tablename
+		[]string{"word", "category"}, // dateupdated DEFAULT CURRENT_DATE
 		pgx.CopyFromSlice(len(words), func(i int) ([]interface{}, error) {
-			return []interface{}{words[i], categoryID, dateUpdated}, nil
+			return []interface{}{words[i], categoryID}, nil
 		}),
 	)
 
@@ -54,7 +53,6 @@ func InsertCategoryWords(categoryID uint64, words []string) error {
 
 // InsertWordCategory func
 func InsertWordCategory(description string) (hd.CategoryTable, error) {
-	dateupdated := time.Now()
 	db, err := dbx.GetDatabaseReference()
 	if err != nil {
 		return hd.CategoryTable{}, err
@@ -62,11 +60,11 @@ func InsertWordCategory(description string) (hd.CategoryTable, error) {
 	defer db.Close()
 
 	var id uint64
-	INSERT := "INSERT INTO Wordcategory (description, dateupdated) VALUES ($1, $2) returning id"
-	err = db.QueryRow(context.Background(), INSERT, description, dateupdated).Scan(&id)
+	INSERT := "INSERT INTO Wordcategory (description) VALUES ($1) returning id"
+	err = db.QueryRow(context.Background(), INSERT, description).Scan(&id)
 	dbx.CheckErr(err)
 
-	categoryTable := hd.CategoryTable{Id: id, Description: description, DateUpdated: dateupdated}
+	categoryTable := hd.CategoryTable{Id: id, Description: description, DateUpdated: time.Now().UTC()}
 	return categoryTable, nil
 }
 

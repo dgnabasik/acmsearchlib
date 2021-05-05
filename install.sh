@@ -1,4 +1,5 @@
 echo "Still need to fix timestampinterval and compile all timeevent services..."
+echo "Does not include../webpage"
 cd ~/go/src/github.com/dgnabasik/acmsearchlib
 
 cd ./nulltime
@@ -64,6 +65,15 @@ cd ./vocabulary
  read 
  cd ..
 
+cd ./basicgraph
+ go get -u ./...
+ go mod tidy 
+ go build
+ go install
+ echo -n "basicgraph?"
+ read 
+ cd ..
+
 cd ./article
  go get -u ./...
  go mod tidy 
@@ -88,6 +98,15 @@ cd ./category
  go build
  go install
  echo -n "category?"
+ read 
+ cd ..
+
+cd ./profile
+ go get -u ./...
+ go mod tidy 
+ go build
+ go install
+ echo -n "profile?"
  read 
  cd ..
 

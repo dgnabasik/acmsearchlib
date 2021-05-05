@@ -7,8 +7,8 @@ replace acmsearchlib/headers => ../headers
 replace acmsearchlib/nulltime => ../nulltime
 
 require (
-	github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210429022646-df40da718ccb
-	github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210429000417-ceda43f2179d
+	github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210501151242-5dc6ca6f9401
+	github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210501151242-5dc6ca6f9401
 	github.com/gin-gonic/gin v1.7.1
 	github.com/go-playground/validator/v10 v10.5.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
@@ -17,8 +17,8 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/ugorji/go v1.2.5 // indirect
-	golang.org/x/crypto v0.0.0-20210421170649-83a5a9bb288b // indirect
-	golang.org/x/sys v0.0.0-20210426230700-d19ff857e887 // indirect
+	golang.org/x/crypto v0.0.0-20210503195802-e9a32991a82e // indirect
+	golang.org/x/sys v0.0.0-20210503173754-0981d6026fa6 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 
 )
