@@ -140,13 +140,12 @@ func InsertSimplexComplex(sc hd.SimplexComplex) (hd.SimplexComplex, error) {
 	}
 	defer db.Close()
 
-	var id uint64 // BettiNumbers: '{0,1,0}'		DateCreated & DateUpdated use default server time.
+	var id uint64 // DateCreated & DateUpdated use default server time.
 	INSERT := `INSERT INTO temp_Simplex (UserID, SimplexName, SimplexType, EulerCharacteristic, Dimension, FiltrationValue, NumSimplices, BettiNumbers, 
 		Timeframetype, StartDate, EndDate, Enabled) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) returning id`
-	bettiNumbers := dbx.FormatArrayForStorage(sc.BettiNumbers)
 
 	err = db.QueryRow(context.Background(), INSERT, sc.UserID, sc.SimplexName, sc.SimplexType, sc.EulerCharacteristic, sc.Dimension, sc.FiltrationValue,
-		sc.NumSimplices, bettiNumbers, sc.Timeinterval.Timeframetype, sc.Timeinterval.StartDate.DT, sc.Timeinterval.EndDate.DT, sc.Enabled).Scan(&id)
+		sc.NumSimplices, sc.BettiNumbers, sc.Timeinterval.Timeframetype, sc.Timeinterval.StartDate.DT, sc.Timeinterval.EndDate.DT, sc.Enabled).Scan(&id)
 	dbx.CheckErr(err)
 
 	sc.ID = id

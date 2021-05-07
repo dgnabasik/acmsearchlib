@@ -157,12 +157,13 @@ func CompileDateClause(timeInterval nt.TimeInterval, useTimeframetype bool) stri
 }
 
 // FormatArrayForStorage func. PostgreSQL uses string format for storing arrays.
-func FormatArrayForStorage(arr []int) string {
+// Ddirect postgreSQl resquires an insert '{0,1,0}' but the pgx driver auto-converts a simple int or string array.
+func FormatArrayForStorage(arr []int) []string {
 	strArr := make([]string, len(arr))
 	for ndx := 0; ndx < len(arr); ndx++ {
 		strArr[ndx] = strconv.Itoa(arr[ndx])
 	}
-	return "'{" + strings.Join(strArr, ",") + "}'"
+	return strArr
 }
 
 /* Timestamptz support for pgx driver:

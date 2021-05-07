@@ -46,11 +46,17 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/dgnabasik/acmsearchlib/database v0.0.0-20210507012302-af7afd17c818 h1:Ra8qO6xQT1j4pP27Q2YMdDD+ZepzJCinh8MLXsQiOEo=
 github.com/dgnabasik/acmsearchlib/database v0.0.0-20210507012302-af7afd17c818/go.mod h1:izB5gvYePecFcXdzhjF4cbiemRCAowtl2zKlALE71DI=
+github.com/dgnabasik/acmsearchlib/database v0.0.0-20210507144506-ae95dbd2bea8 h1:eVnPpDIJ0tdyDH5FUBm8ojzghk3bxq2bjNhISHHuvTs=
+github.com/dgnabasik/acmsearchlib/database v0.0.0-20210507144506-ae95dbd2bea8/go.mod h1:AmClP031cQ1NJ2CK85RXrRAFtJF4C2jTAS1w0eG26BI=
 github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210507012302-af7afd17c818 h1:MishHN44fXvzkHTaCwSMMOIGWCm4JCpRuszKUsMVjbI=
 github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210507012302-af7afd17c818/go.mod h1:+m2dzSWsV5UGdWrZT4iPgfldrCItNaZWi1SzMs5dfmQ=
+github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210507144506-ae95dbd2bea8 h1:M3vHVtmcc9sZ72/5pvYbmP1os7NDM46XhSo4ry0ndl4=
+github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210507144506-ae95dbd2bea8/go.mod h1:WsKbqzKoRVQluwxy7HslrUjgz6HwbsMhUNOYF42i5lM=
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210505153704-afa2aa0453df/go.mod h1:EzXlVSG2YC+za3MbY7Z+9PPf2mX0Tv63MWt78oZz1LU=
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210507012302-af7afd17c818 h1:d3X+vaUlA40kN4JRQVXM2x9vKEgL9m+cQ+fCGNiyVT0=
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210507012302-af7afd17c818/go.mod h1:EzXlVSG2YC+za3MbY7Z+9PPf2mX0Tv63MWt78oZz1LU=
+github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210507144506-ae95dbd2bea8 h1:NY51I6JNqgQk+usicIerwJHYbj+dvHxHvBo3Wzi43eU=
+github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210507144506-ae95dbd2bea8/go.mod h1:EzXlVSG2YC+za3MbY7Z+9PPf2mX0Tv63MWt78oZz1LU=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible/go.mod h1:E3ru+11k8xSBh+hMPgOLZmtrrCbhqsmaPHjLKYnJCaQ=
 github.com/dustin/go-humanize v0.0.0-20171111073723-bb3d318650d4/go.mod h1:HtrtbFcZ19U5GC7JDqmcUSB87Iq5E25KnS6fMYU6eOk=
 github.com/eapache/go-resiliency v1.1.0/go.mod h1:kFI+JgMyC7bLPUVY133qvEBtVayf5mFgVsvEsIPBvNs=
