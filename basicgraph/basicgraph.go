@@ -14,24 +14,31 @@ import (
 	hd "github.com/dgnabasik/acmsearchlib/headers"
 	nt "github.com/dgnabasik/acmsearchlib/nulltime"
 
-	"github.com/jackc/pgx/v4"
-	// The vertices of all graphs in this package are numbered 0..n-1.
+	"github.com/jackc/pgx/v4" // The vertices of all graphs in this package are numbered 0..n-1.
 )
 
 /*************************************************************************************/
 
+func getTableNames(useTempTable bool) []string {
+	tableIndex := 0
+	if useTempTable {
+		tableIndex = 1
+	}
+	return []string{[]string{"Simplex", "temp_Simplex"}[tableIndex], []string{"Facet", "temp_Facet"}[tableIndex]}
+}
+
 // GetSimplexByNameUserID func : simplexName is case-insensitive.
-func GetSimplexByNameUserID(simplexName string, userID int) (hd.SimplexComplex, error) {
+func GetSimplexByNameUserID(simplexName string, userID int, useTempTable bool) (hd.SimplexComplex, error) {
 	db, err := dbx.GetDatabaseReference()
 	if err != nil {
 		return hd.SimplexComplex{}, err
 	}
 	defer db.Close()
 
-	query := `SELECT s.ID, s.UserID, s.SimplexName, s.SimplexType, s.EulerCharacteristic, s.Dimension, s.FiltrationValue, s.NumSimplices, s.BettiNumbers, 
-		s.Timeframetype, s.StartDate, s.EndDate, s.Enabled, s.DateCreated, s.DateUpdated, f.ComplexID, f.SourceVertexID, f.TargetVertexID, f.SourceWord, 
-		f.TargetWord, f.Weight FROM Simplex s RIGHT OUTER JOIN Facet f ON f.ComplexID=s.ID`
-	query += " WHERE s.UserID=" + strconv.Itoa(userID) + " AND LOWER(s.SimplexName)='" + strings.ToLower(simplexName) + "'"
+	tableNames := getTableNames(useTempTable)
+	query := `SELECT s.ID, s.UserID, s.SimplexName, s.SimplexType, s.EulerCharacteristic, s.Dimension, s.FiltrationValue, s.NumSimplices, s.BettiNumbers, s.Timeframetype, 
+		s.StartDate, s.EndDate, s.Enabled, s.DateCreated, s.DateUpdated, f.ComplexID, f.SourceVertexID, f.TargetVertexID, f.SourceWord, f.TargetWord, f.Weight FROM `
+	query += tableNames[0] + " s RIGHT OUTER JOIN " + tableNames[1] + " f ON f.ComplexID=s.ID WHERE s.UserID=" + strconv.Itoa(userID) + " AND LOWER(s.SimplexName)='" + strings.ToLower(simplexName) + "'"
 
 	rows, err := db.Query(context.Background(), query)
 	dbx.CheckErr(err)
@@ -66,17 +73,18 @@ func GetSimplexByNameUserID(simplexName string, userID int) (hd.SimplexComplex, 
 }
 
 // GetSimplexListByUserID func gets all of a user's simplices.
-func GetSimplexListByUserID(userID int) ([]hd.SimplexComplex, error) {
+func GetSimplexListByUserID(userID int, useTempTable bool) ([]hd.SimplexComplex, error) {
 	db, err := dbx.GetDatabaseReference()
 	if err != nil {
 		return []hd.SimplexComplex{}, err
 	}
 	defer db.Close()
 
-	query := `SELECT s.ID, s.UserID, s.SimplexName, s.SimplexType, s.EulerCharacteristic, s.Dimension, s.FiltrationValue, s.NumSimplices, s.BettiNumbers, 
-		s.Timeframetype, s.StartDate, s.EndDate, s.Enabled, s.DateCreated, s.DateUpdated, f.ComplexID, f.SourceVertexID, f.TargetVertexID, f.SourceWord, 
-		f.TargetWord, f.Weight FROM Simplex s RIGHT OUTER JOIN Facet f ON f.ComplexID=s.ID`
-	query += " WHERE s.UserID=" + strconv.Itoa(userID) + " ORDER BY s.SimplexName, f.SourceVertexID"
+	tableNames := getTableNames(useTempTable)
+	query := `SELECT s.ID, s.UserID, s.SimplexName, s.SimplexType, s.EulerCharacteristic, s.Dimension, s.FiltrationValue, s.NumSimplices, s.BettiNumbers, s.Timeframetype, 
+		s.StartDate, s.EndDate, s.Enabled, s.DateCreated, s.DateUpdated, f.ComplexID, f.SourceVertexID, f.TargetVertexID, f.SourceWord, f.TargetWord, f.Weight FROM `
+	query += tableNames[0] + " s RIGHT OUTER JOIN " + tableNames[1] + " f ON f.ComplexID=s.ID WHERE s.UserID=" + strconv.Itoa(userID) + " ORDER BY s.SimplexName, f.SourceVertexID"
+
 	rows, err := db.Query(context.Background(), query)
 	dbx.CheckErr(err)
 	if err != nil {
@@ -123,7 +131,7 @@ func GetSimplexListByUserID(userID int) ([]hd.SimplexComplex, error) {
 	return complexes, err
 }
 
-// InsertSimplexComplex func. Insert row before inserting []hd.SimplexFacet rows with InsertSimplexFacets().
+// InsertSimplexComplex func. Insert row into temp_Simplex before inserting []hd.SimplexFacet rows with InsertSimplexFacets().
 // Assigns hd.SimplexComplex.ID = each hd.SimplexFacet.ComplexID.
 func InsertSimplexComplex(sc hd.SimplexComplex) (hd.SimplexComplex, error) {
 	db, err := dbx.GetDatabaseReference()
@@ -133,7 +141,7 @@ func InsertSimplexComplex(sc hd.SimplexComplex) (hd.SimplexComplex, error) {
 	defer db.Close()
 
 	var id uint64 // BettiNumbers: '{0,1,0}'		DateCreated & DateUpdated use default server time.
-	INSERT := `INSERT INTO Simplex (UserID, SimplexName, SimplexType, EulerCharacteristic, Dimension, FiltrationValue, NumSimplices, BettiNumbers, 
+	INSERT := `INSERT INTO temp_Simplex (UserID, SimplexName, SimplexType, EulerCharacteristic, Dimension, FiltrationValue, NumSimplices, BettiNumbers, 
 		Timeframetype, StartDate, EndDate, Enabled) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) returning id`
 	bettiNumbers := dbx.FormatArrayForStorage(sc.BettiNumbers)
 
@@ -150,7 +158,7 @@ func InsertSimplexComplex(sc hd.SimplexComplex) (hd.SimplexComplex, error) {
 	return sc, err
 }
 
-// BulkInsertSimplexFacets func.
+// BulkInsertSimplexFacets func inserts into temp_Facet
 func BulkInsertSimplexFacets(facets []hd.SimplexFacet) error {
 	db, err := dbx.GetDatabaseReference()
 	if err != nil {
@@ -163,7 +171,7 @@ func BulkInsertSimplexFacets(facets []hd.SimplexFacet) error {
 
 	copyCount, err := db.CopyFrom(
 		context.Background(),
-		pgx.Identifier{"facet"}, // tablename
+		pgx.Identifier{"temp_facet"}, // tablename
 		[]string{"complexid", "sourcevertexid", "targetvertexid", "sourceword", "targetword", "weight"}, // Must use lowercase column names!
 		pgx.CopyFromSlice(len(facets), func(i int) ([]interface{}, error) {
 			return []interface{}{facets[i].ComplexID, facets[i].SourceVertexID, facets[i].TargetVertexID, facets[i].SourceWord, facets[i].TargetWord, facets[i].Weight}, nil
@@ -179,4 +187,23 @@ func BulkInsertSimplexFacets(facets []hd.SimplexFacet) error {
 	dbx.CheckErr(err)
 
 	return nil
+}
+
+// PostSimplexComplex func moves temp data into [Simplex] & [Facet] tables.
+func PostSimplexComplex(userID int, simplexName string, timeInterval nt.TimeInterval) (hd.SimplexComplex, error) {
+	db, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return hd.SimplexComplex{}, err
+	}
+	defer db.Close()
+
+	// Get temp_Simplex.ID value to pass to function.
+	simplex, err := GetSimplexByNameUserID(simplexName, userID, true) // useTempTable
+	dbx.CheckErr(err)
+
+	// PostgreSQL functions invoked with SELECT; stored procs invoked with CALL.
+	_, err = db.Exec(context.Background(), "SELECT PostSimplexComplex("+strconv.FormatUint(simplex.ID, 10)+")") // tempcomplexid
+	dbx.CheckErr(err)
+
+	return simplex, nil
 }
