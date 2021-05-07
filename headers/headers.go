@@ -5,6 +5,7 @@ package headers
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
@@ -147,6 +148,28 @@ func RandomHex(n int) string {
 }
 
 /*************************************************************************************************/
+
+// AcmComposite struct. NOT USED. Retrieved separately by axios concurrent requests.
+type AcmComposite struct { // filtered by startDate+endDate
+	Vocabulary             []Vocabulary             `json:"vocabulary"`
+	WordScore              []WordScore              `json:"wordscore"`
+	ConditionalProbability []ConditionalProbability `json:"conditionalprobability"`
+}
+
+// NewAcmComposite funcAcmComposite
+func NewAcmComposite(lenWordList int) AcmComposite {
+	composite := new(AcmComposite)
+	composite.Vocabulary = make([]Vocabulary, lenWordList)
+	composite.WordScore = make([]WordScore, lenWordList)
+	composite.ConditionalProbability = make([]ConditionalProbability, 0)
+	return *composite
+}
+
+// UnmarshalJSON custom method for AcmComposite. Beautiful!
+func (ac *AcmComposite) UnmarshalJSON(data []byte) error {
+	array := [...]interface{}{&ac.Vocabulary, &ac.WordScore, &ac.ConditionalProbability}
+	return json.Unmarshal(data, &array)
+}
 
 // Authorization struct
 type Authorization struct {
