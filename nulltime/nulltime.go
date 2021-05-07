@@ -65,7 +65,7 @@ func indexOfMonth(element string, data []string) int {
 	return 0 //not found.
 }
 
-// StringSliceContains func return index else -1
+// StringSliceContains func return index else -1.  Duplicate func in headers.go
 func StringSliceContains(a []string, x string) (int, bool) {
 	for ndx, n := range a {
 		if x == n {
@@ -99,6 +99,18 @@ func (tft TimeFrameType) ToString() string {
 // ToStrings method
 func (tft TimeFrameType) ToStrings() []string {
 	return []string{Unknown, "Week", "Month", "Quarter", "Year", "Term", "Span"}
+}
+
+// TimeframeStrings func  {TFUnknown, TFWeek} are unsupported in database.
+func TimeframeStrings() []string {
+	return []string{
+		strings.ToLower(TFUnknown.ToString()),
+		strings.ToLower(TFWeek.ToString()),
+		strings.ToLower(TFMonth.ToString()),
+		strings.ToLower(TFQuarter.ToString()),
+		strings.ToLower(TFYear.ToString()),
+		strings.ToLower(TFTerm.ToString()),
+		strings.ToLower(TFSpan.ToString())}
 }
 
 // TimeInterval struct

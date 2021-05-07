@@ -129,7 +129,7 @@ func DecryptData(password string, ciphertext []byte) (string, error) {
 
 /*************************************************************************************************/
 
-// GetUserProfile func assumes unique case-insensitive userName.
+// GetUserProfile func assumes unique case-insensitive userEmail.
 func GetUserProfile(userName, pwdText string) (hd.UserProfile, error) {
 	var user hd.UserProfile
 	db, err := dbx.GetDatabaseReference()
@@ -139,20 +139,20 @@ func GetUserProfile(userName, pwdText string) (hd.UserProfile, error) {
 	defer db.Close()
 
 	encryptedPwd := EncryptData(pwdText, pwdText)
-	SELECT := "SELECT id, UserName, Password, DateUpdated FROM UserProfile WHERE LOWER(UserName)='" + strings.ToLower(userName) + "' AND Password='" + encryptedPwd + "'"
-	err = db.QueryRow(context.Background(), SELECT).Scan(&user.ID, &user.UserName, &user.Password, &user.DateUpdated)
+	SELECT := "SELECT id, UserName, UserEmail, Password, AcmMemberId, DateUpdated FROM UserProfile WHERE LOWER(UserName)='" + strings.ToLower(userName) + "' AND Password='" + encryptedPwd + "'"
+	err = db.QueryRow(context.Background(), SELECT).Scan(&user.ID, &user.UserName, &user.UserEmail, &user.Password, &user.AcmMemberId, &user.DateUpdated)
 	dbx.CheckErr(err)
 	if err != nil {
 		return user, err
 	}
 	if dbx.NoRowsReturned(err) {
-		return user, errors.New("user/password not found")
+		return user, errors.New("username/password not found")
 	}
 	return user, nil
 }
 
 // InsertUserProfile func checks for unique username. Store encrypted password.
-func InsertUserProfile(userName, pwdText string) (hd.UserProfile, error) {
+func InsertUserProfile(userName, userEmail, pwdText string, acmmemberid int) (hd.UserProfile, error) {
 	existingUser, err := GetUserProfile(userName, pwdText)
 	if err != nil && len(existingUser.UserName) > 0 {
 		return hd.UserProfile{}, errors.New("duplicate user name")
@@ -165,10 +165,10 @@ func InsertUserProfile(userName, pwdText string) (hd.UserProfile, error) {
 
 	var id int
 	encryptedPwd := EncryptData(pwdText, pwdText)
-	INSERT := "INSERT INTO UserProfile (UserName, Password) VALUES ($1, $2) returning id"
-	err = db.QueryRow(context.Background(), INSERT, userName, encryptedPwd).Scan(&id)
+	INSERT := "INSERT INTO UserProfile (UserName, UserEmail, Password, AcmMemberId) VALUES ($1, $2, $3, $4) returning id"
+	err = db.QueryRow(context.Background(), INSERT, userName, userEmail, encryptedPwd, acmmemberid).Scan(&id)
 	dbx.CheckErr(err)
 
-	existingUser = hd.UserProfile{ID: id, UserName: userName, Password: encryptedPwd, DateUpdated: time.Now().UTC()}
+	existingUser = hd.UserProfile{ID: id, UserName: userName, UserEmail: userEmail, Password: encryptedPwd, AcmMemberId: acmmemberid, DateUpdated: time.Now().UTC()}
 	return existingUser, nil
 }

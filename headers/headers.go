@@ -61,6 +61,20 @@ func StringSliceContains(a []string, x string) (int, bool) {
 	return -1, false
 }
 
+// StringSetDifference func returns the elements in lines1 but not in lines2, i.e., set difference of two arrays. Case-sensitive comparison.
+func StringSetDifference(lines1 []string, lines2 []string) (diff []string) {
+	m := make(map[string]bool)
+	for _, item := range lines2 {
+		m[item] = true
+	}
+	for _, item := range lines1 {
+		if _, ok := m[item]; !ok {
+			diff = append(diff, item)
+		}
+	}
+	return // diff
+}
+
 // GetOrderedMap func
 func GetOrderedMap(fieldNames []string) map[int]string {
 	orderedMap := make(map[int]string, len(fieldNames))
@@ -559,7 +573,9 @@ func (a WordScoreConditionalFlatSorter) Less(i, j int) bool { return a[i].ID < a
 type UserProfile struct {
 	ID          int       `json:"id"`
 	UserName    string    `json:"username"`
+	UserEmail   string    `json:"useremail"`
 	Password    string    `json:"password"`
+	AcmMemberId int       `json:"acmmemberid"`
 	DateUpdated time.Time `json:"dateupdated"`
 }
 
