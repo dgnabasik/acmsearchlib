@@ -40,7 +40,7 @@ func GetSimplexByNameUserID(userID int, simplexName, simplexType string, useTemp
 	query := `SELECT s.ID, s.UserID, s.SimplexName, s.SimplexType, s.EulerCharacteristic, s.Dimension, s.FiltrationValue, s.NumSimplices, s.NumVertices, s.BettiNumbers, s.Timeframetype, 
 		s.StartDate, s.EndDate, s.Enabled, s.DateCreated, s.DateUpdated, f.ComplexID, f.SourceVertexID, f.TargetVertexID, f.SourceWord, f.TargetWord, f.Weight FROM `
 	query += tableNames[0] + " s RIGHT OUTER JOIN " + tableNames[1] + " f ON f.ComplexID=s.ID WHERE s.UserID=" + strconv.Itoa(userID) + " AND LOWER(s.SimplexName)='" +
-		strings.ToLower(simplexName) + "' AND s.SimplexType='" + simplexType + "'"
+		strings.ToLower(simplexName) + "' AND s.SimplexType='" + simplexType + "' ORDER BY s.ID, f.SourceVertexID"
 
 	rows, err := db.Query(context.Background(), query)
 	dbx.CheckErr(err)
@@ -95,7 +95,7 @@ func GetSimplexListByUserID(userID int, useTempTable bool) ([]hd.SimplexComplex,
 	tableNames := getTableNames(useTempTable)
 	query := `SELECT s.ID, s.UserID, s.SimplexName, s.SimplexType, s.EulerCharacteristic, s.Dimension, s.FiltrationValue, s.NumSimplices, s.NumVertices, s.BettiNumbers, s.Timeframetype, 
 		s.StartDate, s.EndDate, s.Enabled, s.DateCreated, s.DateUpdated FROM `
-	query += tableNames[0] + " s WHERE s.UserID=" + strconv.Itoa(userID) + " ORDER BY s.SimplexName, s.StartDate"
+	query += tableNames[0] + " s WHERE s.UserID=" + strconv.Itoa(userID) + " ORDER BY s.ID"
 
 	rows, err := db.Query(context.Background(), query)
 	dbx.CheckErr(err)
@@ -184,20 +184,26 @@ func BulkInsertSimplexFacets(facets []hd.SimplexFacet) error {
 }
 
 // PostSimplexComplex func moves temp data into [Simplex] & [Facet] tables.
-func PostSimplexComplex(userID int, simplexName string, timeInterval nt.TimeInterval) (hd.SimplexComplex, error) {
+func PostSimplexComplex(userID int, simplexName, simplexType string, timeInterval nt.TimeInterval) ([]hd.SimplexComplex, error) {
 	db, err := dbx.GetDatabaseReference()
 	if err != nil {
-		return hd.SimplexComplex{}, err
+		return nil, err
 	}
 	defer db.Close()
 
-	// Get temp_Simplex.ID value to pass to function.
-	simplex, err := GetSimplexByNameUserID(simplexName, userID, true) // useTempTable
+	// Get temp_Simplex.ID values to pass to function.
+	simplexList, err := GetSimplexByNameUserID(userID, simplexName, simplexType, true) // useTempTable
 	dbx.CheckErr(err)
+
+	simplexIDmap := make(map[uint64]int)
+	for _, sc := range simplexList {
+		simplexIDmap[sc.ID]++
+	}
 
 	// PostgreSQL functions invoked with SELECT; stored procs invoked with CALL.
-	_, err = db.Exec(context.Background(), "SELECT PostSimplexComplex("+strconv.FormatUint(simplex.ID, 10)+")") // tempcomplexid
-	dbx.CheckErr(err)
-
-	return simplex, nil
+	for key := range simplexIDmap {
+		_, err = db.Exec(context.Background(), "SELECT PostSimplexComplex("+strconv.FormatUint(key, 10)+")") // tempcomplexid
+		dbx.CheckErr(err)
+	}
+	return simplexList, nil
 }
