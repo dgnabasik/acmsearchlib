@@ -28,28 +28,31 @@ func getTableNames(useTempTable bool) []string {
 }
 
 // GetSimplexByNameUserID func : simplexName is case-insensitive.
-func GetSimplexByNameUserID(simplexName string, userID int, useTempTable bool) (hd.SimplexComplex, error) {
+// Get linked [Simplex] rows using constant {UserID, SimplexName, SimplexType} with varying {Timeinterval}.
+func GetSimplexByNameUserID(userID int, simplexName, simplexType string, useTempTable bool) ([]hd.SimplexComplex, error) {
 	db, err := dbx.GetDatabaseReference()
 	if err != nil {
-		return hd.SimplexComplex{}, err
+		return nil, err
 	}
 	defer db.Close()
 
 	tableNames := getTableNames(useTempTable)
 	query := `SELECT s.ID, s.UserID, s.SimplexName, s.SimplexType, s.EulerCharacteristic, s.Dimension, s.FiltrationValue, s.NumSimplices, s.NumVertices, s.BettiNumbers, s.Timeframetype, 
 		s.StartDate, s.EndDate, s.Enabled, s.DateCreated, s.DateUpdated, f.ComplexID, f.SourceVertexID, f.TargetVertexID, f.SourceWord, f.TargetWord, f.Weight FROM `
-	query += tableNames[0] + " s RIGHT OUTER JOIN " + tableNames[1] + " f ON f.ComplexID=s.ID WHERE s.UserID=" + strconv.Itoa(userID) + " AND LOWER(s.SimplexName)='" + strings.ToLower(simplexName) + "'"
+	query += tableNames[0] + " s RIGHT OUTER JOIN " + tableNames[1] + " f ON f.ComplexID=s.ID WHERE s.UserID=" + strconv.Itoa(userID) + " AND LOWER(s.SimplexName)='" +
+		strings.ToLower(simplexName) + "' AND s.SimplexType='" + simplexType + "'"
 
 	rows, err := db.Query(context.Background(), query)
 	dbx.CheckErr(err)
 	if err != nil {
 		log.Printf("GetSimplexByNameUserID(1): %+v\n", err)
-		return hd.SimplexComplex{}, err
+		return nil, err
 	}
 	defer rows.Close()
 
 	var s hd.SimplexComplex
 	var f hd.SimplexFacet
+	complexes := make([]hd.SimplexComplex, 0)
 	facets := make([]hd.SimplexFacet, 0)
 	var timeframetype int
 	var startDate, endDate time.Time
@@ -59,60 +62,10 @@ func GetSimplexByNameUserID(simplexName string, userID int, useTempTable bool) (
 			&timeframetype, &startDate, &endDate, &s.Enabled, &s.DateCreated, &s.DateUpdated, &f.ComplexID, &f.SourceVertexID, &f.TargetVertexID, &f.SourceWord, &f.TargetWord, &f.Weight)
 		if err != nil {
 			log.Printf("GetSimplexByNameUserID(2): %+v\n", err)
-			return s, err
-		}
-		s.Timeinterval = nt.New_TimeInterval(nt.TimeFrameType(timeframetype), nt.New_NullTime2(startDate), nt.New_NullTime2(endDate))
-		facets = append(facets, f)
-	}
-	err = rows.Err()
-	dbx.CheckErr(err)
-
-	s.FacetVector = make([]hd.SimplexFacet, len(facets))
-	copy(s.FacetVector, facets) // (dst,src)
-	return s, err
-}
-
-// GetSimplexListByUserID func gets all of a user's simplices.
-func GetSimplexListByUserID(userID int, useTempTable bool) ([]hd.SimplexComplex, error) {
-	db, err := dbx.GetDatabaseReference()
-	if err != nil {
-		return []hd.SimplexComplex{}, err
-	}
-	defer db.Close()
-
-	tableNames := getTableNames(useTempTable)
-	query := `SELECT s.ID, s.UserID, s.SimplexName, s.SimplexType, s.EulerCharacteristic, s.Dimension, s.FiltrationValue, s.NumSimplices, s.NumVertices, s.BettiNumbers, s.Timeframetype, 
-		s.StartDate, s.EndDate, s.Enabled, s.DateCreated, s.DateUpdated, f.ComplexID, f.SourceVertexID, f.TargetVertexID, f.SourceWord, f.TargetWord, f.Weight FROM `
-	query += tableNames[0] + " s RIGHT OUTER JOIN " + tableNames[1] + " f ON f.ComplexID=s.ID WHERE s.UserID=" + strconv.Itoa(userID) + " ORDER BY s.SimplexName, f.SourceVertexID"
-
-	rows, err := db.Query(context.Background(), query)
-	dbx.CheckErr(err)
-	if err != nil {
-		log.Printf("GetSimplexListByUserID(1): %+v\n", err)
-		return []hd.SimplexComplex{}, err
-	}
-	defer rows.Close()
-
-	var s hd.SimplexComplex
-	var f hd.SimplexFacet
-	var oldID uint64 // 0
-	complexes := make([]hd.SimplexComplex, 0)
-	facets := make([]hd.SimplexFacet, 0)
-	var timeframetype int
-	var startDate, endDate time.Time
-
-	for rows.Next() {
-		err := rows.Scan(&s.ID, &s.UserID, &s.SimplexName, &s.SimplexType, &s.EulerCharacteristic, &s.Dimension, &s.FiltrationValue, &s.NumSimplices, &s.NumVertices, &s.BettiNumbers,
-			&timeframetype, &startDate, &endDate, &s.Enabled, &s.DateCreated, &s.DateUpdated, &f.ComplexID, &f.SourceVertexID, &f.TargetVertexID, &f.SourceWord, &f.TargetWord, &f.Weight)
-		if err != nil {
-			log.Printf("GetSimplexListByUserID(2): %+v\n", err)
 			return complexes, err
 		}
 		s.Timeinterval = nt.New_TimeInterval(nt.TimeFrameType(timeframetype), nt.New_NullTime2(startDate), nt.New_NullTime2(endDate))
-		if s.ID != oldID {
-			complexes = append(complexes, s)
-			oldID = s.ID
-		}
+		complexes = append(complexes, s)
 		facets = append(facets, f)
 	}
 	err = rows.Err()
@@ -127,6 +80,48 @@ func GetSimplexListByUserID(userID int, useTempTable bool) ([]hd.SimplexComplex,
 			}
 		}
 	}
+
+	return complexes, err
+}
+
+// GetSimplexListByUserID func gets all of a user's simplices but not the facets.
+func GetSimplexListByUserID(userID int, useTempTable bool) ([]hd.SimplexComplex, error) {
+	db, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return []hd.SimplexComplex{}, err
+	}
+	defer db.Close()
+
+	tableNames := getTableNames(useTempTable)
+	query := `SELECT s.ID, s.UserID, s.SimplexName, s.SimplexType, s.EulerCharacteristic, s.Dimension, s.FiltrationValue, s.NumSimplices, s.NumVertices, s.BettiNumbers, s.Timeframetype, 
+		s.StartDate, s.EndDate, s.Enabled, s.DateCreated, s.DateUpdated FROM `
+	query += tableNames[0] + " s WHERE s.UserID=" + strconv.Itoa(userID) + " ORDER BY s.SimplexName, s.StartDate"
+
+	rows, err := db.Query(context.Background(), query)
+	dbx.CheckErr(err)
+	if err != nil {
+		log.Printf("GetSimplexListByUserID(1): %+v\n", err)
+		return []hd.SimplexComplex{}, err
+	}
+	defer rows.Close()
+
+	complexes := make([]hd.SimplexComplex, 0)
+	var s hd.SimplexComplex
+	var timeframetype int
+	var startDate, endDate time.Time
+
+	for rows.Next() {
+		err := rows.Scan(&s.ID, &s.UserID, &s.SimplexName, &s.SimplexType, &s.EulerCharacteristic, &s.Dimension, &s.FiltrationValue, &s.NumSimplices, &s.NumVertices, &s.BettiNumbers,
+			&timeframetype, &startDate, &endDate, &s.Enabled, &s.DateCreated, &s.DateUpdated)
+		if err != nil {
+			log.Printf("GetSimplexListByUserID(2): %+v\n", err)
+			return complexes, err
+		}
+		s.Timeinterval = nt.New_TimeInterval(nt.TimeFrameType(timeframetype), nt.New_NullTime2(startDate), nt.New_NullTime2(endDate))
+		complexes = append(complexes, s)
+	}
+	err = rows.Err()
+	dbx.CheckErr(err)
 
 	return complexes, err
 }
