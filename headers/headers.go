@@ -659,6 +659,7 @@ type SimplexComplex struct {
 	Dimension           int             `json:"dimension"`
 	FiltrationValue     float32         `json:"filtrationvalue"`
 	NumSimplices        int             `json:"numsimplices"`
+	NumVertices         int             `json:"numvertices"`
 	BettiNumbers        []int           `json:"bettinumbers"` // max(3)
 	Timeinterval        nt.TimeInterval `json:"timeinterval"` // split out in db table.
 	Enabled             int             `json:"enabled"`      // 0 is disabled, >0 is enabled.

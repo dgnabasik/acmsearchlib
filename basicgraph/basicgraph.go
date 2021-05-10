@@ -36,7 +36,7 @@ func GetSimplexByNameUserID(simplexName string, userID int, useTempTable bool) (
 	defer db.Close()
 
 	tableNames := getTableNames(useTempTable)
-	query := `SELECT s.ID, s.UserID, s.SimplexName, s.SimplexType, s.EulerCharacteristic, s.Dimension, s.FiltrationValue, s.NumSimplices, s.BettiNumbers, s.Timeframetype, 
+	query := `SELECT s.ID, s.UserID, s.SimplexName, s.SimplexType, s.EulerCharacteristic, s.Dimension, s.FiltrationValue, s.NumSimplices, s.NumVertices, s.BettiNumbers, s.Timeframetype, 
 		s.StartDate, s.EndDate, s.Enabled, s.DateCreated, s.DateUpdated, f.ComplexID, f.SourceVertexID, f.TargetVertexID, f.SourceWord, f.TargetWord, f.Weight FROM `
 	query += tableNames[0] + " s RIGHT OUTER JOIN " + tableNames[1] + " f ON f.ComplexID=s.ID WHERE s.UserID=" + strconv.Itoa(userID) + " AND LOWER(s.SimplexName)='" + strings.ToLower(simplexName) + "'"
 
@@ -55,7 +55,7 @@ func GetSimplexByNameUserID(simplexName string, userID int, useTempTable bool) (
 	var startDate, endDate time.Time
 	// all simplex values are the same.
 	for rows.Next() {
-		err := rows.Scan(&s.ID, &s.UserID, &s.SimplexName, &s.SimplexType, &s.EulerCharacteristic, &s.Dimension, &s.FiltrationValue, &s.NumSimplices, &s.BettiNumbers,
+		err := rows.Scan(&s.ID, &s.UserID, &s.SimplexName, &s.SimplexType, &s.EulerCharacteristic, &s.Dimension, &s.FiltrationValue, &s.NumSimplices, &s.NumVertices, &s.BettiNumbers,
 			&timeframetype, &startDate, &endDate, &s.Enabled, &s.DateCreated, &s.DateUpdated, &f.ComplexID, &f.SourceVertexID, &f.TargetVertexID, &f.SourceWord, &f.TargetWord, &f.Weight)
 		if err != nil {
 			log.Printf("GetSimplexByNameUserID(2): %+v\n", err)
@@ -81,7 +81,7 @@ func GetSimplexListByUserID(userID int, useTempTable bool) ([]hd.SimplexComplex,
 	defer db.Close()
 
 	tableNames := getTableNames(useTempTable)
-	query := `SELECT s.ID, s.UserID, s.SimplexName, s.SimplexType, s.EulerCharacteristic, s.Dimension, s.FiltrationValue, s.NumSimplices, s.BettiNumbers, s.Timeframetype, 
+	query := `SELECT s.ID, s.UserID, s.SimplexName, s.SimplexType, s.EulerCharacteristic, s.Dimension, s.FiltrationValue, s.NumSimplices, s.NumVertices, s.BettiNumbers, s.Timeframetype, 
 		s.StartDate, s.EndDate, s.Enabled, s.DateCreated, s.DateUpdated, f.ComplexID, f.SourceVertexID, f.TargetVertexID, f.SourceWord, f.TargetWord, f.Weight FROM `
 	query += tableNames[0] + " s RIGHT OUTER JOIN " + tableNames[1] + " f ON f.ComplexID=s.ID WHERE s.UserID=" + strconv.Itoa(userID) + " ORDER BY s.SimplexName, f.SourceVertexID"
 
@@ -102,7 +102,7 @@ func GetSimplexListByUserID(userID int, useTempTable bool) ([]hd.SimplexComplex,
 	var startDate, endDate time.Time
 
 	for rows.Next() {
-		err := rows.Scan(&s.ID, &s.UserID, &s.SimplexName, &s.SimplexType, &s.EulerCharacteristic, &s.Dimension, &s.FiltrationValue, &s.NumSimplices, &s.BettiNumbers,
+		err := rows.Scan(&s.ID, &s.UserID, &s.SimplexName, &s.SimplexType, &s.EulerCharacteristic, &s.Dimension, &s.FiltrationValue, &s.NumSimplices, &s.NumVertices, &s.BettiNumbers,
 			&timeframetype, &startDate, &endDate, &s.Enabled, &s.DateCreated, &s.DateUpdated, &f.ComplexID, &f.SourceVertexID, &f.TargetVertexID, &f.SourceWord, &f.TargetWord, &f.Weight)
 		if err != nil {
 			log.Printf("GetSimplexListByUserID(2): %+v\n", err)
@@ -141,11 +141,11 @@ func InsertSimplexComplex(sc hd.SimplexComplex) (hd.SimplexComplex, error) {
 	defer db.Close()
 
 	var id uint64 // DateCreated & DateUpdated use default server time.
-	INSERT := `INSERT INTO temp_Simplex (UserID, SimplexName, SimplexType, EulerCharacteristic, Dimension, FiltrationValue, NumSimplices, BettiNumbers, 
-		Timeframetype, StartDate, EndDate, Enabled) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) returning id`
+	INSERT := `INSERT INTO temp_Simplex (UserID, SimplexName, SimplexType, EulerCharacteristic, Dimension, FiltrationValue, NumSimplices, NumVertices, 
+		BettiNumbers, Timeframetype, StartDate, EndDate, Enabled) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) returning id`
 
 	err = db.QueryRow(context.Background(), INSERT, sc.UserID, sc.SimplexName, sc.SimplexType, sc.EulerCharacteristic, sc.Dimension, sc.FiltrationValue,
-		sc.NumSimplices, sc.BettiNumbers, sc.Timeinterval.Timeframetype, sc.Timeinterval.StartDate.DT, sc.Timeinterval.EndDate.DT, sc.Enabled).Scan(&id)
+		sc.NumSimplices, sc.NumVertices, sc.BettiNumbers, sc.Timeinterval.Timeframetype, sc.Timeinterval.StartDate.DT, sc.Timeinterval.EndDate.DT, sc.Enabled).Scan(&id)
 	dbx.CheckErr(err)
 
 	sc.ID = id
