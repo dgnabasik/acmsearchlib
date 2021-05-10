@@ -142,7 +142,7 @@ func InsertSimplexComplex(sc hd.SimplexComplex) (hd.SimplexComplex, error) {
 
 	var id uint64 // DateCreated & DateUpdated use default server time.
 	INSERT := `INSERT INTO temp_Simplex (UserID, SimplexName, SimplexType, EulerCharacteristic, Dimension, FiltrationValue, NumSimplices, NumVertices, 
-		BettiNumbers, Timeframetype, StartDate, EndDate, Enabled) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) returning id`
+		BettiNumbers, Timeframetype, StartDate, EndDate, Enabled) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) returning id`
 
 	err = db.QueryRow(context.Background(), INSERT, sc.UserID, sc.SimplexName, sc.SimplexType, sc.EulerCharacteristic, sc.Dimension, sc.FiltrationValue,
 		sc.NumSimplices, sc.NumVertices, sc.BettiNumbers, sc.Timeinterval.Timeframetype, sc.Timeinterval.StartDate.DT, sc.Timeinterval.EndDate.DT, sc.Enabled).Scan(&id)
