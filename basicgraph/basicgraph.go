@@ -222,12 +222,13 @@ func GetSimplexWordDifference(complexid1, complexid2 uint64) ([]hd.KeyValueStrin
 	rows, err := db.Query(context.Background(), SELECT)
 	dbx.CheckErr(err)
 
+	var str string
 	list := make([]hd.KeyValueStringPair, 0)
-	item := hd.KeyValueStringPair{}
 	for rows.Next() {
-		err = rows.Scan(&item.Key, &item.Value)
+		err = rows.Scan(&str) // (stone,G)
 		dbx.CheckErr(err)
-		list = append(list, item)
+		index := strings.Index(str, ",")
+		list = append(list, hd.KeyValueStringPair{Key: str[1:index], Value: str[index+1 : index+2]})
 	}
 
 	return list, nil
