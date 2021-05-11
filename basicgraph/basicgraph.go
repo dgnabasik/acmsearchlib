@@ -207,3 +207,28 @@ func PostSimplexComplex(userID int, simplexName, simplexType string, timeInterva
 	}
 	return simplexList, nil
 }
+
+// GetSimplexWordDifference func returns words that are the same, gained, and lost between two SimplexComplex-Facet sets. Format: word|type={S,G,L}
+// CREATE TABLE acmsearch.Word_type (sourceword character varying(32), wordtype char(1) );
+func GetSimplexWordDifference(complexid1, complexid2 uint64) ([]hd.KeyValueStringPair, error) {
+	db, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return nil, err
+	}
+	defer db.Close()
+
+	// PostgreSQL functions invoked with SELECT; stored procs invoked with CALL.
+	SELECT := "SELECT WordDifference(" + strconv.FormatUint(complexid1, 10) + "," + strconv.FormatUint(complexid2, 10) + ")"
+	rows, err := db.Query(context.Background(), SELECT)
+	dbx.CheckErr(err)
+
+	list := make([]hd.KeyValueStringPair, 0)
+	item := hd.KeyValueStringPair{}
+	for rows.Next() {
+		err = rows.Scan(&item.Key, &item.Value)
+		dbx.CheckErr(err)
+		list = append(list, item)
+	}
+
+	return list, nil
+}

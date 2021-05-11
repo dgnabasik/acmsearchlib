@@ -676,3 +676,9 @@ type SimplexBarcode struct {
 	ScaleParameter      float32         `json:"scaleparameter"` // neighborhood radius
 	Timeinterval        nt.TimeInterval `json:"timeinterval"`   // this orders []SimplexBarcode
 }
+
+// KeyValueStringPair struct does not enforce unique Key.
+type KeyValueStringPair struct {
+	Key   string `json:"key" binding:"required"`
+	Value string `json:"value" binding:"required"`
+}
