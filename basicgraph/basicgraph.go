@@ -201,8 +201,8 @@ func PostSimplexComplex(userID int, simplexName, simplexType string, timeInterva
 	}
 
 	// PostgreSQL functions invoked with SELECT; stored procs invoked with CALL.
-	for key := range simplexIDmap {
-		_, err = db.Exec(context.Background(), "SELECT PostSimplexComplex("+strconv.FormatUint(key, 10)+")") // tempcomplexid
+	for key, _ := range simplexIDmap {
+		_, err = db.Exec(context.Background(), "SELECT PostSimplexComplex("+strconv.FormatUint(key, 10)+")")
 		dbx.CheckErr(err)
 	}
 	return simplexList, nil
