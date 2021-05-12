@@ -668,6 +668,15 @@ type SimplexComplex struct {
 	FacetVector         []SimplexFacet  `json:"facetvector"`
 }
 
+// SimplexComplexSorterDate Sort interface by StartDate.
+type SimplexComplexSorterDate []SimplexComplex
+
+func (a SimplexComplexSorterDate) Len() int      { return len(a) }
+func (a SimplexComplexSorterDate) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a SimplexComplexSorterDate) Less(i, j int) bool {
+	return a[i].Timeinterval.StartDate.DT.Before(a[j].Timeinterval.StartDate.DT)
+}
+
 // SimplexBarcode struct
 type SimplexBarcode struct {
 	ComplexID           uint64          `json:"complexid"` // FK to [SimplexComplex]

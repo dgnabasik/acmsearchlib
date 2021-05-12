@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -127,7 +128,7 @@ func GetSimplexListByUserID(userID int, useTempTable bool) ([]hd.SimplexComplex,
 }
 
 // InsertSimplexComplex func. Insert row into temp_Simplex before inserting []hd.SimplexFacet rows with InsertSimplexFacets().
-// Assigns hd.SimplexComplex.ID = each hd.SimplexFacet.ComplexID.
+// Assigns hd.SimplexComplex.ID = each hd.SimplexFacet.ComplexID. temp_Simplex rows are NOT in StartDate order!
 func InsertSimplexComplex(sc hd.SimplexComplex) (hd.SimplexComplex, error) {
 	db, err := dbx.GetDatabaseReference()
 	if err != nil {
@@ -183,7 +184,7 @@ func BulkInsertSimplexFacets(facets []hd.SimplexFacet) error {
 	return nil
 }
 
-// PostSimplexComplex func moves temp data into [Simplex] & [Facet] tables.
+// PostSimplexComplex func moves [temp_Simplex] & [temp_Facet] data into [Simplex] & [Facet] tables.
 func PostSimplexComplex(userID int, simplexName, simplexType string, timeInterval nt.TimeInterval) ([]hd.SimplexComplex, error) {
 	db, err := dbx.GetDatabaseReference()
 	if err != nil {
@@ -192,19 +193,22 @@ func PostSimplexComplex(userID int, simplexName, simplexType string, timeInterva
 	defer db.Close()
 
 	// Get temp_Simplex.ID values to pass to function.
-	simplexList, err := GetSimplexByNameUserID(userID, simplexName, simplexType, true) // useTempTable
+	simplexList, err := GetSimplexByNameUserID(userID, simplexName, simplexType, true) // useTempTable	[]hd.SimplexComplex
 	dbx.CheckErr(err)
 
-	simplexIDmap := make(map[uint64]int)
+	// Ensure simplexIDs is called in StartDate order.
+	sort.Sort(hd.SimplexComplexSorterDate(simplexList))
+
+	simplexIDs := make([]uint64, 0)
 	for _, sc := range simplexList {
-		simplexIDmap[sc.ID]++
+		simplexIDs = append(simplexIDs, sc.ID)
 	}
 
-	// PostgreSQL functions invoked with SELECT; stored procs invoked with CALL.
-	for key, _ := range simplexIDmap {
-		_, err = db.Exec(context.Background(), "SELECT PostSimplexComplex("+strconv.FormatUint(key, 10)+")")
+	for ndx, _ := range simplexIDs {
+		_, err = db.Exec(context.Background(), "SELECT PostSimplexComplex("+strconv.FormatUint(simplexIDs[ndx], 10)+")")
 		dbx.CheckErr(err)
 	}
+
 	return simplexList, nil
 }
 
