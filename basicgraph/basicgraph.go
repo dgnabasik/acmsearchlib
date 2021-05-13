@@ -42,7 +42,7 @@ func GetSimplexByNameUserID(userID int, simplexName, simplexType string, useTemp
 		s.StartDate, s.EndDate, s.Enabled, s.DateCreated, s.DateUpdated, f.ComplexID, f.SourceVertexID, f.TargetVertexID, f.SourceWord, f.TargetWord, f.Weight FROM `
 	query += tableNames[0] + " s RIGHT OUTER JOIN " + tableNames[1] + " f ON f.ComplexID=s.ID WHERE s.UserID=" + strconv.Itoa(userID) + " AND LOWER(s.SimplexName)='" +
 		strings.ToLower(simplexName) + "' AND s.SimplexType='" + simplexType + "' ORDER BY s.ID, f.SourceVertexID"
-
+	// query returns as many rows per simplex as there are facets.
 	rows, err := db.Query(context.Background(), query)
 	dbx.CheckErr(err)
 	if err != nil {
@@ -57,6 +57,7 @@ func GetSimplexByNameUserID(userID int, simplexName, simplexType string, useTemp
 	facets := make([]hd.SimplexFacet, 0)
 	var timeframetype int
 	var startDate, endDate time.Time
+	var oldID uint64
 	// all simplex values are the same.
 	for rows.Next() {
 		err := rows.Scan(&s.ID, &s.UserID, &s.SimplexName, &s.SimplexType, &s.EulerCharacteristic, &s.Dimension, &s.FiltrationValue, &s.NumSimplices, &s.NumVertices, &s.BettiNumbers,
@@ -66,7 +67,10 @@ func GetSimplexByNameUserID(userID int, simplexName, simplexType string, useTemp
 			return complexes, err
 		}
 		s.Timeinterval = nt.New_TimeInterval(nt.TimeFrameType(timeframetype), nt.New_NullTime2(startDate), nt.New_NullTime2(endDate))
-		complexes = append(complexes, s)
+		if oldID != s.ID {
+			complexes = append(complexes, s)
+			oldID = s.ID
+		}
 		facets = append(facets, f)
 	}
 	err = rows.Err()
@@ -198,13 +202,16 @@ func PostSimplexComplex(userID int, simplexName, simplexType string, timeInterva
 
 	// Ensure simplexIDs is called in StartDate order.
 	sort.Sort(hd.SimplexComplexSorterDate(simplexList))
-
-	simplexIDs := make([]uint64, 0)
-	for _, sc := range simplexList {
-		simplexIDs = append(simplexIDs, sc.ID)
+	simplexIDmap := make(map[uint64]int)
+	for ndx := range simplexList {
+		simplexIDmap[simplexList[ndx].ID]++
+	}
+	simplexIDs := make([]uint64, 0, len(simplexIDmap))
+	for k := range simplexIDmap {
+		simplexIDs = append(simplexIDs, k)
 	}
 
-	for ndx, _ := range simplexIDs {
+	for ndx := range simplexIDs {
 		_, err = db.Exec(context.Background(), "SELECT PostSimplexComplex("+strconv.FormatUint(simplexIDs[ndx], 10)+")")
 		dbx.CheckErr(err)
 	}
@@ -225,6 +232,11 @@ func GetSimplexWordDifference(complexid1, complexid2 uint64) ([]hd.KeyValueStrin
 	SELECT := "SELECT WordDifference(" + strconv.FormatUint(complexid1, 10) + "," + strconv.FormatUint(complexid2, 10) + ")"
 	rows, err := db.Query(context.Background(), SELECT)
 	dbx.CheckErr(err)
+	if err != nil {
+		log.Printf("GetSimplexListByUserID(1): %+v\n", err)
+		return []hd.KeyValueStringPair{}, err
+	}
+	defer rows.Close()
 
 	var str string
 	list := make([]hd.KeyValueStringPair, 0)

@@ -46,11 +46,17 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/dgnabasik/acmsearchlib/database v0.0.0-20210511082851-3f963815c6d1 h1:mDb2D/eztICIe6nOEcXm08bNYCFtkZuBwmarCigXh3g=
 github.com/dgnabasik/acmsearchlib/database v0.0.0-20210511082851-3f963815c6d1/go.mod h1:usFDSfDnUtTS1D/gz4fX9kSd534+LLNvQP0YgEFYlzw=
+github.com/dgnabasik/acmsearchlib/database v0.0.0-20210512155100-1c298e17b0bb h1:WvT2dTohMcezE1p7KY0l2+hPAtpzV69VBTwQcJOBWyA=
+github.com/dgnabasik/acmsearchlib/database v0.0.0-20210512155100-1c298e17b0bb/go.mod h1:guTa27Yyk2bldM34pwtMbBtWWHuLMNfORP36e2RA6Yk=
 github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210511082851-3f963815c6d1 h1:BJNIQo4Sw/T1I6/D+OIeDtH9hHpIIMSuXZzNfzdZl0A=
 github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210511082851-3f963815c6d1/go.mod h1:sUpPAmYRBW+XRqxRPgnMAjumxmJv7VPBli4614Eo2So=
+github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210512155100-1c298e17b0bb h1:5gIPtr/NKTGJeLYMznjyhEcFqK/IcXmHKD888OBbrVo=
+github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210512155100-1c298e17b0bb/go.mod h1:hrHlthEimmlMhbKphqGu+RvZ4RB09H0tk63I3NDSE3c=
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210510061511-3154595afa52/go.mod h1:EzXlVSG2YC+za3MbY7Z+9PPf2mX0Tv63MWt78oZz1LU=
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210511082851-3f963815c6d1 h1:jV/+3CTBVMFA7Ei1GqTGazHk+8XV2FFWeDR+6OZa+zY=
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210511082851-3f963815c6d1/go.mod h1:EzXlVSG2YC+za3MbY7Z+9PPf2mX0Tv63MWt78oZz1LU=
+github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210512155100-1c298e17b0bb h1:IjinrtAkqfQ9JZRsZ3GntmFAB3zl6Gpsao02S8fiprQ=
+github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210512155100-1c298e17b0bb/go.mod h1:EzXlVSG2YC+za3MbY7Z+9PPf2mX0Tv63MWt78oZz1LU=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible/go.mod h1:E3ru+11k8xSBh+hMPgOLZmtrrCbhqsmaPHjLKYnJCaQ=
 github.com/dustin/go-humanize v0.0.0-20171111073723-bb3d318650d4/go.mod h1:HtrtbFcZ19U5GC7JDqmcUSB87Iq5E25KnS6fMYU6eOk=
 github.com/eapache/go-resiliency v1.1.0/go.mod h1:kFI+JgMyC7bLPUVY133qvEBtVayf5mFgVsvEsIPBvNs=
@@ -354,6 +360,8 @@ golang.org/x/crypto v0.0.0-20200323165209-0ec3e9974c59/go.mod h1:LzIPMQfyMNhhGPh
 golang.org/x/crypto v0.0.0-20210322153248-0c34fe9e7dc2/go.mod h1:T9bdIzuCu7OtxOm1hfPfRQxPLYneinmdGuTeoZ9dtd4=
 golang.org/x/crypto v0.0.0-20210506145944-38f3c27a63bf h1:B2n+Zi5QeYRDAEodEu72OS36gmTWjgpXr2+cWcBW90o=
 golang.org/x/crypto v0.0.0-20210506145944-38f3c27a63bf/go.mod h1:P+XmwS30IXTQdn5tA2iutPOUgjI07+tq3H3K9MVA1s8=
+golang.org/x/crypto v0.0.0-20210513164829-c07d793c2f9a h1:kr2P4QFmQr29mSLA43kwrOcgcReGTfbE9N577tCTuBc=
+golang.org/x/crypto v0.0.0-20210513164829-c07d793c2f9a/go.mod h1:P+XmwS30IXTQdn5tA2iutPOUgjI07+tq3H3K9MVA1s8=
 golang.org/x/exp v0.0.0-20190121172915-509febef88a4/go.mod h1:CJ0aWSM057203Lf6IL+f9T1iT9GByDxfZKAQTCR3kQA=
 golang.org/x/lint v0.0.0-20181026193005-c67002cb31c3/go.mod h1:UVdnD1Gm6xHRNCYTkRU2/jEulfH38KcIWyp/GAMgvoE=
 golang.org/x/lint v0.0.0-20190227174305-5b3e6a55c961/go.mod h1:wehouNa3lNwaWXcvxsM5YxQ5yQlVC4a0KAMCusXpPoU=
