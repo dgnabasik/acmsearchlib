@@ -89,7 +89,7 @@ func GetSimplexByNameUserID(userID int, simplexName, simplexType string, useTemp
 	return complexes, err
 }
 
-// GetSimplexListByUserID func gets all of a user's simplices but not the facets.
+// GetSimplexListByUserID func fetches all of a user's simplices but not the facets.
 func GetSimplexListByUserID(userID int, useTempTable bool) ([]hd.SimplexComplex, error) {
 	db, err := dbx.GetDatabaseReference()
 	if err != nil {
@@ -189,14 +189,8 @@ func BulkInsertSimplexFacets(facets []hd.SimplexFacet) error {
 }
 
 // PostSimplexComplex func moves [temp_Simplex] & [temp_Facet] data into [Simplex] & [Facet] tables.
+// Returns temp_Simplex.ID values!
 func PostSimplexComplex(userID int, simplexName, simplexType string, timeInterval nt.TimeInterval) ([]hd.SimplexComplex, error) {
-	db, err := dbx.GetDatabaseReference()
-	if err != nil {
-		return nil, err
-	}
-	defer db.Close()
-
-	// Get temp_Simplex.ID values to pass to function.
 	simplexList, err := GetSimplexByNameUserID(userID, simplexName, simplexType, true) // useTempTable	[]hd.SimplexComplex
 	dbx.CheckErr(err)
 
@@ -211,10 +205,29 @@ func PostSimplexComplex(userID int, simplexName, simplexType string, timeInterva
 		simplexIDs = append(simplexIDs, k)
 	}
 
-	for ndx := range simplexIDs {
-		_, err = db.Exec(context.Background(), "SELECT PostSimplexComplex("+strconv.FormatUint(simplexIDs[ndx], 10)+")")
-		dbx.CheckErr(err)
+	db, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return nil, err
 	}
+	defer db.Close()
+
+	var newSimplexID uint64
+	idList := make([]uint64, 0)
+	for ndx := range simplexIDs { // Use Exec to execute a query that does not return a result set.
+		rows, err := db.Query(context.Background(), "SELECT PostSimplexComplex("+strconv.FormatUint(simplexIDs[ndx], 10)+")")
+		dbx.CheckErr(err)
+
+		for rows.Next() {
+			err = rows.Scan(&newSimplexID)
+			dbx.CheckErr(err)
+			idList = append(idList, newSimplexID)
+		}
+		rows.Close()
+	}
+	//defer rows.Close()
+
+	// Assign new id to returned list: REFACTOR!
+	simplexList[0].ID = idList[0]
 
 	return simplexList, nil
 }
@@ -233,7 +246,7 @@ func GetSimplexWordDifference(complexid1, complexid2 uint64) ([]hd.KeyValueStrin
 	rows, err := db.Query(context.Background(), SELECT)
 	dbx.CheckErr(err)
 	if err != nil {
-		log.Printf("GetSimplexListByUserID(1): %+v\n", err)
+		log.Printf("GetSimplexWordDifference(1): %+v\n", err)
 		return []hd.KeyValueStringPair{}, err
 	}
 	defer rows.Close()
