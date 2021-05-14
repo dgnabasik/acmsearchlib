@@ -188,10 +188,9 @@ func BulkInsertSimplexFacets(facets []hd.SimplexFacet) error {
 	return nil
 }
 
-// PostSimplexComplex func moves [temp_Simplex] & [temp_Facet] data into [Simplex] & [Facet] tables.
-// Returns temp_Simplex.ID values!
-func PostSimplexComplex(userID int, simplexName, simplexType string, timeInterval nt.TimeInterval) ([]hd.SimplexComplex, error) {
-	simplexList, err := GetSimplexByNameUserID(userID, simplexName, simplexType, true) // useTempTable	[]hd.SimplexComplex
+// PostSimplexComplex func moves [temp_Simplex] & [temp_Facet] data into [Simplex] & [Facet] tables. Returns new [Simplex].ID values!
+func PostSimplexComplex(userID int, simplexName, simplexType string, timeInterval nt.TimeInterval) ([]uint64, error) {
+	simplexList, err := GetSimplexByNameUserID(userID, simplexName, simplexType, true) // useTempTable
 	dbx.CheckErr(err)
 
 	// Ensure simplexIDs is called in StartDate order.
@@ -226,10 +225,7 @@ func PostSimplexComplex(userID int, simplexName, simplexType string, timeInterva
 	}
 	//defer rows.Close()
 
-	// Assign new id to returned list: REFACTOR!
-	simplexList[0].ID = idList[0]
-
-	return simplexList, nil
+	return idList, nil
 }
 
 // GetSimplexWordDifference func returns words that are the same, gained, and lost between two SimplexComplex-Facet sets. Format: word|type={S,G,L}
