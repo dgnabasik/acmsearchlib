@@ -230,7 +230,7 @@ func PostSimplexComplex(userID int, simplexName, simplexType string, timeInterva
 
 // GetSimplexWordDifference func returns words that are the same, gained, and lost between two SimplexComplex-Facet sets. Format: word|type={S,G,L}
 // CREATE TABLE acmsearch.Word_type (sourceword character varying(32), wordtype char(1) );
-func GetSimplexWordDifference(complexid1, complexid2 uint64) ([]hd.KeyValueStringPair, error) {
+func GetSimplexWordDifference(complexIdList []uint64) ([]hd.KeyValueStringPair, error) {
 	db, err := dbx.GetDatabaseReference()
 	if err != nil {
 		return nil, err
@@ -238,23 +238,20 @@ func GetSimplexWordDifference(complexid1, complexid2 uint64) ([]hd.KeyValueStrin
 	defer db.Close()
 
 	// PostgreSQL functions invoked with SELECT; stored procs invoked with CALL.
-	SELECT := "SELECT WordDifference(" + strconv.FormatUint(complexid1, 10) + "," + strconv.FormatUint(complexid2, 10) + ")"
-	rows, err := db.Query(context.Background(), SELECT)
-	dbx.CheckErr(err)
-	if err != nil {
-		log.Printf("GetSimplexWordDifference(1): %+v\n", err)
-		return []hd.KeyValueStringPair{}, err
-	}
-	defer rows.Close()
-
 	var str string
 	list := make([]hd.KeyValueStringPair, 0)
-	for rows.Next() {
-		err = rows.Scan(&str) // (stone,G)
+	for ndx := 0; ndx < len(complexIdList)-1; ndx++ {
+		SELECT := "SELECT WordDifference(" + strconv.FormatUint(complexIdList[ndx], 10) + "," + strconv.FormatUint(complexIdList[ndx+1], 10) + ")"
+		rows, err := db.Query(context.Background(), SELECT)
 		dbx.CheckErr(err)
-		index := strings.Index(str, ",")
-		list = append(list, hd.KeyValueStringPair{Key: str[1:index], Value: str[index+1 : index+2]})
+		for rows.Next() {
+			err = rows.Scan(&str) // (stone,G)
+			dbx.CheckErr(err)
+			index := strings.Index(str, ",")
+			list = append(list, hd.KeyValueStringPair{Key: str[1:index], Value: str[index+1 : index+2]})
+		}
+		rows.Close()
 	}
-
+	//defer rows.Close()
 	return list, nil
 }
