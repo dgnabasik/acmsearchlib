@@ -35,14 +35,12 @@ const (
 
 // SearchForString Searching/Filtering: Do not use strings.Contains unless you need exact matching rather than language-correct string searches!
 // Example: start, end := SearchForString('foobar', 'bar')
-//	if start != -1 && end != -1 {    fmt.Println("found at", start, end) }
 func SearchForString(str string, substr string) (int, int) {
 	m := search.New(language.English, search.IgnoreCase)
 	return m.IndexString(str, substr)
 }
 
 // SearchForStringIndex Example: index, found := SearchForStringIndex('foobar', 'bar')
-//	if found { fmt.Println("match starts at", index) }
 func SearchForStringIndex(str string, substr string) (int, bool) {
 	m := search.New(language.English, search.IgnoreCase)
 	start, _ := m.IndexString(str, substr)
@@ -500,7 +498,7 @@ func New_OrderedArticleMap() OrderedArticleMap {
 }
 
 // Iterator method returns the next articleName using closure iterator.
-// Usage: iter := s.Iterator(); for i, ok := iter(); ok; i, ok = iter() { fmt.Println(i) }
+// Usage: iter := s.Iterator(); for i, ok := iter(); ok; i, ok = iter() {  }
 func (om OrderedArticleMap) Iterator() func() (string, bool) {
 	i := -1
 	return func() (string, bool) {

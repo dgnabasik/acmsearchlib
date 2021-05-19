@@ -1,5 +1,5 @@
-github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210511082851-3f963815c6d1 h1:jV/+3CTBVMFA7Ei1GqTGazHk+8XV2FFWeDR+6OZa+zY=
-github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210511082851-3f963815c6d1/go.mod h1:EzXlVSG2YC+za3MbY7Z+9PPf2mX0Tv63MWt78oZz1LU=
+github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210518232259-e15664fc9cb0 h1:OiiMOu1YWCXODLN790UyEpYJZw3CAUp1avau+xKUxr0=
+github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210518232259-e15664fc9cb0/go.mod h1:EzXlVSG2YC+za3MbY7Z+9PPf2mX0Tv63MWt78oZz1LU=
 github.com/golang/protobuf v1.5.0/go.mod h1:FsONVRAS9T7sI+LIUmWTfcYkHO4aIWwzhcaSAoJOfIk=
 github.com/google/go-cmp v0.5.5 h1:Khx7svrCpmxxtHBq5j2mp/xVjsi8hQMfNLvJFAlrGgU=
 github.com/google/go-cmp v0.5.5/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/gNBxE=

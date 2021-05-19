@@ -5,7 +5,7 @@ import (
 	"archive/zip"
 	"bufio"
 	"database/sql"
-	"fmt"
+	"errors"
 	"io"
 	"io/ioutil"
 	"log"
@@ -41,15 +41,17 @@ type TableController struct {
 
 // constants
 const (
-	FileSystemPrefix = "/home/david/"
-	PrefixFilePath   = FileSystemPrefix + "acmFiles/"
-	PrefixProcessed  = FileSystemPrefix + "acm/"
-	PostfixHTML      = ".html"
+	PostfixHTML = ".html"
 )
 
 // Version func
 func Version() string {
 	return "1.16.2"
+}
+
+// GetFilePrefixPath func returns html file location.
+func GetFilePrefixPath() string {
+	return os.Getenv("ACM_FILE_PREFIX")
 }
 
 // ReadDir reads the directory named by dirname and returns a list of FileInfo entries [sorted by filename.]
@@ -74,8 +76,8 @@ func CreateDirectory(dirPath string) error {
 		err = os.Mkdir(dirPath, 0777)
 	}
 	if err != nil {
-		fmt.Print("CreateDirectory(" + dirPath + "): ")
-		fmt.Println(err)
+		str := "filesystem.CreateDirectory(" + dirPath + "): "
+		log.Printf(str+"%s%+v\n", err)
 	}
 	return err
 }
@@ -84,8 +86,8 @@ func CreateDirectory(dirPath string) error {
 func DeleteDirectory(dirPath string) error {
 	err := os.RemoveAll(dirPath)
 	if err != nil {
-		fmt.Print("DeleteDirectory(" + dirPath + "): ")
-		fmt.Println(err)
+		str := "filesystem.DeleteDirectory(" + dirPath + "): "
+		log.Printf(str+"%s%+v\n", err)
 	}
 	return err
 }
@@ -128,8 +130,8 @@ func AddFileToZip(zipWriter *zip.Writer, filename string) error {
 func ZipFiles(pathPrefix string, fileExt string, targetFileName string) error {
 	fileInfo, err := ioutil.ReadDir(pathPrefix)
 	if err != nil {
-		fmt.Print("ZipFiles(" + pathPrefix + "): ")
-		fmt.Println(err)
+		str := "filesystem.ZipFiles(" + pathPrefix + "): "
+		log.Printf(str+"%s%+v\n", err)
 		return err
 	}
 
@@ -142,14 +144,15 @@ func ZipFiles(pathPrefix string, fileExt string, targetFileName string) error {
 	}
 
 	if len(fileList) == 0 {
-		fmt.Println("There are no matching files in " + pathPrefix + "*" + fileExt)
-		return nil
+		err = errors.New("There are no matching files in " + pathPrefix + "*" + fileExt)
+		log.Printf("filesystem.ZipFiles: %+v\n", err)
+		return err
 	}
 
 	newZipFile, err := os.Create(targetFileName)
 	if err != nil {
-		fmt.Print("ZipFiles(" + targetFileName + "): ")
-		fmt.Println(err)
+		str := "filesystem.ZipFiles(" + targetFileName + "): "
+		log.Printf(str+"%s%+v\n", err)
 		return err
 	}
 	defer newZipFile.Close()
@@ -161,8 +164,8 @@ func ZipFiles(pathPrefix string, fileExt string, targetFileName string) error {
 	for _, file := range fileList {
 		err = AddFileToZip(zipWriter, file)
 		if err != nil {
-			fmt.Print("AddFileToZip(" + file + "): ")
-			fmt.Println(err)
+			str := "filesystem.AddFileToZip(" + file + "): "
+			log.Printf(str+"%s%+v\n", err)
 			return err
 		}
 	}
@@ -192,8 +195,7 @@ func ReadFileIntoString(filePath string) (string, error) {
 func ReadTextLines(filePath string, normalizeText bool) ([]string, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
-		fmt.Print("ReadTextLines(): ")
-		fmt.Println(err)
+		log.Printf("filesystem.ReadTextLines: %+v\n", err)
 		return nil, err
 	}
 	defer file.Close()
@@ -224,15 +226,14 @@ func WriteTextLines(lines []string, filePath string, appendData bool) error {
 
 	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-		fmt.Print("WriteTextLines(): ")
-		fmt.Println(err)
+		log.Printf("filesystem.WriteTextLines: %+v\n", err)
 		return err
 	}
 	defer file.Close()
 
 	contents := strings.Join(lines, "\n")
 	if _, err := file.WriteString(contents); err != nil {
-		log.Println(err)
+		log.Printf("filesystem.WriteTextLines: %+v\n", err)
 	}
 
 	return err
@@ -243,7 +244,7 @@ func ReadOccurrenceListFromCsvFile(filePath string) ([]hd.Occurrence, error) {
 	var occurrenceList []hd.Occurrence
 	source, err := ReadTextLines(filePath, true)
 	if err != nil {
-		fmt.Println("Could not open " + filePath)
+		log.Printf("filesystem.ReadOccurrenceListFromCsvFile: %+v\n", err)
 		return occurrenceList, err
 	}
 
@@ -278,7 +279,7 @@ func GetFileList(filePath string, since nt.NullTime) ([]string, error) {
 		if strings.HasSuffix(strings.ToLower(file.Name()), PostfixHTML) {
 			fileTime := GetFileTime(file.Name())
 			if fileTime >= cutoff {
-				files = append(files, fileSort{FileName: PrefixFilePath + file.Name(), FileTime: fileTime})
+				files = append(files, fileSort{FileName: GetFilePrefixPath() + file.Name(), FileTime: fileTime})
 			}
 		}
 	}
@@ -351,7 +352,7 @@ func (fss *FileService) GetTextFile(ctx *gin.Context) {
 	if err != nil {
 		log.Printf("FileService.GetTextFile: %+v\n", err)
 		ctx.JSON(404, gin.H{
-			"message": fmt.Sprintf("FileService.GetTextFile: " + err.Error()),
+			"message": "FileService.GetTextFile: " + err.Error(),
 		})
 		return
 	}

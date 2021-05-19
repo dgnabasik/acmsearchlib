@@ -387,7 +387,7 @@ Number of permutations for 97022 wordgrams is n!/(n-r)! = 9,413,171,462. */
 // CalcConditionalProbability func returns 	wordMap:SELECT Word,Probability FROM vocabulary */
 func CalcConditionalProbability(startingWordgram string, wordMap map[string]float32, timeinterval nt.TimeInterval) (int, error) {
 	if len(wordMap) < 2 {
-		fmt.Println("There must at at least 2 words to compute conditional probabilities.")
+		log.Printf("There must at at least 2 words to compute conditional probabilities.")
 		return 0, nil
 	}
 	permutations := 2
@@ -412,7 +412,6 @@ func CalcConditionalProbability(startingWordgram string, wordMap map[string]floa
 	defer DB1.Close()
 
 	start := time.Now()
-	fmt.Print("CalcConditionalProbability (permutations=" + strconv.Itoa(permutations) + "): ")
 
 	var conditionals []hd.ConditionalProbability
 	var pAgivenB, pBgivenA, pmi float32 // must match function RETURNS TABLE names.

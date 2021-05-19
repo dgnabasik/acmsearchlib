@@ -4,7 +4,6 @@ package vocabulary
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -359,7 +358,7 @@ func BulkInsertVocabulary(recordList []hd.Vocabulary) (int, error) {
 	err = txn.Commit(context.Background())
 	dbx.CheckErr(err)
 	if copyCount == 0 {
-		fmt.Println("BulkInsertVocabulary: no rows inserted")
+		log.Printf("BulkInsertVocabulary: no rows inserted")
 	}
 
 	return len(recordList), nil

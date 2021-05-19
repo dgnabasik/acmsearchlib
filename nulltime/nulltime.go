@@ -7,6 +7,7 @@ package nulltime
 import (
 	"database/sql/driver" // sb driver Value interface
 	"fmt"
+	"log"
 	"sort"
 	"strconv"
 	"strings"
@@ -437,7 +438,7 @@ func New_TimeFrame(timeInterval TimeInterval) TimeFrame {
 	p.StartOfWeek, p.EndOfWeek = GetStartEndOfWeek(p.GivenDate)
 	year, month, _ := p.GivenDate.DT.Date()
 	if year < VeryFirstYear || month < 1 {
-		fmt.Println("New_TimeFrame(): " + p.GivenDate.StandardDate())
+		log.Printf("New_TimeFrame(): " + p.GivenDate.StandardDate())
 	}
 
 	p.StartOfMonth = New_NullTime2(time.Date(year, month, 1, 0, 0, 0, 0, time.UTC))
@@ -497,7 +498,7 @@ func New_NullTime(dt string) NullTime {
 	str := dt + prefixTimeOffset
 	t, err := time.Parse(time.RFC3339, str)
 	if err != nil {
-		fmt.Println(err)
+		log.Printf("filesystem.ReadOccurrenceListFromCsvFile: %+v\n", err)
 	}
 	if t.Year() < VeryFirstYear {
 		t, _ = time.Parse(time.RFC3339, VeryFirstDate)

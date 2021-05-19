@@ -63,7 +63,6 @@ func GetDatabaseConnectionString() string {
 	if connStr == "" {
 		log.Panic("ACM_DATABASE_URL not found in environment variables")
 	}
-	//fmt.Println(" Connected to " + connStr)
 	return connStr
 }
 

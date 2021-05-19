@@ -4,7 +4,6 @@ package basicgraph
 // Every hypergraph may be represented by a bipartite graph.
 import (
 	"context"
-	"fmt"
 	"log"
 	"sort"
 	"strconv"
@@ -179,8 +178,7 @@ func BulkInsertSimplexFacets(facets []hd.SimplexFacet) error {
 
 	dbx.CheckErr(err)
 	if copyCount == 0 {
-		log.Printf("BulkInsertSimplexFacets(1): %+v\n", err)
-		fmt.Println("BulkInsertSimplexFacets: no rows inserted")
+		log.Printf("BulkInsertSimplexFacets: no rows inserted")
 	}
 	err = txn.Commit(context.Background())
 	dbx.CheckErr(err)

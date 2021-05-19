@@ -4,7 +4,6 @@ package wordscore
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"time"
 
@@ -145,7 +144,7 @@ func BulkInsertWordScores(wordScoreList []hd.WordScore) error {
 	)
 	dbx.CheckErr(err)
 	if copyCount == 0 {
-		fmt.Println("BulkInsertWordScores: no rows inserted")
+		log.Printf("BulkInsertWordScores: no rows inserted")
 	}
 	err = txn.Commit(context.Background())
 	dbx.CheckErr(err)

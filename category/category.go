@@ -4,7 +4,7 @@ package category
 
 import (
 	"context"
-	"fmt"
+	"log"
 	"strconv"
 	"time"
 
@@ -43,7 +43,7 @@ func InsertCategoryWords(categoryID uint64, words []string) error {
 
 	dbx.CheckErr(err)
 	if copyCount == 0 {
-		fmt.Println("InsertCategoryWords: no rows inserted")
+		log.Printf("InsertCategoryWords: no rows inserted")
 	}
 	err = txn.Commit(context.Background())
 	dbx.CheckErr(err)
