@@ -26,11 +26,6 @@ import (
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 )
 
-// Version func
-func Version() string {
-	return "1.16.2"
-}
-
 // constants
 const (
 	timeFormat       = "2006-01-02 15:04:05" // RFC3339 format.

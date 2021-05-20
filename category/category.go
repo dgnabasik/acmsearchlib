@@ -15,11 +15,6 @@ import (
 
 /*************************************************************************************/
 
-// Version func
-func Version() string {
-	return "1.16.2"
-}
-
 // InsertCategoryWords func. 32k statement limit.
 func InsertCategoryWords(categoryID uint64, words []string) error {
 	db, err := dbx.GetDatabaseReference()

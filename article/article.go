@@ -16,10 +16,6 @@ import (
 	pgx "github.com/jackc/pgx/v4"
 )
 
-func Version() string {
-	return "1.16.2"
-}
-
 // GetArticleCount func
 func GetArticleCount() (int, error) {
 	db, err := dbx.GetDatabaseReference()

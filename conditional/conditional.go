@@ -28,11 +28,6 @@ const (
 
 // mapset https://github.com/deckarep/golang-set/blob/master/README.md & https://godoc.org/github.com/deckarep/golang-set
 
-// Version func
-func Version() string {
-	return "1.16.2"
-}
-
 func isHexWord(word string) bool {
 	_, err := hex.DecodeString(word)
 	return len(word) >= 10 && err == nil

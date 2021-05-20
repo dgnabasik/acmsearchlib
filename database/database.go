@@ -39,7 +39,7 @@ import (
 
 // Version func
 func Version() string {
-	return "1.16.2"
+	return os.Getenv("ACM_LIBRARY_VERSION")
 }
 
 // DB struct

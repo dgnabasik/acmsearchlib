@@ -44,11 +44,6 @@ const (
 	PostfixHTML = ".html"
 )
 
-// Version func
-func Version() string {
-	return "1.16.2"
-}
-
 // GetFilePrefixPath func returns html file location.
 func GetFilePrefixPath() string {
 	return os.Getenv("ACM_FILE_PREFIX")
