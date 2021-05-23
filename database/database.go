@@ -31,8 +31,7 @@ import (
 	"time"
 
 	nt "github.com/dgnabasik/acmsearchlib/nulltime"
-	// https://pkg.go.dev/github.com/jackc/pgx/v4/pgxpool
-	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/jackc/pgx/v4/pgxpool" // https://pkg.go.dev/github.com/jackc/pgx/v4/pgxpool
 )
 
 // mapset https://github.com/deckarep/golang-set/blob/master/README.md & https://godoc.org/github.com/deckarep/golang-set
@@ -40,11 +39,6 @@ import (
 // Version func
 func Version() string {
 	return os.Getenv("ACM_LIBRARY_VERSION")
-}
-
-// DB struct
-type DB struct {
-	*pgxpool.Pool
 }
 
 // CheckErr database error handler.
@@ -165,7 +159,16 @@ func FormatArrayForStorage(arr []int) []string {
 	return strArr
 }
 
-/* Timestamptz support for pgx driver:
+/**************************************************************************************/
+
+/* type timeWrapper timestamp.Timestamp
+
+// Value implements database/sql/driver.Valuer for timestamp.Timestamp
+func (tw timeWrapper) Value() (driver.Value, error) {
+	return ptypes.Timestamp((*timestamp.Timestamp)(&tw))
+}
+
+// Scan implements database/sql/driver.Scanner for timestamp.Timestamp
 func (tw *timeWrapper) Scan(in interface{}) error {
 	var t pgtype.Timestamptz
 	err := t.Scan(in)
@@ -180,4 +183,22 @@ func (tw *timeWrapper) Scan(in interface{}) error {
 
 	*tw = (timeWrapper)(*tp)
 	return nil
-} */
+}
+
+type durationWrapper duration.Duration
+
+// Value implements database/sql/driver.Valuer for duration.Duration
+func (dw durationWrapper) Value() (driver.Value, error) {
+	d, err := ptypes.Duration((*duration.Duration)(&dw))
+	if err != nil {
+		return nil, err
+	}
+
+	i := pgtype.Interval{
+		Microseconds: int64(d) / 1000,
+		Status:       pgtype.Present,
+	}
+
+	return i.Value()
+}
+*/

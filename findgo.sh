@@ -12,8 +12,6 @@ grep -l $1 ./database/database.go
 grep -l $1 ./filesystem/filesystem.go
 grep -l $1 ./headers/headers.go
 grep -l $1 ./nulltime/nulltime.go
-grep -l $1 ./nulltime/nulltime_test.go
-grep -l $1 ./nulltime/nulltime_test.go
 #grep -l $1 ./timeevent/timeevent.pb.go
 #grep -l $1 ./timeevent/timeevent.micro.go
 #grep -l $1 ./timeevent/timeevent.pb.micro.go
