@@ -170,7 +170,7 @@ func GetOccurrenceListByDate(timeinterval nt.TimeInterval) ([]hd.Occurrence, map
 // By adding val as a parameter to the closure, val is evaluated at each iteration and placed on the stack for the goroutine, so each slice element is available to the goroutine when it is eventually executed.
 // Variables declared within the body of a loop are not shared between iterations, and thus can be used separately in a closure.
 // https://medium.com/@cep21/gos-append-is-not-always-thread-safe-a3034db7975
-// Do not use shared state as the first variable to append.
+// Do not use shared state as the first variable to append.	NOT USED!
 // Explicitly make() a new slice with an extra element's worth of capacity, then copy() the old slice to it, then finally append() or add the new value.
 func CollectWordGrams(wordGrams []string, timeinterval nt.TimeInterval) ([]hd.Occurrence, mapset.Set) {
 	start := time.Now()

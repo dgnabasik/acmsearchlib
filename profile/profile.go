@@ -20,11 +20,6 @@ import (
 
 /*************************************************************************************/
 
-// Version func
-func Version() string {
-	return "1.16.2"
-}
-
 // Encrypt func uses AES symmetric-key.
 func Encrypt(key, data []byte) ([]byte, error) {
 	key, salt, err := DeriveKey(key, nil)

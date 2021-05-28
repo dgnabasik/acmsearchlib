@@ -15,10 +15,7 @@ import (
 	pgx "github.com/jackc/pgx/v4"
 )
 
-// Version func
-func Version() string {
-	return "1.16.2"
-}
+const vocabularySelect = "SELECT id, word, rowcount, frequency, wordrank, probability, speechpart, stem FROM Vocabulary"
 
 // GetVocabularyByWord func
 func GetVocabularyByWord(wordX string) (hd.Vocabulary, error) {
@@ -32,7 +29,7 @@ func GetVocabularyByWord(wordX string) (hd.Vocabulary, error) {
 	var id uint32
 	var rowCount, frequency, wordRank int
 	var probability float32
-	SELECT := "SELECT id, word, rowcount, frequency, wordrank, probability, speechpart, stem FROM Vocabulary WHERE Word='" + wordX + "'"
+	SELECT := vocabularySelect + " WHERE Word='" + wordX + "'"
 	err = db.QueryRow(context.Background(), SELECT).Scan(&id, &word, &rowCount, &frequency, &wordRank, &probability, &speechPart, &stem)
 	dbx.CheckErr(err)
 	return hd.Vocabulary{Id: id, Word: word, RowCount: rowCount, Frequency: frequency, WordRank: wordRank, Probability: probability, SpeechPart: speechPart, Stem: stem}, nil
@@ -47,7 +44,7 @@ func GetVocabularyList(words []string) ([]hd.Vocabulary, error) {
 	defer db.Close()
 
 	inPhrase := dbx.CompileInClause(words)
-	query := "SELECT id, word, rowcount, frequency, wordrank, probability, speechpart, stem FROM vocabulary WHERE word IN " + inPhrase
+	query := vocabularySelect + " WHERE word IN " + inPhrase
 	rows, err := db.Query(context.Background(), query)
 	dbx.CheckErr(err)
 	if err != nil {

@@ -14,9 +14,7 @@ import (
 	pgx "github.com/jackc/pgx/v4"
 )
 
-func Version() string {
-	return "1.16.2"
-}
+const wordscoreSelect = "SELECT id,word,timeframetype,startDate,endDate,density,linkage,growth,score FROM WordScore"
 
 // GetWordScores func returns all wordscores.
 func GetWordScores(word string) ([]hd.WordScore, error) {
@@ -26,7 +24,7 @@ func GetWordScores(word string) ([]hd.WordScore, error) {
 	}
 	defer db.Close()
 
-	SELECT := "SELECT id,word,timeframetype,startDate,endDate,density,linkage,growth,score FROM WordScore WHERE Word='" + word + "' ORDER BY startDate"
+	SELECT := wordscoreSelect = " WHERE Word='" + word + "' ORDER BY startDate"
 	rows, err := db.Query(context.Background(), SELECT)
 	dbx.CheckErr(err)
 	defer rows.Close()
@@ -75,9 +73,7 @@ func GetWordScoreListByTimeInterval(words []string, timeInterval nt.TimeInterval
 	}
 	defer db.Close()
 
-	SELECT := "SELECT id,word,timeframetype,startDate,endDate,density,linkage,growth,score FROM WordScore WHERE word IN" + dbx.CompileInClause(words) +
-		"AND " + dbx.CompileDateClause(timeInterval, true)
-
+	SELECT := wordscoreSelect + " WHERE word IN" + dbx.CompileInClause(words) + "AND " + dbx.CompileDateClause(timeInterval, true)
 	rows, err := db.Query(context.Background(), SELECT)
 	dbx.CheckErr(err)
 	if err != nil {

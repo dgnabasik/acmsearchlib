@@ -2,10 +2,6 @@ package timestampinterval
 
 //pbx "github.com/dgnabasik/acmsearchlib/timestamp"
 
-func Version() string {
-	return "1.16.2"
-}
-
 /* Proto messaging helper functions ************************************************************/
 
 /* GetTimeStampFromUnixTimeStamp func

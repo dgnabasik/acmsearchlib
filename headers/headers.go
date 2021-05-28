@@ -14,7 +14,6 @@ import (
 	"strings"
 	"sync"
 	"time"
-	"unicode/utf8"
 
 	nt "github.com/dgnabasik/acmsearchlib/nulltime"
 
@@ -22,8 +21,9 @@ import (
 	"golang.org/x/text/search"
 )
 
+// Version func  This is the only place.
 func Version() string {
-	return "1.16.2"
+	return "1.16.4"
 }
 
 // constants
@@ -315,22 +315,6 @@ func GetVocabularyItemIndex(word string, vocabList []Vocabulary) int {
 
 /*************************************************************************************************/
 
-// ReplaceUnicodeCharacters func
-func ReplaceUnicodeCharacters(line string) string {
-	//const accent1 = "\xe9\x67\xe9"	// é
-	//const accent2 = "\xe8\x6d\x65"	// è
-	result := line
-	if !utf8.ValidString(result) {
-		bstr := []byte(result)
-		for index, b := range bstr {
-			if b == '\xe9' || b == '\xe8' {
-				result = result[:index] + "e" + result[index+1:]
-			}
-		}
-	}
-	return result
-}
-
 // ReplaceSpecialCharacters for database storage. See https://www.starr.net/is/type/htmlcodes.html
 func ReplaceSpecialCharacters(line string) string {
 	r := strings.NewReplacer(
@@ -515,7 +499,6 @@ func (om OrderedArticleMap) FormatTitle(line string) string {
 	result := ReplaceProtected(line)
 	result = strings.ReplaceAll(result, "\"", "")
 	result = strings.ReplaceAll(result, "%", " Percent")
-	result = ReplaceUnicodeCharacters(result)
 	result = ReplaceSpecialCharacters(result)
 	return result
 }
