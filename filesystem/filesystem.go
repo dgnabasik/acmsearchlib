@@ -260,7 +260,7 @@ type fileSort struct {
 	FileTime int64
 }
 
-// GetFileList returns []string of file pathnames ordered by logical datetime.
+// GetFileList returns []string of file pathnames ordered by logical datetime. Built for ~/acmFiles.
 func GetFileList(filePath string, since nt.NullTime) ([]string, error) {
 	var files []fileSort
 	var fileList []string
@@ -291,7 +291,7 @@ func GetFileList(filePath string, since nt.NullTime) ([]string, error) {
 	return fileList, nil
 }
 
-// GetMostRecentFileAsNullTime reads a directory and return the most recent (valid) file as a NullTime.
+// GetMostRecentFileAsNullTime reads a directory and return the most recent (valid) file as a NullTime. Built for ~/acmFiles.
 func GetMostRecentFileAsNullTime(dirname string) (nt.NullTime, error) {
 	f, err := os.Open(dirname)
 	if err != nil {

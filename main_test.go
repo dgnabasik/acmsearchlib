@@ -1,5 +1,6 @@
 package acmsearchlib
 
+// All not-test files init() functions are executed first, then all test files init() functions are executed (hopefully in lexical order).
 // go test -v.
 import (
 	"fmt"
@@ -7,6 +8,9 @@ import (
 	"testing"
 	"time"
 
+	art "github.com/dgnabasik/acmsearchlib/article"
+	dbx "github.com/dgnabasik/acmsearchlib/database"
+	fs "github.com/dgnabasik/acmsearchlib/filesystem"
 	hd "github.com/dgnabasik/acmsearchlib/headers"
 	nt "github.com/dgnabasik/acmsearchlib/nulltime"
 	voc "github.com/dgnabasik/acmsearchlib/vocabulary"
@@ -15,28 +19,6 @@ import (
 const (
 	SEP = "|"
 )
-
-/*func TestIntMinTableDriven(t *testing.T) {
-    var tests = []struct {
-        a, b int
-        want int
-    }{
-        {0, 1, 0},
-        {1, 0, 0},
-        {2, -2, -2},
-        {0, -1, -1},
-        {-1, 0, -1},
-    }
-    for _, tt := range tests {
-        testname := fmt.Sprintf("%d,%d", tt.a, tt.b)
-        t.Run(testname, func(t *testing.T) {  // t.Run enables running “subtests”, one for each table entry.
-            ans := IntMin(tt.a, tt.b)
-            if ans != tt.want {
-                t.Errorf("got %d, want %d", ans, tt.want)	// t.Fatal
-            }
-        })
-    }
-} */
 
 /* nulltime ************************************************************************************/
 
@@ -130,8 +112,6 @@ func Test_nulltime(t *testing.T) {
 	if year != 0 || month != 0 || day != 6 || hour != 0 || min != 0 || sec != 0 {
 		t.Error("a19: Expected 6 days diff.")
 	}
-
-	// fmt.Printf("%d %d %d %d %d %d\n", year, month, day, hour, min, sec)
 
 	ntx := nt.NullTimeToday()
 	dateSet := make([]nt.NullTime, 0)
@@ -374,7 +354,7 @@ func Test_headers(t *testing.T) {
 		WebReference:  "webreference",
 		Summary:       "summary",
 	}
-	//aa.Print()
+
 	mAA_SS, mAA_IS := aa.GetKeyValuePairs()
 	if len(mAA_SS) != len(mAA_IS) {
 		t.Error("b10: bad StringSetDifference")
@@ -400,172 +380,241 @@ func Test_headers(t *testing.T) {
 	word := "tübingen"
 	ndx1 := hd.GetVocabularyItem(word, vocabList)
 	ndx2 := hd.GetVocabularyItemIndex(word, vocabList)
-	fmt.Println(ndx1)
-	fmt.Println(ndx2)
 	if ndx1 != ndx2 {
 		t.Error("b14: bad GetVocabularyItemIndex")
 	}
 
-	fmt.Println()
-	/*<<<<
-	func New_OrderedArticleMap() OrderedArticleMap {
-	func (om OrderedArticleMap) Iterator() func() (string, bool) {
-	func (om OrderedArticleMap) FormatTitle(line string) string {
-	func (om *OrderedArticleMap) Add(href string, title string) {
-	func (om OrderedArticleMap) Get(key string) string {
-	func (om OrderedArticleMap) PrintMap() {
-	*/
+	oaMap := hd.New_OrderedArticleMap()
+	key := oaMap.FormatTitle(hd.HREF + "New Title")
+	oaMap.Add(key, "New Title")
+	title := oaMap.Get(key)
+	if title != "New Title" {
+		t.Error("b15: bad New_OrderedArticleMap")
+	}
 }
 
 /* database ************************************************************************************/
-/*func CheckErr(err error) {
-func GetDatabaseConnectionString() string {
-func GetDatabaseReference() (*pgxpool.Pool, error) {
-func TestDbConnection(db *pgxpool.Pool) (*pgxpool.Pool, error) {
-func NoRowsReturned(err error) bool {
-func CompileInClause(words []string) string {
-func GetFormattedDatesForProcedure(timeInterval nt.TimeInterval) string {
-func GetWhereClause(columnName string, wordGrams []string) string {
-func GetSingleDateWhereClause(columnName string, timeInterval nt.TimeInterval) string {
-func CompileDateClause(timeInterval nt.TimeInterval, useTimeframetype bool) string {
-func FormatArrayForStorage(arr []int) []string {
-func (tw *timeWrapper) Scan(in interface{}) error {
-*/
 
-// All not-test files init() functions are executed first, then all test files init() functions are executed (hopefully in lexical order).
+// Test_database func
+func Test_database(t *testing.T) {
+	str := dbx.GetDatabaseConnectionString() // displays connection.
+	if len(str) < 1 {
+		t.Error("c1:Expected connection string got ", str)
+	}
+
+	str = dbx.Version()
+	if len(str) < 1 {
+		t.Error("c2:Expected version got ", str)
+	}
+
+	db, err := dbx.GetDatabaseReference()
+	dbx.CheckErr(err)
+	b := dbx.NoRowsReturned(err)
+	db.Close()
+	if b {
+		t.Error("c3:Expected false got ", b)
+	}
+
+	words := []string{"3d", "access", "able"}
+	str = dbx.CompileInClause(words)
+	if len(str) < 1 {
+		t.Error("c4:bad CompileInClause ")
+	}
+
+	startDate := nt.New_NullTime("2020-01-01")
+	endDate := nt.New_NullTime("2020-12-31")
+	timeInterval := nt.New_TimeInterval(nt.TFYear, startDate, endDate)
+
+	str = dbx.GetFormattedDatesForProcedure(timeInterval)
+	if len(str) < 1 {
+		t.Error("c5:bad GetFormattedDatesForProcedure")
+	}
+
+	columnName := "columnName"
+	str = dbx.GetWhereClause(columnName, words)
+	if len(str) < 1 {
+		t.Error("c6:bad GetWhereClause")
+	}
+
+	str = dbx.GetSingleDateWhereClause(columnName, timeInterval)
+	if len(str) < 1 {
+		t.Error("c7:bad GetSingleDateWhereClause")
+	}
+
+	str = dbx.CompileDateClause(timeInterval, true)
+	if len(str) < 1 {
+		t.Error("c8a:bad CompileDateClause")
+	}
+
+	str = dbx.CompileDateClause(timeInterval, true)
+	if len(str) < 1 {
+		t.Error("c8a:bad CompileDateClause")
+	}
+
+	arr := []int{1, 2, 3}
+	intSlice := dbx.FormatArrayForStorage(arr)
+	if len(intSlice) < 1 {
+		t.Error("c9:bad FormatArrayForStorage")
+	}
+}
+
+// Test_filesystem func
+func Test_filesystem(t *testing.T) {
+	prefix := fs.GetFilePrefixPath()
+	if len(prefix) < 1 {
+		t.Error("d1:bad GetFilePrefixPath")
+	}
+
+	fileInfo, err := fs.ReadDir(prefix + "Documents")
+	if err != nil {
+		t.Error("d2a: bad ReadDir")
+	}
+	if len(fileInfo) < 1 {
+		t.Error("d2b:bad ReadDir")
+	}
+
+	dirPath := prefix + "test"
+	err = fs.CreateDirectory(dirPath)
+	if err != nil {
+		t.Error("d3: bad CreateDirectory")
+	}
+
+	err = fs.DeleteDirectory(dirPath)
+	if err != nil {
+		t.Error("d4: bad DeleteDirectory")
+	}
+
+	filePath := prefix + "Documents/The viral universe.txt"
+	found, err := fs.FileExists(filePath)
+	if err != nil {
+		t.Error("d5a: bad FileExists")
+	}
+	if !found {
+		t.Error("d5b: bad FileExists")
+	}
+
+	dirPath, err = fs.ReadFileIntoString(filePath)
+	if err != nil {
+		t.Error("d6a: bad ReadFileIntoString")
+	}
+	if len(dirPath) < 10 {
+		t.Error("d6b: bad ReadFileIntoString")
+	}
+
+	lines, err := fs.ReadTextLines(filePath, false)
+	if err != nil {
+		t.Error("d7a: bad ReadTextLines")
+	}
+	if len(lines) < 1 {
+		t.Error("d7b: bad ReadTextLines")
+	}
+
+	err = fs.WriteTextLines(lines, filePath, false)
+	if err != nil {
+		t.Error("d8a: bad WriteTextLines")
+	}
+	if len(lines) < 1 {
+		t.Error("d8b: bad WriteTextLines")
+	}
+
+	dirname := prefix + "acmFiles/" // searches only *.html files (e.g., ../acmFiles)
+	since := nt.New_NullTime("2020-01-01")
+	lines, err = fs.GetFileList(dirname, since)
+	if err != nil {
+		t.Error("d9a: bad GetFileList")
+	}
+	if len(lines) < 1 {
+		t.Error("d9b: bad GetFileList")
+	}
+
+	since, err = fs.GetMostRecentFileAsNullTime(dirname)
+	if err != nil {
+		t.Error("d10a: bad GetMostRecentFileAsNullTime")
+	}
+	if len(lines) < 1 {
+		t.Error("d10b: bad GetMostRecentFileAsNullTime")
+	}
+
+	fileName := dirname + "apr-14-2021.html"
+	i64 := fs.GetFileTime(fileName)
+	if i64 < 1 {
+		t.Error("d11: bad GetFileTime")
+	}
+
+	dirPath = fs.GetSourceDirectory()
+	if len(dirPath) < 1 {
+		t.Error("d12: bad GetSourceDirectory")
+	}
+
+	//func AddFileToZip(zipWriter *zip.Writer, filename string) error {
+	//func ZipFiles(pathPrefix string, fileExt string, targetFileName string) error {
+	//func ReadOccurrenceListFromCsvFile(filePath string) ([]hd.Occurrence, error) {
+	//func (fss *FileService) GetTextFile(ctx *gin.Context) {
+}
+
 /* article ************************************************************************************/
 
-/*
-article/article.go:func GetArticleCount() (int, error) {
-article/article.go:func GetLastDateSavedFromDb() (nt.NullTime, nt.NullTime, error) {
-article/article.go:func CallUpdateOccurrence(timeinterval nt.TimeInterval) error {
-article/article.go:func CallUpdateTitle(timeinterval nt.TimeInterval) error {
-article/article.go:func GetAcmArticleListByArchiveDates(dateList []string) ([]hd.AcmArticle, error) {
-article/article.go:func GetAcmArticleListByDate(timeinterval nt.TimeInterval) ([]hd.AcmArticle, error) {
-article/article.go:func GetAcmArticlesByID(idMap map[uint32]int, cutoff int) ([]hd.AcmArticle, error) {
-article/article.go:func WordFrequencyList() ([]hd.Vocabulary, error) {
-article/article.go:func BulkInsertAcmData(articleList []hd.AcmArticle) (int, error) {
-
-func getTableNames(useTempTable bool) []string {
-func GetSimplexByNameUserID(userID int, simplexName, simplexType string, useTempTable bool) ([]hd.SimplexComplex, error) {
-func GetSimplexListByUserID(userID int, useTempTable bool) ([]hd.SimplexComplex, error) {
-func InsertSimplexComplex(sc hd.SimplexComplex) (hd.SimplexComplex, error) {
-func BulkInsertSimplexFacets(facets []hd.SimplexFacet) error {
-func PostSimplexComplex(userID int, simplexName, simplexType string, timeInterval nt.TimeInterval) ([]uint64, error) {
-func GetSimplexWordDifference(complexIdList []uint64) ([]hd.KeyValueStringPair, error) {
-func InsertCategoryWords(categoryID uint64, words []string) error {
-func InsertWordCategory(description string) (hd.CategoryTable, error) {
-func GetSpecialMap(category int) ([]hd.SpecialTable, error) {
-func GetCategoryMap() ([]hd.CategoryTable, error) {
-
-/* Conditional ************************************************************************************/
-/*
-// Test_FilteringRules func
-func Test_FilteringRules(t *testing.T) { // (word string) (string, int)
-	incorrect := false
-	if incorrect {
-		t.Error("Expected 0, got ", 0)
+// Test_article func
+func Test_article(t *testing.T) {
+	count, err := art.GetArticleCount()
+	if err != nil {
+		t.Error("e1a: bad GetArticleCount")
 	}
+	if count < 1 {
+		t.Error("e1b: bad GetArticleCount")
+	}
+
+	earliestArchiveDate, latestArchiveDate, err := art.GetLastDateSavedFromDb()
+	if err != nil {
+		t.Error("e2a: bad GetLastDateSavedFromDb")
+	}
+	if earliestArchiveDate == latestArchiveDate {
+		t.Error("e2b: bad GetLastDateSavedFromDb")
+	}
+
+	/*vocabList, err := art.WordFrequencyList()
+	if err != nil {
+		t.Error("e3a: bad WordFrequencyList")
+	}
+	if len(vocabList) < 90000 {
+		t.Error("e3b: bad WordFrequencyList")
+	}*/
+
+	dateList := []string{"2021-04-14"}
+	articleList, err := art.GetAcmArticleListByArchiveDates(dateList)
+	if err != nil {
+		t.Error("e4a: bad GetAcmArticleListByArchiveDates")
+	}
+	if len(articleList) < 1 {
+		t.Error("e4b: bad GetAcmArticleListByArchiveDates")
+	}
+	count = len(articleList)
+	fmt.Println(count)
+
+	testDate := nt.New_NullTime(dateList[0])
+	timeinterval := nt.New_TimeInterval(nt.TFYear, testDate, testDate)
+	articleList, err = art.GetAcmArticleListByDate(timeinterval)
+	if err != nil {
+		t.Error("e5a: bad GetAcmArticleListByDate")
+	}
+	if len(articleList) < 1 {
+		t.Error("e5b: bad GetAcmArticleListByDate")
+	}
+	fmt.Println(len(articleList))
+
+	fmt.Print("    ")
 }
 
-// Test_SelectOccurrenceByDate func
-func Test_SelectOccurrenceByDate(t *testing.T) { // (occurrenceList []hd.Occurrence, timeinterval nt.TimeInterval) []hd.Occurrence
-	incorrect := false
-	if incorrect {
-		t.Error("Expected 0, got ", 0)
-	}
-}
+/* <<<<
+//GetAcmArticlesByID(idMap map[uint32]int, cutoff int) ([]hd.AcmArticle, error) {
+CallUpdateOccurrence(timeinterval nt.TimeInterval) error {
+CallUpdateTitle(timeinterval nt.TimeInterval) error {
+BulkInsertAcmData(articleList []hd.AcmArticle) (int, error) {
+*/
 
-// Test_SelectOccurrenceByID func
-func Test_SelectOccurrenceByID(t *testing.T) { // (occurrenceList []hd.Occurrence, acmID uint32) []hd.Occurrence
-	incorrect := false
-	if incorrect {
-		t.Error("Expected 0, got ", 0)
-	}
-}
+/* conditional ************************************************************************************/
 
-// Test_SelectOccurrenceByWord func
-func Test_SelectOccurrenceByWord(t *testing.T) { // (occurrenceList []hd.Occurrence, word string) []hd.Occurrence
-	incorrect := false
-	if incorrect {
-		t.Error("Expected 0, got ", 0)
-	}
-}
-
-// Test_GetOccurrenceListByDate func
-func Test_GetOccurrenceListByDate(t *testing.T) { // (timeinterval nt.TimeInterval) ([]hd.Occurrence, mapset.Set, error)
-	incorrect := false
-	if incorrect {
-		t.Error("Expected 0, got ", 0)
-	}
-}
-
-// Test_CollectWordGrams func
-func Test_CollectWordGrams(t *testing.T) { // (wordGrams []string, timeinterval nt.TimeInterval) ([]hd.Occurrence, mapset.Set)
-	incorrect := false
-	if incorrect {
-		t.Error("Expected 0, got ", 0)
-	}
-}
-
-// Test_GetOccurrencesByAcmid func
-func Test_GetOccurrencesByAcmid(t *testing.T) { // (xacmid uint32) ([]hd.Occurrence, error)
-	incorrect := false
-	if incorrect {
-		t.Error("Expected 0, got ", 0)
-	}
-}
-
-// Test_WordGramSubset func
-func Test_WordGramSubset(t *testing.T) { // (alphaWord string, vocabList []hd.Vocabulary, occurrenceList []hd.Occurrence) []string
-	incorrect := false
-	if incorrect {
-		t.Error("Expected 0, got ", 0)
-	}
-}
-
-// Test_GetDistinctDates func
-func Test_GetDistinctDates(t *testing.T) { // (occurrenceList []hd.Occurrence) []nt.NullTime
-	incorrect := false
-	if incorrect {
-		t.Error("Expected 0, got ", 0)
-	}
-}
-
-// Test_GetDistinctWords func
-func Test_GetDistinctWords(t *testing.T) { // (occurrenceList []hd.Occurrence) []string
-	incorrect := false
-	if incorrect {
-		t.Error("Expected 0, got ", 0)
-	}
-}
-
-// Test_BulkInsertConditionalProbability func
-func Test_BulkInsertConditionalProbability(t *testing.T) { // (conditionals []hd.ConditionalProbability) error
-	incorrect := false
-	if incorrect {
-		t.Error("Expected 0, got ", 0)
-	}
-}
-
-// Test_ExtractKeysFromProbabilityMap func
-func Test_ExtractKeysFromProbabilityMap(t *testing.T) { // (wordMap map[string]float32) []string
-	incorrect := false
-	if incorrect {
-		t.Error("Expected 0, got ", 0)
-	}
-}
-
-// Test_CalcConditionalProbability func
-func Test_CalcConditionalProbability(t *testing.T) { // (startingWordgram string, wordMap map[string]float32, timeinterval nt.TimeInterval) (int, error)
-	incorrect := false
-	if incorrect {
-		t.Error("Expected 0, got ", 0)
-	}
-}
-
-<<< Test_GetConditionalByTimeInterval func
-func Test_GetConditionalByTimeInterval(t *testing.T) { // (bigrams []string, timeInterval nt.TimeInterval, bigramMap map[string]bool, includeTimeframetype bool) error
+/*func Test_GetConditionalByTimeInterval(t *testing.T) { // (bigrams []string, timeInterval nt.TimeInterval, bigramMap map[string]bool, includeTimeframetype bool) error
 	words := []string{"3d", "able", "access"}
 	permutations := getWordBigramPermutations(words, true) // permute=true
 	fmt.Print("    ")
@@ -584,96 +633,53 @@ func Test_GetConditionalByTimeInterval(t *testing.T) { // (bigrams []string, tim
 		fmt.Print(c.WordList + "  ")
 	}
 	fmt.Println()
+} */
+
+// Test_conditional func
+func Test_conditional(t *testing.T) {
+
 }
 
-// Test_GetConditionalByProbability func
-func Test_GetConditionalByProbability(t *testing.T) { // (word string, probabilityCutoff float32, timeInterval nt.TimeInterval, condProbList *[]hd.ConditionalProbability) error
-	incorrect := false
-	if incorrect {
-		t.Error("Expected 0, got ", 0)
-	}
-}
+/*
+ isHexWord(word string) bool {
+ FilteringRules(word string) (string, int) {
+ SelectOccurrenceByDate(occurrenceList []hd.Occurrence, timeinterval nt.TimeInterval) []hd.Occurrence {
+ SelectOccurrenceByID(occurrenceList []hd.Occurrence, acmID uint32) []hd.Occurrence {
+ SelectOccurrenceByWord(occurrenceList []hd.Occurrence, word string) []hd.Occurrence {
+ GetOccurrenceListByDate(timeinterval nt.TimeInterval) ([]hd.Occurrence, mapset.Set, error) {
+ CollectWordGrams(wordGrams []string, timeinterval nt.TimeInterval) ([]hd.Occurrence, mapset.Set) {
+ GetOccurrencesByAcmid(xacmid uint32) ([]hd.Occurrence, error) {
+ WordGramSubset(alphaWord string, vocabList []hd.Vocabulary, occurrenceList []hd.Occurrence) []string {
+ GetDistinctDates(occurrenceList []hd.Occurrence) []nt.NullTime {
+ GetDistinctWords(occurrenceList []hd.Occurrence) []string {
+ BulkInsertConditionalProbability(conditionals []hd.ConditionalProbability) error {
+ ExtractKeysFromProbabilityMap(wordMap map[string]float32) []string {
+ CalcConditionalProbability(startingWordgram string, wordMap map[string]float32, timeinterval nt.TimeInterval) (int, error) {
+ GetConditionalByTimeInterval(bigrams []string, timeInterval nt.TimeInterval, bigramMap map[string]bool, includeTimeframetype bool) ([]hd.ConditionalProbability, error) {
+ GetConditionalByProbability(word string, probabilityCutoff float32, timeInterval nt.TimeInterval, condProbList *[]hd.ConditionalProbability) error {
+ GetWordBigramPermutations(words []string, permute bool) []string {
+ GetConditionalList(words []string, timeInterval nt.TimeInterval, permute bool) ([]hd.ConditionalProbability, error) {
+ GetExistingConditionalBigrams(bigrams []string, intervalClause string) ([]string, error) {
+ GetProbabilityGraph(words []string, timeInterval nt.TimeInterval) ([]hd.ConditionalProbability, error) {
+ GetWordgramConditionalsByInterval(words []string, timeInterval nt.TimeInterval, dimensions int) ([]hd.WordScoreConditionalFlat, error) {
+*/
+/* simplex ************************************************************************************/
+/*
+func getTableNames(useTempTable bool) []string {
+func GetSimplexByNameUserID(userID int, simplexName, simplexType string, useTempTable bool) ([]hd.SimplexComplex, error) {
+func GetSimplexListByUserID(userID int, useTempTable bool) ([]hd.SimplexComplex, error) {
+func InsertSimplexComplex(sc hd.SimplexComplex) (hd.SimplexComplex, error) {
+func BulkInsertSimplexFacets(facets []hd.SimplexFacet) error {
+func PostSimplexComplex(userID int, simplexName, simplexType string, timeInterval nt.TimeInterval) ([]uint64, error) {
+func GetSimplexWordDifference(complexIdList []uint64) ([]hd.KeyValueStringPair, error) {
+func InsertCategoryWords(categoryID uint64, words []string) error {
+func InsertWordCategory(description string) (hd.CategoryTable, error) {
+func GetSpecialMap(category int) ([]hd.SpecialTable, error) {
+func GetCategoryMap() ([]hd.CategoryTable, error) {
+*/
 
-// Test_GetWordBigramPermutations func
-func Test_GetWordBigramPermutations(t *testing.T) { // (words []string, permute bool) []string
-	incorrect := false
-	if incorrect {
-		t.Error("Expected 0, got ", 0)
-	}
-}
-
-// Test_GetConditionalList func
-func Test_GetConditionalList(t *testing.T) { // (words []string, timeInterval nt.TimeInterval, permute bool) ([]hd.ConditionalProbability, error)
-	incorrect := false
-	if incorrect {
-		t.Error("Expected 0, got ", 0)
-	}
-}
-
-// Test_GetExistingConditionalBigrams func
-func Test_GetExistingConditionalBigrams(t *testing.T) { // (bigrams []string, intervalClause string) ([]string, error)
-	incorrect := false
-	if incorrect {
-		t.Error("Expected 0, got ", 0)
-	}
-}
-
-// Test_GetProbabilityGraph func
-func Test_GetProbabilityGraph(t *testing.T) { // (words []string, timeInterval nt.TimeInterval) ([]hd.ConditionalProbability, error)
-	incorrect := false
-	if incorrect {
-		t.Error("Expected 0, got ", 0)
-	}
-}
-
-// Test_GetWordgramConditionalsByInterval func
-func Test_GetWordgramConditionalsByInterval(t *testing.T) { // (words []string, timeInterval nt.TimeInterval) ([]hd.WordScoreConditionalFlat, error)
-	incorrect := false
-	if incorrect {
-		t.Error("Expected 0, got ", 0)
-	}
-}
-
-conditional/conditional.go:func isHexWord(word string) bool {
-conditional/conditional.go:func FilteringRules(word string) (string, int) {
-conditional/conditional.go:func SelectOccurrenceByDate(occurrenceList []hd.Occurrence, timeinterval nt.TimeInterval) []hd.Occurrence {
-conditional/conditional.go:func SelectOccurrenceByID(occurrenceList []hd.Occurrence, acmID uint32) []hd.Occurrence {
-conditional/conditional.go:func SelectOccurrenceByWord(occurrenceList []hd.Occurrence, word string) []hd.Occurrence {
-conditional/conditional.go:func GetOccurrenceListByDate(timeinterval nt.TimeInterval) ([]hd.Occurrence, mapset.Set, error) {
-conditional/conditional.go:func CollectWordGrams(wordGrams []string, timeinterval nt.TimeInterval) ([]hd.Occurrence, mapset.Set) {
-conditional/conditional.go:func GetOccurrencesByAcmid(xacmid uint32) ([]hd.Occurrence, error) {
-conditional/conditional.go:func WordGramSubset(alphaWord string, vocabList []hd.Vocabulary, occurrenceList []hd.Occurrence) []string {
-conditional/conditional.go:func GetDistinctDates(occurrenceList []hd.Occurrence) []nt.NullTime {
-conditional/conditional.go:func GetDistinctWords(occurrenceList []hd.Occurrence) []string {
-conditional/conditional.go:func BulkInsertConditionalProbability(conditionals []hd.ConditionalProbability) error {
-conditional/conditional.go:func ExtractKeysFromProbabilityMap(wordMap map[string]float32) []string {
-conditional/conditional.go:func CalcConditionalProbability(startingWordgram string, wordMap map[string]float32, timeinterval nt.TimeInterval) (int, error) {
-conditional/conditional.go:func GetConditionalByTimeInterval(bigrams []string, timeInterval nt.TimeInterval, bigramMap map[string]bool, includeTimeframetype bool) ([]hd.ConditionalProbability, error) {
-conditional/conditional.go:func GetConditionalByProbability(word string, probabilityCutoff float32, timeInterval nt.TimeInterval, condProbList *[]hd.ConditionalProbability) error {
-conditional/conditional.go:func GetWordBigramPermutations(words []string, permute bool) []string {
-conditional/conditional.go:func GetConditionalList(words []string, timeInterval nt.TimeInterval, permute bool) ([]hd.ConditionalProbability, error) {
-conditional/conditional.go:func GetExistingConditionalBigrams(bigrams []string, intervalClause string) ([]string, error) {
-conditional/conditional.go:func GetProbabilityGraph(words []string, timeInterval nt.TimeInterval) ([]hd.ConditionalProbability, error) {
-conditional/conditional.go:func GetWordgramConditionalsByInterval(words []string, timeInterval nt.TimeInterval, dimensions int) ([]hd.WordScoreConditionalFlat, error) {
-
-	func GetFilePrefixPath() string {
-	func ReadDir(dirname string) ([]os.FileInfo, error) {
-	func CreateDirectory(dirPath string) error {
-	func DeleteDirectory(dirPath string) error {
-	func AddFileToZip(zipWriter *zip.Writer, filename string) error {
-	func ZipFiles(pathPrefix string, fileExt string, targetFileName string) error {
-	func FileExists(filePath string) (bool, error) {
-	func ReadFileIntoString(filePath string) (string, error) {
-	func ReadTextLines(filePath string, normalizeText bool) ([]string, error) {
-	func WriteTextLines(lines []string, filePath string, appendData bool) error {
-	func ReadOccurrenceListFromCsvFile(filePath string) ([]hd.Occurrence, error) {
-	func GetFileList(filePath string, since nt.NullTime) ([]string, error) {
-	func GetMostRecentFileAsNullTime(dirname string) (nt.NullTime, error) {
-	func GetFileTime(fileName string) int64 {
-	func GetSourceDirectory() string {
-	func (fss *FileService) GetTextFile(ctx *gin.Context) {
-
-profile.go::
+/* profile ************************************************************************************/
+/*
 	func Encrypt(key, data []byte) ([]byte, error) {
 	func Decrypt(key, data []byte) ([]byte, error) {
 	func GenerateKey() ([]byte, error) {
@@ -682,11 +688,6 @@ profile.go::
 	func DecryptData(password string, ciphertext []byte) (string, error) {
 	func GetUserProfile(userName, pwdText string) (hd.UserProfile, error) {
 	func InsertUserProfile(userName, userEmail, pwdText string, acmmemberid int) (hd.UserProfile, error) {
-
-	timestampinterval/timestampinterval.go:func GetTimeStampFromUnixTimeStamp(uts nt.UnixTimeStamp) *timestamp.Timestamp {
-	timestampinterval/timestampinterval.go:func NewTimeEventRequest(topic string, pbtft MTimeStampInterval_MTimeFrameType) *TimeEventRequest {
-	timestampinterval/timestampinterval.go:func NewTimeEventResponse() *TimeEventResponse {
-	timestampinterval/timestampinterval.go:func NewTimeStampInterval(timeframetype MTimeStampInterval_MTimeFrameType, startTime nt.UnixTimeStamp, endTime nt.UnixTimeStamp) *MTimeStampInterval {
 
 	func GetVocabularyByWord(wordX string) (hd.Vocabulary, error) {
 	func GetVocabularyList(words []string) ([]hd.Vocabulary, error) {
@@ -704,44 +705,4 @@ profile.go::
 	wordscore/wordscore.go:func GetWordScores(word string) ([]hd.WordScore, error) {
 	wordscore/wordscore.go:func GetWordScoreListByTimeInterval(words []string, timeInterval nt.TimeInterval) ([]hd.WordScore, error) {
 	wordscore/wordscore.go:func BulkInsertWordScores(wordScoreList []hd.WordScore) error {
-
-*/
-/*************************************************************************************/
-/*
-	conditional/condprob.pb.micro.go:func NewConditionalProbabilityEndpoints() []*api.Endpoint {
-	conditional/condprob.pb.micro.go:func NewConditionalProbabilityService(name string, c client.Client) ConditionalProbabilityService {
-	conditional/condprob.pb.micro.go:func (c *conditionalProbabilityService) CalcConditionalProbability(ctx context.Context, in *ConditionalProbabilityRequest, opts ...client.CallOption) (*ConditionalProbabilityResponse, error) {
-	conditional/condprob.pb.micro.go:func RegisterConditionalProbabilityHandler(s server.Server, hdlr ConditionalProbabilityHandler, opts ...server.HandlerOption) error {
-	conditional/condprob.pb.micro.go:func (h *conditionalProbabilityHandler) CalcConditionalProbability(ctx context.Context, in *ConditionalProbabilityRequest, out *ConditionalProbabilityResponse) error {
-
-	timeevent/timeevent.micro.go:func NewTimeEventService(name string, c client.Client) TimeEventService {
-	timeevent/timeevent.micro.go:func (c *timeEventService) CreateDay(ctx context.Context, in *TimeEventRequest, opts ...client.CallOption) (*TimeEventResponse, error) {
-	timeevent/timeevent.micro.go:func (c *timeEventService) CreateWeek(ctx context.Context, in *TimeEventRequest, opts ...client.CallOption) (*TimeEventResponse, error) {
-	timeevent/timeevent.micro.go:func (c *timeEventService) CreateMonth(ctx context.Context, in *TimeEventRequest, opts ...client.CallOption) (*TimeEventResponse, error) {
-	timeevent/timeevent.micro.go:func (c *timeEventService) CreateQuarter(ctx context.Context, in *TimeEventRequest, opts ...client.CallOption) (*TimeEventResponse, error) {
-	timeevent/timeevent.micro.go:func (c *timeEventService) CreateYear(ctx context.Context, in *TimeEventRequest, opts ...client.CallOption) (*TimeEventResponse, error) {
-	timeevent/timeevent.micro.go:func (c *timeEventService) CreateSpan(ctx context.Context, in *TimeEventRequest, opts ...client.CallOption) (*TimeEventResponse, error) {
-	timeevent/timeevent.micro.go:func (c *timeEventService) RecordEvent(ctx context.Context, in *TimeEventRequest, opts ...client.CallOption) (*TimeEventResponse, error) {
-	timeevent/timeevent.micro.go:func (c *timeEventService) GetTimeEvents(ctx context.Context, in *GetTimeEventRequest, opts ...client.CallOption) (*GetTimeEventResponse, error) {
-	timeevent/timeevent.micro.go:func RegisterTimeEventServiceHandler(s server.Server, hdlr TimeEventServiceHandler, opts ...server.HandlerOption) error {
-	timeevent/timeevent.micro.go:func (h *timeEventServiceHandler) CreateDay(ctx context.Context, in *TimeEventRequest, out *TimeEventResponse) error {
-	timeevent/timeevent.micro.go:func (h *timeEventServiceHandler) CreateWeek(ctx context.Context, in *TimeEventRequest, out *TimeEventResponse) error {
-	timeevent/timeevent.micro.go:func (h *timeEventServiceHandler) CreateMonth(ctx context.Context, in *TimeEventRequest, out *TimeEventResponse) error {
-	timeevent/timeevent.micro.go:func (h *timeEventServiceHandler) CreateQuarter(ctx context.Context, in *TimeEventRequest, out *TimeEventResponse) error {
-	timeevent/timeevent.micro.go:func (h *timeEventServiceHandler) CreateYear(ctx context.Context, in *TimeEventRequest, out *TimeEventResponse) error {
-	timeevent/timeevent.micro.go:func (h *timeEventServiceHandler) CreateSpan(ctx context.Context, in *TimeEventRequest, out *TimeEventResponse) error {
-	timeevent/timeevent.micro.go:func (h *timeEventServiceHandler) RecordEvent(ctx context.Context, in *TimeEventRequest, out *TimeEventResponse) error {
-	timeevent/timeevent.micro.go:func (h *timeEventServiceHandler) GetTimeEvents(ctx context.Context, in *GetTimeEventRequest, out *GetTimeEventResponse) error {
-
-	webpage/webpage.micro.go:func NewWebpageService(name string, c client.Client) WebpageService {
-	webpage/webpage.micro.go:func (c *webpageService) NewWebpage(ctx context.Context, in *WebpageRequest, opts ...client.CallOption) (*WebpageResponse, error) {
-	webpage/webpage.micro.go:func RegisterWebpageServiceHandler(s server.Server, hdlr WebpageServiceHandler, opts ...server.HandlerOption) error {
-	webpage/webpage.micro.go:func (h *webpageServiceHandler) NewWebpage(ctx context.Context, in *WebpageRequest, out *WebpageResponse) error {
-
-	wordscore/wordscore.micro.go:func NewWordScoreService(name string, c client.Client) WordScoreServiceInterface {
-	wordscore/wordscore.micro.go:func (c *WordScoreServiceStruct) GetWordScore(ctx context.Context, in *GetWordScoreRequest, opts ...client.CallOption) (*GetWordScoreResponse, error) {
-	wordscore/wordscore.micro.go:func (c *WordScoreServiceStruct) CreateWordScore(ctx context.Context, in *CreateWordScoreRequest, opts ...client.CallOption) (*CreateWordScoreResponse, error) {
-	wordscore/wordscore.micro.go:func RegisterWordScoreServiceHandler(s server.Server, hdlr WordScoreServiceHandler, opts ...server.HandlerOption) error {
-	wordscore/wordscore.micro.go:func (h *wordScoreServiceHandler) GetWordScore(ctx context.Context, in *GetWordScoreRequest, out *GetWordScoreResponse) error {
-	wordscore/wordscore.micro.go:func (h *wordScoreServiceHandler) CreateWordScore(ctx context.Context, in *CreateWordScoreRequest, out *CreateWordScoreResponse) error {
 */

@@ -21,11 +21,6 @@ import (
 	"golang.org/x/text/search"
 )
 
-// Version func  This is the only place.
-func Version() string {
-	return "1.16.4"
-}
-
 // constants
 const (
 	floatFormatter = "%.12f"
@@ -291,7 +286,7 @@ func GetVocabularyItemIndex(word string, vocabList []Vocabulary) int {
 			defer wg.Done() // Decrement the counter when the goroutine completes.
 			for j := range items {
 				if word == items[j].Word {
-					c <- j + i*lv/numCPU + 1
+					c <- j + i*lv/numCPU // + 1
 					break
 				}
 			}
@@ -306,7 +301,6 @@ func GetVocabularyItemIndex(word string, vocabList []Vocabulary) int {
 	for i := range c {
 		if i >= 0 {
 			ndx = i
-			break
 		}
 	}
 
