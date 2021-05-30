@@ -23,7 +23,8 @@ import (
 
 // comment
 const (
-	SEP = "|"
+	SEP              = "|"
+	condColumnSelect = "SELECT id, wordlist, probability, timeframetype, startDate, endDate, firstDate, lastDate, pmi, dateUpdated FROM Conditional "
 )
 
 // mapset https://github.com/deckarep/golang-set/blob/master/README.md & https://godoc.org/github.com/deckarep/golang-set
@@ -465,8 +466,7 @@ func GetConditionalByTimeInterval(bigrams []string, timeInterval nt.TimeInterval
 	defer db.Close()
 
 	inPhrase := dbx.CompileInClause(bigrams)
-	query := "SELECT id, wordlist, probability, timeframetype, startDate, endDate, firstDate, lastDate, pmi, dateUpdated FROM conditional WHERE wordlist IN " + inPhrase +
-		" AND " + dbx.CompileDateClause(timeInterval, includeTimeframetype)
+	query := condColumnSelect + "WHERE wordlist IN " + inPhrase + " AND " + dbx.CompileDateClause(timeInterval, includeTimeframetype)
 	rows, err := db.Query(context.Background(), query)
 	dbx.CheckErr(err)
 	if err != nil {
@@ -507,9 +507,8 @@ func GetConditionalByProbability(word string, probabilityCutoff float32, timeInt
 
 	//prefix := "'" + word + "|%'"
 	//postfix := "'%|" + word + "'"
-	query := "SELECT id, wordlist, probability, timeframetype, startDate, endDate, firstDate, lastDate, pmi, dateUpdated FROM conditional WHERE " + dbx.CompileDateClause(timeInterval, false) +
-		" AND (wordarray[1]=word OR wordarray[2]=word)"
-		//// " AND (wordlist LIKE " + prefix + " OR wordlist LIKE " + postfix + ")"
+	query := condColumnSelect + "WHERE " + dbx.CompileDateClause(timeInterval, false) + " AND (wordarray[1]='" + word + "' OR wordarray[2]='" + word + "')"
+	//// " AND (wordlist LIKE " + prefix + " OR wordlist LIKE " + postfix + ")"
 
 	rows, err := db.Query(context.Background(), query)
 	dbx.CheckErr(err)
@@ -570,8 +569,7 @@ func GetConditionalList(words []string, timeInterval nt.TimeInterval, permute bo
 	bigrams := GetWordBigramPermutations(words, permute)
 	intervalClause := dbx.CompileDateClause(timeInterval, false)
 	compileInClause := dbx.CompileInClause(bigrams)
-	SELECT := "SELECT id, wordlist, probability, timeframetype, startDate, endDate, firstDate, lastDate, pmi, dateUpdated FROM Conditional WHERE wordlist IN " +
-		compileInClause + " AND " + intervalClause
+	SELECT := condColumnSelect + "WHERE wordlist IN " + compileInClause + " AND " + intervalClause
 	rows, err := db.Query(context.Background(), SELECT)
 	dbx.CheckErr(err)
 	defer rows.Close()
@@ -643,13 +641,13 @@ func GetProbabilityGraph(words []string, timeInterval nt.TimeInterval) ([]hd.Con
 		likeWord1 := "'" + bigrams[index][0:ndxSep] + SEP + "%'"
 		likeWord2 := "'" + bigrams[index][ndxSep+1:] + SEP + "%'"
 
-		SELECT.WriteString("SELECT id, wordlist, probability, timeframetype, startDate, endDate, firstDate, lastDate, pmi, dateUpdated FROM Conditional ")
+		SELECT.WriteString(condColumnSelect)
 		SELECT.WriteString("WHERE wordlist LIKE " + likeWord1 + " AND " + intervalClause)
 		SELECT.WriteString("AND pmi >= (SELECT MAX(pmi) FROM Conditional WHERE wordlist=" + bigram + " AND " + intervalClause + ") ")
 		SELECT.WriteString("AND probability >= (SELECT MAX(probability) FROM Conditional WHERE wordlist=" + bigram + " AND " + intervalClause + ") ")
 		SELECT.WriteString("AND SUBSTRING(wordlist from " + strconv.Itoa(len(leftWord)+2) + " for 32) IN (SELECT word FROM Wordscore WHERE score >= (SELECT MAX(score) FROM Wordscore WHERE word=" + leftWord + ")) ")
 		SELECT.WriteString("UNION ")
-		SELECT.WriteString("SELECT id, wordlist, probability, timeframetype, startDate, endDate, firstDate, lastDate, pmi, dateUpdated FROM Conditional ")
+		SELECT.WriteString(condColumnSelect)
 		SELECT.WriteString("WHERE wordlist LIKE " + likeWord2 + " AND " + intervalClause)
 		SELECT.WriteString("AND pmi >= (SELECT MAX(pmi) FROM Conditional WHERE wordlist=" + reverseBigram + " AND " + intervalClause + ") ")
 		SELECT.WriteString("AND probability >= (SELECT MAX(probability) FROM Conditional WHERE wordlist=" + reverseBigram + " AND " + intervalClause + ") ")
@@ -688,7 +686,7 @@ func GetProbabilityGraph(words []string, timeInterval nt.TimeInterval) ([]hd.Con
 		reverseWordlist = append(reverseWordlist, cp.WordList[ndxSep+1:]+SEP+cp.WordList[0:ndxSep])
 	}
 	compileInClause := dbx.CompileInClause(reverseWordlist)
-	query := "SELECT id, wordlist, probability, timeframetype, startDate, endDate, firstDate, lastDate, pmi, dateUpdated FROM Conditional WHERE wordlist IN " + compileInClause + " AND " + intervalClause
+	query := condColumnSelect + "WHERE wordlist IN " + compileInClause + " AND " + intervalClause
 	rows, err = db.Query(context.Background(), query)
 	dbx.CheckErr(err)
 	defer rows.Close()
@@ -705,8 +703,7 @@ func GetProbabilityGraph(words []string, timeInterval nt.TimeInterval) ([]hd.Con
 }
 
 // GetWordgramConditionalsByInterval func assigns consecutive id values.  Common:bool column not in database.
-// Id values start at 10000 to avoid js Select Id conflicts.
-// ISSUE: the index on WordArray[1] will return a row where word1 is a prefix of word2: (e.g., '3d|3ds')
+// Id values start at 10000 to avoid js Select Id conflicts. NOTE!!! This returns half the possible rows: word|* and not *|word (other half not necessary).
 func GetWordgramConditionalsByInterval(words []string, timeInterval nt.TimeInterval, dimensions int) ([]hd.WordScoreConditionalFlat, error) {
 	db, err := dbx.GetDatabaseReference()
 	if err != nil {

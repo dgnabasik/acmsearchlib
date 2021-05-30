@@ -1,8 +1,8 @@
 syntax = "proto3";
 
 package conditional;
-option go_package = "google.golang.org/protobuf/types/known/conditional";
-
+//option go_package = "google.golang.org/protobuf/types/known/conditional";
+option go_package = "./pb";
 service ConditionalProbability {
   rpc CalcConditionalProbability(ConditionalProbabilityRequest) returns (ConditionalProbabilityResponse) {}
 }

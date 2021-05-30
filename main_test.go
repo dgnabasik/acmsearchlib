@@ -1,7 +1,6 @@
 package acmsearchlib
 
 // All not-test files init() functions are executed first, then all test files init() functions are executed (hopefully in lexical order).
-// go test -v.
 import (
 	"fmt"
 	"strconv"
@@ -9,6 +8,7 @@ import (
 	"time"
 
 	art "github.com/dgnabasik/acmsearchlib/article"
+	cond "github.com/dgnabasik/acmsearchlib/conditional"
 	dbx "github.com/dgnabasik/acmsearchlib/database"
 	fs "github.com/dgnabasik/acmsearchlib/filesystem"
 	hd "github.com/dgnabasik/acmsearchlib/headers"
@@ -70,8 +70,8 @@ func Test_nulltime(t *testing.T) {
 	}
 
 	/*ti = nt.NullTimeToday()
-	if ti.StandardDate() != "2019-11-25" {
-		t.Error("a10: Expected 2019-11-25")
+	if ti.StandardDate() != "2020-11-25" {
+		t.Error("a10: Expected 2020-11-25")
 	}*/
 
 	ti = nt.New_NullTimeFromFileName("dec-05-2005.html")
@@ -374,15 +374,21 @@ func Test_headers(t *testing.T) {
 	words := []string{"3d", "access", "able", "kläui", "att", "beyond", "kommunikationsbüro", "cu", "schrödinger", "tübingen", "either", "four", "iff", "ins", "lin", "björn", "ngn", "éal", "nov", "éciale", "goëry", "göttingen", "loránd", "onto", "sa", "seven", "sf", "lovász", "ramón", "sánchez", "ably", "abroad", "abruptly", "absolutely", "thirteen"}
 	vocabList, err := voc.GetVocabularyList(words)
 	if err != nil {
-		t.Error("b13: bad GetVocabularyList")
+		t.Error("b13a: bad GetVocabularyList")
+	}
+	if len(vocabList) < 1 {
+		t.Error("b13b: bad GetVocabularyList")
 	}
 
+	startTime := time.Now()
 	word := "tübingen"
 	ndx1 := hd.GetVocabularyItem(word, vocabList)
 	ndx2 := hd.GetVocabularyItemIndex(word, vocabList)
 	if ndx1 != ndx2 {
 		t.Error("b14: bad GetVocabularyItemIndex")
 	}
+	elapsed := time.Since(startTime)
+	fmt.Println("hd.GetVocabularyItemIndex: " + elapsed.String())
 
 	oaMap := hd.New_OrderedArticleMap()
 	key := oaMap.FormatTitle(hd.HREF + "New Title")
@@ -546,9 +552,11 @@ func Test_filesystem(t *testing.T) {
 		t.Error("d12: bad GetSourceDirectory")
 	}
 
-	//func AddFileToZip(zipWriter *zip.Writer, filename string) error {
-	//func ZipFiles(pathPrefix string, fileExt string, targetFileName string) error {
-	//func ReadOccurrenceListFromCsvFile(filePath string) ([]hd.Occurrence, error) {
+	/*zipfile,err = fs.ZipFiles("/home/david/microservices/", "png", "zippedpng")
+	if err != nil {
+		t.Error("d13: bad ZipFiles")
+	}*/
+
 	//func (fss *FileService) GetTextFile(ctx *gin.Context) {
 }
 
@@ -572,13 +580,17 @@ func Test_article(t *testing.T) {
 		t.Error("e2b: bad GetLastDateSavedFromDb")
 	}
 
-	/*vocabList, err := art.WordFrequencyList()
+	/*startTime := time.Now()
+	vocabList, err := art.WordFrequencyList()
 	if err != nil {
 		t.Error("e3a: bad WordFrequencyList")
 	}
 	if len(vocabList) < 90000 {
 		t.Error("e3b: bad WordFrequencyList")
-	}*/
+	}
+	elapsed := time.Since(startTime)
+	fmt.Println("art.WordFrequencyList: " + elapsed.String())	// 8.5 seconds
+	*/
 
 	dateList := []string{"2021-04-14"}
 	articleList, err := art.GetAcmArticleListByArchiveDates(dateList)
@@ -589,7 +601,6 @@ func Test_article(t *testing.T) {
 		t.Error("e4b: bad GetAcmArticleListByArchiveDates")
 	}
 	count = len(articleList)
-	fmt.Println(count)
 
 	testDate := nt.New_NullTime(dateList[0])
 	timeinterval := nt.New_TimeInterval(nt.TFYear, testDate, testDate)
@@ -597,20 +608,15 @@ func Test_article(t *testing.T) {
 	if err != nil {
 		t.Error("e5a: bad GetAcmArticleListByDate")
 	}
-	if len(articleList) < 1 {
+	if count != len(articleList) {
 		t.Error("e5b: bad GetAcmArticleListByDate")
 	}
-	fmt.Println(len(articleList))
 
-	fmt.Print("    ")
+	//GetAcmArticlesByID(idMap map[uint32]int, cutoff int) ([]hd.AcmArticle, error) {
+	//CallUpdateOccurrence(timeinterval nt.TimeInterval) error {
+	//CallUpdateTitle(timeinterval nt.TimeInterval) error {
+	//BulkInsertAcmData(articleList []hd.AcmArticle) (int, error) {
 }
-
-/* <<<<
-//GetAcmArticlesByID(idMap map[uint32]int, cutoff int) ([]hd.AcmArticle, error) {
-CallUpdateOccurrence(timeinterval nt.TimeInterval) error {
-CallUpdateTitle(timeinterval nt.TimeInterval) error {
-BulkInsertAcmData(articleList []hd.AcmArticle) (int, error) {
-*/
 
 /* conditional ************************************************************************************/
 
@@ -637,31 +643,90 @@ BulkInsertAcmData(articleList []hd.AcmArticle) (int, error) {
 
 // Test_conditional func
 func Test_conditional(t *testing.T) {
+	word := "0123456789abcdef"             // min(len)=10
+	_, status := cond.FilteringRules(word) // status: 0 for ok, -1 to completely ignore, 1 for modified word.
+	if status != -1 {
+		t.Error("f1a: bad FilteringRules")
+	}
+	word = ".0123456789abcdef"            // min(len)=10
+	_, status = cond.FilteringRules(word) // status: 0 for ok, -1 to completely ignore, 1 for modified word.
+	if status != 1 {
+		t.Error("f1b: bad FilteringRules")
+	}
+	word = "word"                         // min(len)=10
+	_, status = cond.FilteringRules(word) // status: 0 for ok, -1 to completely ignore, 1 for modified word.
+	if status != 0 {
+		t.Error("f1c: bad FilteringRules")
+	}
+
+	startDate := nt.New_NullTime("2020-01-01")
+	endDate := nt.New_NullTime("2020-12-31")
+	timeinterval := nt.New_TimeInterval(nt.TFYear, startDate, endDate)
+	occurrenceList, occurrenceMap, err := cond.GetOccurrenceListByDate(timeinterval)
+	if err != nil {
+		t.Error("f2a: bad GetOccurrenceListByDate")
+	}
+	if len(occurrenceList) < 1 || occurrenceMap.Cardinality() < 1 { // 123500, 1815
+		t.Error("f2b: bad GetOccurrenceListByDate")
+	}
+
+	subOccurrence := cond.SelectOccurrenceByDate(occurrenceList, timeinterval)
+	if len(occurrenceList) != len(subOccurrence) {
+		t.Error("f3: bad SelectOccurrenceByDate")
+	}
+
+	subOccurrence = cond.SelectOccurrenceByID(occurrenceList, 46287)
+	if len(subOccurrence) < 1 {
+		t.Error("f3: bad SelectOccurrenceByID")
+	}
+
+	subOccurrence = cond.SelectOccurrenceByWord(occurrenceList, "work")
+	if len(subOccurrence) < 1 {
+		t.Error("f4: bad SelectOccurrenceByWord")
+	}
+
+	occurrenceList, err = cond.GetOccurrencesByAcmid(46287)
+	if err != nil {
+		t.Error("f5a: bad GetOccurrencesByAcmid")
+	}
+	if len(occurrenceList) < 1 {
+		t.Error("f5b: bad GetOccurrencesByAcmid")
+	}
+
+	nullTimeList := cond.GetDistinctDates(occurrenceList)
+	if len(nullTimeList) < 1 { // 2020-01-03
+		t.Error("f6: bad GetDistinctDates")
+	}
+
+	wordList := cond.GetDistinctWords(occurrenceList)
+	if len(wordList) < 1 {
+		t.Error("f7: bad GetDistinctWords")
+	}
+
+	words := []string{"aims", "applications", "automation"}
+	wordList = cond.GetWordBigramPermutations(words, true)
+	if len(wordList) != 6 {
+		t.Error("f8a: bad GetWordBigramPermutations")
+	}
+	wordList = cond.GetWordBigramPermutations(words, false)
+	if len(wordList) != 3 {
+		t.Error("f8b: bad GetWordBigramPermutations")
+	}
 
 }
 
-/*
- isHexWord(word string) bool {
- FilteringRules(word string) (string, int) {
- SelectOccurrenceByDate(occurrenceList []hd.Occurrence, timeinterval nt.TimeInterval) []hd.Occurrence {
- SelectOccurrenceByID(occurrenceList []hd.Occurrence, acmID uint32) []hd.Occurrence {
- SelectOccurrenceByWord(occurrenceList []hd.Occurrence, word string) []hd.Occurrence {
- GetOccurrenceListByDate(timeinterval nt.TimeInterval) ([]hd.Occurrence, mapset.Set, error) {
- CollectWordGrams(wordGrams []string, timeinterval nt.TimeInterval) ([]hd.Occurrence, mapset.Set) {
- GetOccurrencesByAcmid(xacmid uint32) ([]hd.Occurrence, error) {
- WordGramSubset(alphaWord string, vocabList []hd.Vocabulary, occurrenceList []hd.Occurrence) []string {
- GetDistinctDates(occurrenceList []hd.Occurrence) []nt.NullTime {
- GetDistinctWords(occurrenceList []hd.Occurrence) []string {
- BulkInsertConditionalProbability(conditionals []hd.ConditionalProbability) error {
- ExtractKeysFromProbabilityMap(wordMap map[string]float32) []string {
- CalcConditionalProbability(startingWordgram string, wordMap map[string]float32, timeinterval nt.TimeInterval) (int, error) {
- GetConditionalByTimeInterval(bigrams []string, timeInterval nt.TimeInterval, bigramMap map[string]bool, includeTimeframetype bool) ([]hd.ConditionalProbability, error) {
- GetConditionalByProbability(word string, probabilityCutoff float32, timeInterval nt.TimeInterval, condProbList *[]hd.ConditionalProbability) error {
- GetWordBigramPermutations(words []string, permute bool) []string {
- GetConditionalList(words []string, timeInterval nt.TimeInterval, permute bool) ([]hd.ConditionalProbability, error) {
- GetExistingConditionalBigrams(bigrams []string, intervalClause string) ([]string, error) {
- GetProbabilityGraph(words []string, timeInterval nt.TimeInterval) ([]hd.ConditionalProbability, error) {
- GetWordgramConditionalsByInterval(words []string, timeInterval nt.TimeInterval, dimensions int) ([]hd.WordScoreConditionalFlat, error) {
+/* <<<<
+GetConditionalByTimeInterval(bigrams []string, timeInterval nt.TimeInterval, bigramMap map[string]bool, includeTimeframetype bool) ([]hd.ConditionalProbability, error) {
+GetConditionalByProbability(word string, probabilityCutoff float32, timeInterval nt.TimeInterval, condProbList *[]hd.ConditionalProbability) error {
+GetConditionalList(words []string, timeInterval nt.TimeInterval, permute bool) ([]hd.ConditionalProbability, error) {
+GetExistingConditionalBigrams(bigrams []string, intervalClause string) ([]string, error) {
+GetProbabilityGraph(words []string, timeInterval nt.TimeInterval) ([]hd.ConditionalProbability, error) {
+GetWordgramConditionalsByInterval(words []string, timeInterval nt.TimeInterval, dimensions int) ([]hd.WordScoreConditionalFlat, error) {
+CollectWordGrams(wordGrams []string, timeinterval nt.TimeInterval) ([]hd.Occurrence, mapset.Set) {
+ExtractKeysFromProbabilityMap(wordMap map[string]float32) []string {
+CalcConditionalProbability(startingWordgram string, wordMap map[string]float32, timeinterval nt.TimeInterval) (int, error) {
+//WordGramSubset(alphaWord string, vocabList []hd.Vocabulary, occurrenceList []hd.Occurrence) []string {
+//BulkInsertConditionalProbability(conditionals []hd.ConditionalProbability) error {
 */
 /* simplex ************************************************************************************/
 /*
@@ -687,8 +752,11 @@ func GetCategoryMap() ([]hd.CategoryTable, error) {
 	func EncryptData(password, textdata string) string {
 	func DecryptData(password string, ciphertext []byte) (string, error) {
 	func GetUserProfile(userName, pwdText string) (hd.UserProfile, error) {
-	func InsertUserProfile(userName, userEmail, pwdText string, acmmemberid int) (hd.UserProfile, error) {
+	// InsertUserProfile(userName, userEmail, pwdText string, acmmemberid int) (hd.UserProfile, error) {
+*/
 
+/* Vocabulary ************************************************************************************/
+/*
 	func GetVocabularyByWord(wordX string) (hd.Vocabulary, error) {
 	func GetVocabularyList(words []string) ([]hd.Vocabulary, error) {
 	func getAcmGraphCount() string {
@@ -696,13 +764,16 @@ func GetCategoryMap() ([]hd.CategoryTable, error) {
 	func GetVocabularyListByDate(timeinterval nt.TimeInterval) ([]hd.Vocabulary, error) {
 	func GetVocabularyMapProbability(wordGrams []string, timeInterval nt.TimeInterval) (map[string]float32, error) {
 	func GetTitleWordsBigramInterval(bigrams []string, timeInterval nt.TimeInterval, useOccurrence bool) ([]hd.Occurrence, error) {
-	func UpdateVocabulary(recordList []hd.Vocabulary) (int, error) {
 	func GetVocabularyMap(fieldName string) (map[string]int, error) {
-	func BulkInsertVocabulary(recordList []hd.Vocabulary) (int, error) {
-	func CallUpdateVocabulary() error {
 	func GetLookupValues(tableName, columnName string) ([]string, error) {
+	// UpdateVocabulary(recordList []hd.Vocabulary) (int, error) {
+	// CallUpdateVocabulary() error {
+	// BulkInsertVocabulary(recordList []hd.Vocabulary) (int, error) {
+*/
 
-	wordscore/wordscore.go:func GetWordScores(word string) ([]hd.WordScore, error) {
-	wordscore/wordscore.go:func GetWordScoreListByTimeInterval(words []string, timeInterval nt.TimeInterval) ([]hd.WordScore, error) {
-	wordscore/wordscore.go:func BulkInsertWordScores(wordScoreList []hd.WordScore) error {
+/* wordscore ************************************************************************************/
+/*
+ GetWordScores(word string) ([]hd.WordScore, error) {
+ GetWordScoreListByTimeInterval(words []string, timeInterval nt.TimeInterval) ([]hd.WordScore, error) {
+ // BulkInsertWordScores(wordScoreList []hd.WordScore) error {
 */

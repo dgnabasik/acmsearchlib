@@ -11,4 +11,4 @@
 # See also
 #  https://github.com/grpc/grpc-go/tree/master/examples
 
-protoc condprob.proto --micro_out=. --go_out=. condprob.proto
+protoc conditional.proto --micro_out=. --go_out=. conditional.proto

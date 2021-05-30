@@ -13,7 +13,6 @@ import (
 	"path/filepath"
 	"regexp"
 	"sort"
-	"strconv"
 	"strings"
 	"time"
 
@@ -121,13 +120,14 @@ func AddFileToZip(zipWriter *zip.Writer, filename string) error {
 	return err
 }
 
-// ZipFiles func pathPrefix+fileTemplate must be well-formed.
-func ZipFiles(pathPrefix string, fileExt string, targetFileName string) error {
+// ZipFiles func pathPrefix+fileTemplate must be well-formed. pathPrefix must include trailing slash.
+// Produces zip file contains full pathPrefix. Returns zip filename.
+func ZipFiles(pathPrefix string, fileExt string, targetFileName string) (string, error) {
 	fileInfo, err := ioutil.ReadDir(pathPrefix)
 	if err != nil {
 		str := "filesystem.ZipFiles(" + pathPrefix + "): "
 		log.Printf(str+"%s%+v\n", err)
-		return err
+		return "", err
 	}
 
 	var fileList []string
@@ -141,14 +141,15 @@ func ZipFiles(pathPrefix string, fileExt string, targetFileName string) error {
 	if len(fileList) == 0 {
 		err = errors.New("There are no matching files in " + pathPrefix + "*" + fileExt)
 		log.Printf("filesystem.ZipFiles: %+v\n", err)
-		return err
+		return "", err
 	}
 
-	newZipFile, err := os.Create(targetFileName)
+	TargetFileName := pathPrefix + targetFileName
+	newZipFile, err := os.Create(TargetFileName)
 	if err != nil {
-		str := "filesystem.ZipFiles(" + targetFileName + "): "
+		str := "filesystem.ZipFiles(" + TargetFileName + "): "
 		log.Printf(str+"%s%+v\n", err)
-		return err
+		return "", err
 	}
 	defer newZipFile.Close()
 
@@ -161,11 +162,11 @@ func ZipFiles(pathPrefix string, fileExt string, targetFileName string) error {
 		if err != nil {
 			str := "filesystem.AddFileToZip(" + file + "): "
 			log.Printf(str+"%s%+v\n", err)
-			return err
+			return TargetFileName, err
 		}
 	}
 
-	return nil
+	return TargetFileName, nil
 }
 
 // FileExists Returns false if directory.
@@ -232,26 +233,6 @@ func WriteTextLines(lines []string, filePath string, appendData bool) error {
 	}
 
 	return err
-}
-
-// ReadOccurrenceListFromCsvFile caller must assign Id, ArchiveDate.	24889 | 2009-09-02
-func ReadOccurrenceListFromCsvFile(filePath string) ([]hd.Occurrence, error) {
-	var occurrenceList []hd.Occurrence
-	source, err := ReadTextLines(filePath, true)
-	if err != nil {
-		log.Printf("filesystem.ReadOccurrenceListFromCsvFile: %+v\n", err)
-		return occurrenceList, err
-	}
-
-	archiveDate := nt.NullTimeToday()
-	for _, line := range source {
-		tokens := strings.Split(line, ",")
-		nentry, _ := strconv.Atoi(tokens[2])
-		item := hd.Occurrence{AcmId: 0, ArchiveDate: archiveDate, Word: tokens[0], Nentry: nentry}
-		occurrenceList = append(occurrenceList, item)
-	}
-
-	return occurrenceList, nil
 }
 
 // for file sorting

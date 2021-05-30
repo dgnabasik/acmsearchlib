@@ -1,7 +1,8 @@
 syntax = "proto3";
 
 package webpage;
-option go_package = "google.golang.org/protobuf/types/known/webpage";
+//option go_package = "google.golang.org/protobuf/types/known/webpage";
+option go_package = "./pb";
 
 service WebpageService {
   rpc NewWebpage(WebpageRequest) returns (WebpageResponse) {}

@@ -1,9 +1,9 @@
 syntax = "proto3";
 
 package timestampinterval;
-
+option go_package = "./pb";
+//option go_package = "google.golang.org/protobuf/types/known/timestampinterval";
 import "google/protobuf/timestamp.proto";
-option go_package = "google.golang.org/protobuf/types/known/timestampinterval";
 
 message Error {
 	string code = 1;
