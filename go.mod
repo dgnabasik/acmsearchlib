@@ -10,4 +10,5 @@ require (
 	github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210523031237-e3991c4e2d3e
 	github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210523031237-e3991c4e2d3e
 	github.com/dgnabasik/acmsearchlib/vocabulary v0.0.0-20210523031237-e3991c4e2d3e
+	github.com/dgnabasik/acmsearchlib/wordscore v0.0.0-20210530194322-d9608e6d8e8e // indirect
 )

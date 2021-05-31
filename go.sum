@@ -134,6 +134,8 @@ github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210523031237-e3991c4e2d3e h1
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210523031237-e3991c4e2d3e/go.mod h1:EzXlVSG2YC+za3MbY7Z+9PPf2mX0Tv63MWt78oZz1LU=
 github.com/dgnabasik/acmsearchlib/vocabulary v0.0.0-20210523031237-e3991c4e2d3e h1:8w9+/rCFupm1zrKYOsfPcfrpBOp3AhgJc9EswiDzYsA=
 github.com/dgnabasik/acmsearchlib/vocabulary v0.0.0-20210523031237-e3991c4e2d3e/go.mod h1:DAqCeDQB56htt/WkxN4csXRx+9O/+12iRR8KgqYQgtg=
+github.com/dgnabasik/acmsearchlib/wordscore v0.0.0-20210530194322-d9608e6d8e8e h1:0sgxaGwT1HLw912GmVUXTyqrgDBwxxEalERPdMpFHH4=
+github.com/dgnabasik/acmsearchlib/wordscore v0.0.0-20210530194322-d9608e6d8e8e/go.mod h1:V3tfPeNU9rO0k8XY9Zduqvk169Qsn0aEZRpRKKej8lk=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible/go.mod h1:E3ru+11k8xSBh+hMPgOLZmtrrCbhqsmaPHjLKYnJCaQ=
 github.com/dimchansky/utfbom v1.1.0/go.mod h1:rO41eb7gLfo8SF1jd9F8HplJm1Fewwi4mQvIirEdv+8=
 github.com/dnaeon/go-vcr v0.0.0-20180814043457-aafff18a5cc2/go.mod h1:aBB1+wY4s93YsC3HHjMBMrwTj2R9FHDzUr9KyGc8n1E=

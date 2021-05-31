@@ -769,10 +769,9 @@ func Test_wordscore(t *testing.T) {
 	if err != nil {
 		t.Error("g1a: bad GetWordScores")
 	}
-	if len(wordscoreList) < 1 {
+	if len(wordscoreList) < 1 { // 359
 		t.Error("g1b: bad GetWordScores")
 	}
-	fmt.Println(len(wordscoreList))
 
 	words := []string{"3d", "able", "access"}
 	startDate := nt.New_NullTime("2004-01-01")
@@ -782,24 +781,24 @@ func Test_wordscore(t *testing.T) {
 	if err != nil {
 		t.Error("g2a: bad GetWordScoreListByTimeInterval")
 	}
-	if len(wordscoreList) < 1 {
+	/*if len(wordscoreList) < 1 {	???
 		t.Error("g2b: bad GetWordScoreListByTimeInterval")
-	}
+	}*/
+	fmt.Println(len(wordscoreList))
 
 	// BulkInsertWordScores(wordScoreList []hd.WordScore) error {
 }
 
 /* Vocabulary ************************************************************************************/
 /* <<<<
-func GetVocabularyByWord(wordX string) (hd.Vocabulary, error) {
-func GetVocabularyList(words []string) ([]hd.Vocabulary, error) {
-func getAcmGraphCount() string {
-func GetWordListMap(prefix string) ([]hd.LookupMap, error) {
-func GetVocabularyListByDate(timeinterval nt.TimeInterval) ([]hd.Vocabulary, error) {
-func GetVocabularyMapProbability(wordGrams []string, timeInterval nt.TimeInterval) (map[string]float32, error) {
-func GetTitleWordsBigramInterval(bigrams []string, timeInterval nt.TimeInterval, useOccurrence bool) ([]hd.Occurrence, error) {
-func GetVocabularyMap(fieldName string) (map[string]int, error) {
-func GetLookupValues(tableName, columnName string) ([]string, error) {
+ GetVocabularyByWord(wordX string) (hd.Vocabulary, error) {
+ GetVocabularyList(words []string) ([]hd.Vocabulary, error) {
+ GetWordListMap(prefix string) ([]hd.LookupMap, error) {
+ GetVocabularyListByDate(timeinterval nt.TimeInterval) ([]hd.Vocabulary, error) {
+ GetVocabularyMapProbability(wordGrams []string, timeInterval nt.TimeInterval) (map[string]float32, error) {
+ GetTitleWordsBigramInterval(bigrams []string, timeInterval nt.TimeInterval, useOccurrence bool) ([]hd.Occurrence, error) {
+ GetVocabularyMap(fieldName string) (map[string]int, error) {
+ GetLookupValues(tableName, columnName string) ([]string, error) {
 // UpdateVocabulary(recordList []hd.Vocabulary) (int, error) {
 // CallUpdateVocabulary() error {
 // BulkInsertVocabulary(recordList []hd.Vocabulary) (int, error) {
@@ -807,17 +806,16 @@ func GetLookupValues(tableName, columnName string) ([]string, error) {
 
 /* simplex ************************************************************************************/
 /*
-func getTableNames(useTempTable bool) []string {
-func GetSimplexByNameUserID(userID int, simplexName, simplexType string, useTempTable bool) ([]hd.SimplexComplex, error) {
-func GetSimplexListByUserID(userID int, useTempTable bool) ([]hd.SimplexComplex, error) {
-func InsertSimplexComplex(sc hd.SimplexComplex) (hd.SimplexComplex, error) {
-func BulkInsertSimplexFacets(facets []hd.SimplexFacet) error {
-func PostSimplexComplex(userID int, simplexName, simplexType string, timeInterval nt.TimeInterval) ([]uint64, error) {
-func GetSimplexWordDifference(complexIdList []uint64) ([]hd.KeyValueStringPair, error) {
-func InsertCategoryWords(categoryID uint64, words []string) error {
-func InsertWordCategory(description string) (hd.CategoryTable, error) {
-func GetSpecialMap(category int) ([]hd.SpecialTable, error) {
-func GetCategoryMap() ([]hd.CategoryTable, error) {
+ GetSimplexByNameUserID(userID int, simplexName, simplexType string, useTempTable bool) ([]hd.SimplexComplex, error) {
+ GetSimplexListByUserID(userID int, useTempTable bool) ([]hd.SimplexComplex, error) {
+ PostSimplexComplex(userID int, simplexName, simplexType string, timeInterval nt.TimeInterval) ([]uint64, error) {
+ GetSimplexWordDifference(complexIdList []uint64) ([]hd.KeyValueStringPair, error) {
+ InsertCategoryWords(categoryID uint64, words []string) error {
+ InsertWordCategory(description string) (hd.CategoryTable, error) {
+ GetSpecialMap(category int) ([]hd.SpecialTable, error) {
+ GetCategoryMap() ([]hd.CategoryTable, error) {
+// InsertSimplexComplex(sc hd.SimplexComplex) (hd.SimplexComplex, error) {
+// BulkInsertSimplexFacets(facets []hd.SimplexFacet) error {
 */
 
 /* profile ************************************************************************************/
