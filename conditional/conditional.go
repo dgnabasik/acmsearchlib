@@ -174,9 +174,6 @@ func GetOccurrenceListByDate(timeinterval nt.TimeInterval) ([]hd.Occurrence, map
 // Do not use shared state as the first variable to append.	NOT USED!
 // Explicitly make() a new slice with an extra element's worth of capacity, then copy() the old slice to it, then finally append() or add the new value.
 func CollectWordGrams(wordGrams []string, timeinterval nt.TimeInterval) ([]hd.Occurrence, mapset.Set) {
-	start := time.Now()
-	fmt.Print("CollectWordGrams: ")
-
 	var alphaCollection []hd.Occurrence                               // populate in separate goroutine using queue channel.
 	occurrenceList, idSet, _ := GetOccurrenceListByDate(timeinterval) // []Occurrence
 	sort.Sort(hd.OccurrenceSorterWord(occurrenceList))
@@ -206,9 +203,6 @@ func CollectWordGrams(wordGrams []string, timeinterval nt.TimeInterval) ([]hd.Oc
 			alphaCollection = append(alphaCollection, t)
 		}
 	}
-
-	elapsed := time.Since(start)
-	fmt.Println(elapsed.String())
 
 	return alphaCollection, idSet
 }
@@ -255,6 +249,7 @@ func GetOccurrencesByAcmid(xacmid uint32) ([]hd.Occurrence, error) {
 }
 
 // WordGramSubset finds words that OtherWord.IsProperSuperset(alphaWord) : they exist in all the summaries the alphaWord does.
+// WordGramSubset() is in this file because it uses mapset.
 func WordGramSubset(alphaWord string, vocabList []hd.Vocabulary, occurrenceList []hd.Occurrence) []string {
 	var wordList []string
 	// Assumes ranked vocabList, so start from top (most frequent).
@@ -624,7 +619,7 @@ func GetProbabilityGraph(words []string, timeInterval nt.TimeInterval) ([]hd.Con
 	// build SQL values:
 	bigrams := GetWordBigramPermutations(words, true) // permute=true
 	intervalClause := dbx.CompileDateClause(timeInterval, false)
-	bigrams, _ = GetExistingConditionalBigrams(bigrams, intervalClause) // wordlist[]
+	bigrams, _ = GetExistingConditionalBigrams(bigrams, intervalClause)
 
 	db, err := dbx.GetDatabaseReference()
 	if err != nil {

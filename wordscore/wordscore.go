@@ -24,7 +24,7 @@ func GetWordScores(word string) ([]hd.WordScore, error) {
 	}
 	defer db.Close()
 
-	SELECT := wordscoreSelect = " WHERE Word='" + word + "' ORDER BY startDate"
+	SELECT := wordscoreSelect + " WHERE Word='" + word + "' ORDER BY startDate"
 	rows, err := db.Query(context.Background(), SELECT)
 	dbx.CheckErr(err)
 	defer rows.Close()
