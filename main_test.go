@@ -781,20 +781,64 @@ func Test_wordscore(t *testing.T) {
 	if err != nil {
 		t.Error("g2a: bad GetWordScoreListByTimeInterval")
 	}
-	/*if len(wordscoreList) < 1 {	???
+	if len(wordscoreList) < 1 {
 		t.Error("g2b: bad GetWordScoreListByTimeInterval")
-	}*/
-	fmt.Println(len(wordscoreList))
+	}
 
 	// BulkInsertWordScores(wordScoreList []hd.WordScore) error {
 }
 
-/* Vocabulary ************************************************************************************/
+/* vocabulary ************************************************************************************/
+
+// Test_vocabulary func
+func Test_vocabulary(t *testing.T) {
+
+	words := []string{"3d", "able", "access"}
+	vocList, err := voc.GetVocabularyList(words)
+	if err != nil {
+		t.Error("h1a: bad GetVocabularyList")
+	}
+	if len(vocList) != 3 {
+		t.Error("h1b: bad GetVocabularyList")
+	}
+
+	_, err = voc.GetVocabularyByWord(words[0])
+	if err != nil {
+		t.Error("h2: bad GetVocabularyByWord")
+	}
+
+	prefix := "" // fetch all words
+	lookupMap, err := voc.GetWordListMap(prefix)
+	if err != nil {
+		t.Error("h3a: bad GetWordListMap")
+	}
+	if len(lookupMap) < 1 {
+		t.Error("h3b: bad GetWordListMap")
+	}
+	prefix = "work" // fetch words*
+	lookupMap, err = voc.GetWordListMap(prefix)
+	if err != nil {
+		t.Error("h3c: bad GetWordListMap")
+	}
+	if len(lookupMap) < 1 {
+		t.Error("h3d: bad GetWordListMap")
+	}
+
+	startDate := nt.New_NullTime("2004-01-01")
+	endDate := nt.New_NullTime("2007-12-31")
+	timeInterval := nt.New_TimeInterval(nt.TFSpan, startDate, endDate)
+	vocList, err = voc.GetVocabularyListByDate(timeInterval)
+	if err != nil {
+		t.Error("h4a: bad GetVocabularyListByDate")
+	}
+	if len(lookupMap) < 1 {
+		t.Error("h4b: bad GetVocabularyListByDate")
+	}
+
+	fmt.Println(len(vocList))
+}
+
 /* <<<<
- GetVocabularyByWord(wordX string) (hd.Vocabulary, error) {
- GetVocabularyList(words []string) ([]hd.Vocabulary, error) {
- GetWordListMap(prefix string) ([]hd.LookupMap, error) {
- GetVocabularyListByDate(timeinterval nt.TimeInterval) ([]hd.Vocabulary, error) {
  GetVocabularyMapProbability(wordGrams []string, timeInterval nt.TimeInterval) (map[string]float32, error) {
  GetTitleWordsBigramInterval(bigrams []string, timeInterval nt.TimeInterval, useOccurrence bool) ([]hd.Occurrence, error) {
  GetVocabularyMap(fieldName string) (map[string]int, error) {

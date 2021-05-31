@@ -8,6 +8,7 @@ import (
 	"log"
 	"strconv"
 	"strings"
+	"time"
 
 	cond "github.com/dgnabasik/acmsearchlib/conditional"
 	dbx "github.com/dgnabasik/acmsearchlib/database"
@@ -257,7 +258,7 @@ func WordFrequencyList() ([]hd.Vocabulary, error) {
 			wordList[wordMap[word]-1].Frequency += frequency
 			fmt.Print(" " + word)
 		} else { // new entry
-			newVocabulary := hd.Vocabulary{Id: 0, Word: word, RowCount: rowCount, Frequency: frequency, WordRank: 0, Probability: 0, SpeechPart: " ", Stem: ""}
+			newVocabulary := hd.Vocabulary{Id: 0, Word: word, RowCount: rowCount, Frequency: frequency, WordRank: 0, Probability: 0, SpeechPart: " ", OccurrenceCount: 0, Stem: "", DateUpdated: time.Now()}
 			wordList = append(wordList, newVocabulary)
 			wordMap[word] = len(wordList)
 		}

@@ -24,6 +24,7 @@ import (
 // constants
 const (
 	floatFormatter = "%.12f"
+	dateFormatter  = "01-02-2006"
 	Unknown        = "Unknown"
 	HREF           = "<a href="
 )
@@ -220,19 +221,21 @@ func (aa AcmArticle) GetKeyValuePairs() (map[string]string, map[int]string) {
 
 // Vocabulary struct
 type Vocabulary struct {
-	Id          uint32  `json:"id"`
-	Word        string  `json:"word"`
-	RowCount    int     `json:"rowcount"`
-	Frequency   int     `json:"frequency"`
-	WordRank    int     `json:"wordrank"`
-	Probability float32 `json:"probability"` // Probability of word at rank.
-	SpeechPart  string  `json:"speechpart"`  // Assign using BulkInsert_Vocabulary_Speechpart().
-	Stem        string  `json:"stem"`        // Assign using libstemmer program
+	Id              uint32    `json:"id"`
+	Word            string    `json:"word"`
+	RowCount        int       `json:"rowcount"`
+	Frequency       int       `json:"frequency"`
+	WordRank        int       `json:"wordrank"`
+	Probability     float32   `json:"probability"` // Probability of word at rank.
+	SpeechPart      string    `json:"speechpart"`  // Assign using BulkInsert_Vocabulary_Speechpart().
+	OccurrenceCount int       `json:"occurrencecount"`
+	Stem            string    `json:"stem"` // Assign using libstemmer program
+	DateUpdated     time.Time `json:"dateupdated"`
 }
 
 // GetKeyValuePairs method
 func (v Vocabulary) GetKeyValuePairs() (map[string]string, map[int]string) {
-	fieldNames := []string{"Id", "Word", "RowCount", "Frequency", "WordRank", "Probability", "SpeechPart", "Stem"}
+	fieldNames := []string{"Id", "Word", "RowCount", "Frequency", "WordRank", "Probability", "SpeechPart", "OccurrenceCount", "Stem", "DateUpdated"}
 	orderedMap := GetOrderedMap(fieldNames)
 
 	predicateMap := make(map[string]string, len(fieldNames))
@@ -243,14 +246,16 @@ func (v Vocabulary) GetKeyValuePairs() (map[string]string, map[int]string) {
 	predicateMap[fieldNames[4]] = strconv.Itoa(v.WordRank)
 	predicateMap[fieldNames[5]] = fmt.Sprintf(floatFormatter, v.Probability)
 	predicateMap[fieldNames[6]] = v.SpeechPart
-	predicateMap[fieldNames[7]] = v.Stem
+	predicateMap[fieldNames[7]] = strconv.Itoa(v.OccurrenceCount)
+	predicateMap[fieldNames[8]] = v.Stem
+	predicateMap[fieldNames[9]] = v.DateUpdated.Format(dateFormatter)
 
 	return predicateMap, orderedMap
 }
 
 // Print method
 func (v Vocabulary) Print() string {
-	return fmt.Sprintf("%d : %s : %d : %d : %d : %f : %s : %s", v.Id, v.Word, v.RowCount, v.Frequency, v.WordRank, v.Probability, v.SpeechPart, v.Stem)
+	return fmt.Sprintf("%d : %s : %d : %d : %d : %f : %s : %d : %s : %s", v.Id, v.Word, v.RowCount, v.Frequency, v.WordRank, v.Probability, v.SpeechPart, v.OccurrenceCount, v.Stem, v.DateUpdated.Format(dateFormatter))
 }
 
 // VocabularySorterFreq Sort interface by Frequency. Len() is the number of elements in the collection.
@@ -577,7 +582,7 @@ type UserProfile struct {
 	DateUpdated time.Time `json:"dateupdated"`
 }
 
-// GraphNode struct reflects IGraphNode interface in react-app-env.d.ts
+// GraphNode struct reflects IGraphNode interface in react-app-env.d.ts. Does not include OccurrenceCount or DateUpdated fields.
 type GraphNode struct {
 	NodeID       int             `json:"nodeid"`       // Vertices of all graphs are uniquely numbered 0..n-1.
 	ID           int             `json:"id"`           // Vocabulary.Id	but this requires slight change in D3 to use nodeid instead of default id!
