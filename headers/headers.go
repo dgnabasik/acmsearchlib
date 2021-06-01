@@ -686,8 +686,8 @@ type WordChanges struct {
 	ChangeRate    float32   `json:"changerate"`
 }
 
-// Rate of change = (Loss + Gain)/(Loss + Gain + Same)
-func createWordChangesStruct(anchorWords []string, kvsp []KeyValueStringPair, timeinterval nt.TimeInterval, begindate, finishdate time.Time) WordChanges {
+// CreateWordChangesStruct func where Rate of change = (Loss + Gain)/(Loss + Gain + Same)
+func CreateWordChangesStruct(anchorWords []string, kvsp []KeyValueStringPair, timeinterval nt.TimeInterval, begindate, finishdate time.Time) WordChanges {
 	wc := WordChanges{Timeframetype: int(timeinterval.Timeframetype), StartDate: timeinterval.StartDate.DT, EndDate: timeinterval.EndDate.DT, BeginDate: begindate, FinishDate: finishdate}
 	wc.AnchorWords = make([]string, len(anchorWords))
 	copy(wc.AnchorWords, anchorWords)
