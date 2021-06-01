@@ -671,3 +671,41 @@ type KeyValueStringPair struct {
 	Key   string `json:"key" binding:"required"`
 	Value string `json:"value" binding:"required"`
 }
+
+// WordChanges struct
+type WordChanges struct {
+	AnchorWords   []string  `json:"anchorwords"`
+	SameWords     []string  `json:"samewords"`
+	LossWords     []string  `json:"losswords"`
+	GainWords     []string  `json:"gainwords"`
+	Timeframetype int       `json:"timeframetype"`
+	StartDate     time.Time `json:"startdate"`  // earlier period
+	EndDate       time.Time `json:"enddate"`    // earlier period
+	BeginDate     time.Time `json:"begindate"`  // later period
+	FinishDate    time.Time `json:"finishdate"` // later period
+	ChangeRate    float32   `json:"changerate"`
+}
+
+// Rate of change = (Loss + Gain)/(Loss + Gain + Same)
+func createWordChangesStruct(anchorWords []string, kvsp []KeyValueStringPair, timeinterval nt.TimeInterval, begindate, finishdate time.Time) WordChanges {
+	wc := WordChanges{Timeframetype: int(timeinterval.Timeframetype), StartDate: timeinterval.StartDate.DT, EndDate: timeinterval.EndDate.DT, BeginDate: begindate, FinishDate: finishdate}
+	wc.AnchorWords = make([]string, len(anchorWords))
+	copy(wc.AnchorWords, anchorWords)
+	wc.SameWords = make([]string, 0)
+	wc.GainWords = make([]string, 0)
+	wc.LossWords = make([]string, 0)
+	for _, kvp := range kvsp {
+		switch kvp.Value {
+		case "S":
+			wc.SameWords = append(wc.SameWords, kvp.Key)
+		case "G":
+			wc.GainWords = append(wc.GainWords, kvp.Key)
+		case "L":
+			wc.LossWords = append(wc.LossWords, kvp.Key)
+		}
+	}
+	if len(kvsp) > 0 {
+		wc.ChangeRate = float32(len(wc.LossWords)+len(wc.GainWords)) / float32(len(wc.SameWords)+len(wc.LossWords)+len(wc.GainWords))
+	}
+	return wc
+}
