@@ -110,7 +110,7 @@ func RemoveDuplicateStrings(stringSlice []string) []string {
 	return list
 }
 
-// DeleteStringSliceElement func maintains order.
+// DeleteStringSliceElement func maintains order. Removes only the first matching element. See RemoveDuplicateStrings() above.
 func DeleteStringSliceElement(a []string, str string) []string {
 	ndx := -1
 	for i := 0; i < len(a); i++ {
@@ -119,10 +119,14 @@ func DeleteStringSliceElement(a []string, str string) []string {
 			break
 		}
 	}
-	if ndx > 0 {
-		copy(a[ndx:], a[ndx+1:]) // Shift a[i+1:] left one index.
-		a[len(a)-1] = ""         // Erase last element (write zero value).
-		a = a[:len(a)-1]
+	if ndx == 0 {
+		return a[1:]
+	}
+	if ndx > 0 && ndx < len(a)-1 {
+		return append(a[:ndx-1], a[ndx+1:]...)
+	}
+	if ndx > 0 && ndx == len(a)-1 {
+		return append(a[:ndx-1], a[ndx-1])
 	}
 	return a
 }
@@ -674,7 +678,7 @@ type KeyValueStringPair struct {
 
 // WordChanges struct
 type WordChanges struct {
-	AnchorWords   []string  `json:"anchorwords"`
+	QueryWords    []string  `json:"querywords"`
 	SameWords     []string  `json:"samewords"`
 	LossWords     []string  `json:"losswords"`
 	GainWords     []string  `json:"gainwords"`
@@ -687,10 +691,10 @@ type WordChanges struct {
 }
 
 // CreateWordChangesStruct func where Rate of change = (Loss + Gain)/(Loss + Gain + Same)
-func CreateWordChangesStruct(anchorWords []string, kvsp []KeyValueStringPair, timeinterval nt.TimeInterval, begindate, finishdate time.Time) WordChanges {
+func CreateWordChangesStruct(queryWords []string, kvsp []KeyValueStringPair, timeinterval nt.TimeInterval, begindate, finishdate time.Time) WordChanges {
 	wc := WordChanges{Timeframetype: int(timeinterval.Timeframetype), StartDate: timeinterval.StartDate.DT, EndDate: timeinterval.EndDate.DT, BeginDate: begindate, FinishDate: finishdate}
-	wc.AnchorWords = make([]string, len(anchorWords))
-	copy(wc.AnchorWords, anchorWords)
+	wc.QueryWords = make([]string, len(queryWords))
+	copy(wc.QueryWords, queryWords)
 	wc.SameWords = make([]string, 0)
 	wc.GainWords = make([]string, 0)
 	wc.LossWords = make([]string, 0)
