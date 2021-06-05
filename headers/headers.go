@@ -391,7 +391,7 @@ type Occurrence struct {
 
 // Print method
 func (o Occurrence) Print() string {
-	return fmt.Sprintf("%d:%s:%s:%d", o.AcmId, o.Word, o.ArchiveDate.StandardDate(), o.Nentry)
+	return fmt.Sprintf("%d : %s : %s : %d", o.AcmId, o.Word, o.ArchiveDate.StandardDate(), o.Nentry)
 }
 
 // GetKeyValuePairs method
@@ -577,6 +577,15 @@ func (a WordScoreConditionalFlatSorter) Len() int           { return len(a) }
 func (a WordScoreConditionalFlatSorter) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a WordScoreConditionalFlatSorter) Less(i, j int) bool { return a[i].ID < a[j].ID }
 
+// Print method
+func (wscf WordScoreConditionalFlat) Print() string {
+	ti := nt.New_TimeInterval(nt.TimeFrameType(wscf.Timeframetype), nt.New_NullTime2(wscf.StartDate), nt.New_NullTime2(wscf.EndDate))
+	fd := nt.New_NullTime2(wscf.FirstDate)
+	ld := nt.New_NullTime2(wscf.LastDate)
+	str := fmt.Sprintf("%s : %f : %f : %f : %s : %s : %s", wscf.Wordlist, wscf.Score, wscf.Probability, wscf.Pmi, ti.ToString(), fd.StandardDate(), ld.StandardDate())
+	return str
+}
+
 type UserProfile struct {
 	ID          int       `json:"id"`
 	UserName    string    `json:"username"`
@@ -659,6 +668,12 @@ func (a SimplexComplexSorterDate) Len() int      { return len(a) }
 func (a SimplexComplexSorterDate) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
 func (a SimplexComplexSorterDate) Less(i, j int) bool {
 	return a[i].Timeinterval.StartDate.DT.Before(a[j].Timeinterval.StartDate.DT)
+}
+
+// Print method
+func (sc SimplexComplex) Print() string {
+	str := fmt.Sprintf("%s : %s : %d : %d : %d : %d : %f : %s", sc.SimplexName, sc.SimplexType, sc.EulerCharacteristic, sc.Dimension, sc.NumSimplices, sc.NumVertices, sc.FiltrationValue, sc.Timeinterval.ToString())
+	return str
 }
 
 // SimplexBarcode struct
