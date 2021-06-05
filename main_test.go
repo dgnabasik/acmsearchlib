@@ -725,7 +725,7 @@ func Test_conditional(t *testing.T) {
 	}
 
 	startTime := time.Now()
-	condProbList, err = cond.GetProbabilityGraph(words, timeinterval) // SLOW!
+	condProbList, err = cond.GetProbabilityGraph(words, timeinterval)
 	if err != nil {
 		t.Error("f11c: bad GetProbabilityGraph")
 	}
@@ -835,21 +835,65 @@ func Test_vocabulary(t *testing.T) {
 		t.Error("h4b: bad GetVocabularyListByDate")
 	}
 
-	fmt.Println(len(vocList))
+	wordProbMap, err := voc.GetVocabularyMapProbability(words, timeInterval)
+	if err != nil {
+		t.Error("h5a: bad GetVocabularyMapProbability")
+	}
+	if len(wordProbMap) < 1 {
+		t.Error("h5b: bad GetVocabularyMapProbability")
+	}
+
+	wordProbMap, err = voc.GetVocabularyMapProbability([]string{}, timeInterval)
+	if err != nil {
+		t.Error("h5c: bad GetVocabularyMapProbability")
+	}
+	if len(wordProbMap) < 1 {
+		t.Error("h5d: bad GetVocabularyMapProbability")
+	}
+
+	fieldName := "Frequency" //{Id, Frequency, Wordrank}
+	vocStringIntMap, err := voc.GetVocabularyMap(fieldName)
+	if err != nil {
+		t.Error("h6a: bad GetVocabularyMap")
+	}
+	if len(vocStringIntMap) < 1 {
+		t.Error("h6b: bad GetVocabularyMap")
+	}
+
+	tableName := "vocabulary"  // {vocabulary, simplex}
+	columnName := "speechpart" // {speechpart, simplextype}
+	lookups, err := voc.GetLookupValues(tableName, columnName)
+	if err != nil {
+		t.Error("h6a: bad GetLookupValues")
+	}
+	if len(lookups) < 1 {
+		t.Error("h6b: bad GetLookupValues")
+	}
+
+	useOccurrence := true
+	occurrenceList, err := voc.GetTitleWordsBigramInterval(words, timeInterval, useOccurrence)
+	if err != nil {
+		t.Error("h7a: bad GetTitleWordsBigramInterval")
+	}
+	if len(occurrenceList) < 1 {
+		t.Error("h7b: bad GetTitleWordsBigramInterval")
+	}
+	useOccurrence = false
+	occurrenceList, err = voc.GetTitleWordsBigramInterval(words, timeInterval, useOccurrence)
+	if err != nil {
+		t.Error("h7c: bad GetTitleWordsBigramInterval")
+	}
+	if len(occurrenceList) < 1 {
+		t.Error("h7d: bad GetTitleWordsBigramInterval")
+	}
+
+	// UpdateVocabulary(recordList []hd.Vocabulary) (int, error) {
+	// CallUpdateVocabulary() error {
+	// BulkInsertVocabulary(recordList []hd.Vocabulary) (int, error) {
 }
 
-/* <<<<
- GetVocabularyMapProbability(wordGrams []string, timeInterval nt.TimeInterval) (map[string]float32, error) {
- GetTitleWordsBigramInterval(bigrams []string, timeInterval nt.TimeInterval, useOccurrence bool) ([]hd.Occurrence, error) {
- GetVocabularyMap(fieldName string) (map[string]int, error) {
- GetLookupValues(tableName, columnName string) ([]string, error) {
-// UpdateVocabulary(recordList []hd.Vocabulary) (int, error) {
-// CallUpdateVocabulary() error {
-// BulkInsertVocabulary(recordList []hd.Vocabulary) (int, error) {
-*/
-
 /* simplex ************************************************************************************/
-/*
+/* <<<<
  GetSimplexByNameUserID(userID int, simplexName, simplexType string, useTempTable bool) ([]hd.SimplexComplex, error) {
  GetSimplexListByUserID(userID int, useTempTable bool) ([]hd.SimplexComplex, error) {
  PostSimplexComplex(userID int, simplexName, simplexType string, timeInterval nt.TimeInterval) ([]uint64, error) {

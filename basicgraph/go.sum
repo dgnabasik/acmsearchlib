@@ -44,13 +44,13 @@ github.com/creack/pty v1.1.7/go.mod h1:lj5s0c3V2DBrqTV7llrYr5NG6My20zk30Fl46Y7Do
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/dgnabasik/acmsearchlib/database v0.0.0-20210518232259-e15664fc9cb0 h1:7owpSBhvNpkry6H/+f0gstL9N2XlOmAXVNeU0Ulj5Q0=
-github.com/dgnabasik/acmsearchlib/database v0.0.0-20210518232259-e15664fc9cb0/go.mod h1:guTa27Yyk2bldM34pwtMbBtWWHuLMNfORP36e2RA6Yk=
-github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210518232259-e15664fc9cb0 h1:MoYXQMMREs9DRhWnQJ01c/+rvEIM84WZDIb7CIO1I5s=
-github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210518232259-e15664fc9cb0/go.mod h1:hrHlthEimmlMhbKphqGu+RvZ4RB09H0tk63I3NDSE3c=
-github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210511082851-3f963815c6d1/go.mod h1:EzXlVSG2YC+za3MbY7Z+9PPf2mX0Tv63MWt78oZz1LU=
-github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210518232259-e15664fc9cb0 h1:OiiMOu1YWCXODLN790UyEpYJZw3CAUp1avau+xKUxr0=
+github.com/dgnabasik/acmsearchlib/database v0.0.0-20210605011152-f83321b8fda8 h1:Bv+gsP9pb850JXj1Dnp9VLKs6kmIZJmagAxH5B6Be18=
+github.com/dgnabasik/acmsearchlib/database v0.0.0-20210605011152-f83321b8fda8/go.mod h1:cNFUbocbUKWpS7LIZ2POJYZ7CEc35KPx1lMN7YcIJw4=
+github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210605011152-f83321b8fda8 h1:myK/Z74dTO9n+j27+ua4vJ8srmFKU9s1vt9Ta7BBx2E=
+github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210605011152-f83321b8fda8/go.mod h1:G+wXk/UPW/0B+ygTkHoGnq/lWFrWEXSXp7URVFG6wjA=
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210518232259-e15664fc9cb0/go.mod h1:EzXlVSG2YC+za3MbY7Z+9PPf2mX0Tv63MWt78oZz1LU=
+github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210605011152-f83321b8fda8 h1:XX90BBElqeUOl+MmETCNo4U41onLKgwUMw/9ZnnY/E8=
+github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210605011152-f83321b8fda8/go.mod h1:EzXlVSG2YC+za3MbY7Z+9PPf2mX0Tv63MWt78oZz1LU=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible/go.mod h1:E3ru+11k8xSBh+hMPgOLZmtrrCbhqsmaPHjLKYnJCaQ=
 github.com/dustin/go-humanize v0.0.0-20171111073723-bb3d318650d4/go.mod h1:HtrtbFcZ19U5GC7JDqmcUSB87Iq5E25KnS6fMYU6eOk=
 github.com/eapache/go-resiliency v1.1.0/go.mod h1:kFI+JgMyC7bLPUVY133qvEBtVayf5mFgVsvEsIPBvNs=
@@ -352,7 +352,6 @@ golang.org/x/crypto v0.0.0-20190911031432-227b76d455e7/go.mod h1:yigFU9vqHzYiE8U
 golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550/go.mod h1:yigFU9vqHzYiE8UmvKecakEJjdnWj3jj499lnFckfCI=
 golang.org/x/crypto v0.0.0-20200323165209-0ec3e9974c59/go.mod h1:LzIPMQfyMNhhGPhUkYOs5KpL4U8rLKemX1yGLhDgUto=
 golang.org/x/crypto v0.0.0-20210322153248-0c34fe9e7dc2/go.mod h1:T9bdIzuCu7OtxOm1hfPfRQxPLYneinmdGuTeoZ9dtd4=
-golang.org/x/crypto v0.0.0-20210506145944-38f3c27a63bf/go.mod h1:P+XmwS30IXTQdn5tA2iutPOUgjI07+tq3H3K9MVA1s8=
 golang.org/x/crypto v0.0.0-20210513164829-c07d793c2f9a h1:kr2P4QFmQr29mSLA43kwrOcgcReGTfbE9N577tCTuBc=
 golang.org/x/crypto v0.0.0-20210513164829-c07d793c2f9a/go.mod h1:P+XmwS30IXTQdn5tA2iutPOUgjI07+tq3H3K9MVA1s8=
 golang.org/x/exp v0.0.0-20190121172915-509febef88a4/go.mod h1:CJ0aWSM057203Lf6IL+f9T1iT9GByDxfZKAQTCR3kQA=
