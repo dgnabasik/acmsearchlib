@@ -45,7 +45,13 @@ const (
 
 // GetFilePrefixPath func returns html file location.
 func GetFilePrefixPath() string {
-	return os.Getenv("ACM_FILE_PREFIX")
+	envVar := os.Getenv("ACM_FILE_PREFIX")
+	if envVar == "" {
+		log.Printf("ACM_FILE_PREFIX env var not found...using default%s\n")
+		envVar = "/home/david/"
+	}
+	return envVar
+
 }
 
 // ReadDir reads the directory named by dirname and returns a list of FileInfo entries [sorted by filename.]
@@ -315,7 +321,12 @@ func GetFileTime(fileName string) int64 {
 
 // GetSourceDirectory func sources local acm.env file.
 func GetSourceDirectory() string {
-	return os.Getenv("REACT_ACM_SOURCE_DIR")
+	envVar := os.Getenv("REACT_ACM_SOURCE_DIR")
+	if envVar == "" {
+		log.Printf("REACT_ACM_SOURCE_DIR env var not found...using default%s\n")
+		envVar = "/home/david/websites/acmsearch/docs/"
+	}
+	return envVar
 }
 
 /*************************************************************************************/

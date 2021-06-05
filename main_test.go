@@ -8,6 +8,8 @@ import (
 	"time"
 
 	art "github.com/dgnabasik/acmsearchlib/article"
+	bg "github.com/dgnabasik/acmsearchlib/basicgraph"
+	cat "github.com/dgnabasik/acmsearchlib/category"
 	cond "github.com/dgnabasik/acmsearchlib/conditional"
 	dbx "github.com/dgnabasik/acmsearchlib/database"
 	fs "github.com/dgnabasik/acmsearchlib/filesystem"
@@ -524,7 +526,7 @@ func Test_filesystem(t *testing.T) {
 		t.Error("d8b: bad WriteTextLines")
 	}
 
-	dirname := prefix + "acmFiles/" // searches only *.html files (e.g., ../acmFiles)
+	dirname := "/home/david/acmFiles/" // searches only *.html files (e.g., ../acmFiles)
 	since := nt.New_NullTime("2020-01-01")
 	lines, err = fs.GetFileList(dirname, since)
 	if err != nil {
@@ -776,7 +778,7 @@ func Test_wordscore(t *testing.T) {
 	words := []string{"3d", "able", "access"}
 	startDate := nt.New_NullTime("2004-01-01")
 	endDate := nt.New_NullTime("2007-12-31")
-	timeInterval := nt.New_TimeInterval(nt.TFSpan, startDate, endDate)
+	timeInterval := nt.New_TimeInterval(nt.TFTerm, startDate, endDate)
 	wordscoreList, err = ws.GetWordScoreListByTimeInterval(words, timeInterval)
 	if err != nil {
 		t.Error("g2a: bad GetWordScoreListByTimeInterval")
@@ -792,7 +794,6 @@ func Test_wordscore(t *testing.T) {
 
 // Test_vocabulary func
 func Test_vocabulary(t *testing.T) {
-
 	words := []string{"3d", "able", "access"}
 	vocList, err := voc.GetVocabularyList(words)
 	if err != nil {
@@ -831,7 +832,7 @@ func Test_vocabulary(t *testing.T) {
 	if err != nil {
 		t.Error("h4a: bad GetVocabularyListByDate")
 	}
-	if len(lookupMap) < 1 {
+	if len(vocList) < 1 {
 		t.Error("h4b: bad GetVocabularyListByDate")
 	}
 
@@ -892,28 +893,77 @@ func Test_vocabulary(t *testing.T) {
 	// BulkInsertVocabulary(recordList []hd.Vocabulary) (int, error) {
 }
 
-/* simplex ************************************************************************************/
-/* <<<<
- GetSimplexByNameUserID(userID int, simplexName, simplexType string, useTempTable bool) ([]hd.SimplexComplex, error) {
- GetSimplexListByUserID(userID int, useTempTable bool) ([]hd.SimplexComplex, error) {
- PostSimplexComplex(userID int, simplexName, simplexType string, timeInterval nt.TimeInterval) ([]uint64, error) {
- GetSimplexWordDifference(complexIdList []uint64) ([]hd.KeyValueStringPair, error) {
- InsertCategoryWords(categoryID uint64, words []string) error {
- InsertWordCategory(description string) (hd.CategoryTable, error) {
- GetSpecialMap(category int) ([]hd.SpecialTable, error) {
- GetCategoryMap() ([]hd.CategoryTable, error) {
-// InsertSimplexComplex(sc hd.SimplexComplex) (hd.SimplexComplex, error) {
-// BulkInsertSimplexFacets(facets []hd.SimplexFacet) error {
-*/
+/* basicgraph ************************************************************************************/
+
+// Test_basicgraph func
+func Test_basicgraph(t *testing.T) {
+	userID := 0
+	simplexName := "3d|able|access"
+	simplexType := "Alpha"
+	useTempTable := false
+	simplexComplex, err := bg.GetSimplexByNameUserID(userID, simplexName, simplexType, useTempTable)
+	if err != nil {
+		t.Error("i1a: bad GetSimplexByNameUserID")
+	}
+	if len(simplexComplex) < 1 {
+		t.Error("i1b: bad GetSimplexByNameUserID")
+	}
+
+	simplexComplex, err = bg.GetSimplexListByUserID(userID, useTempTable)
+	if err != nil {
+		t.Error("i2a: bad GetSimplexListByUserID")
+	}
+	if len(simplexComplex) < 1 {
+		t.Error("i2b: bad GetSimplexListByUserID")
+	}
+
+	complexIdList := []uint64{152, 155, 156}
+	keyValueStringPair, err := bg.GetSimplexWordDifference(complexIdList)
+	if err != nil {
+		t.Error("i3a: bad GetSimplexWordDifference")
+	}
+	if len(keyValueStringPair) < 1 {
+		t.Error("i3b: bad GetSimplexWordDifference")
+	}
+
+	// PostSimplexComplex(userID int, simplexName, simplexType string, timeInterval nt.TimeInterval) ([]uint64, error) {
+	// InsertSimplexComplex(sc hd.SimplexComplex) (hd.SimplexComplex, error) {
+	// BulkInsertSimplexFacets(facets []hd.SimplexFacet) error {
+}
+
+/* category ************************************************************************************/
+
+// Test_category func
+func Test_category(t *testing.T) {
+	category := 1
+	specialTable, err := cat.GetSpecialMap(category)
+	if err != nil {
+		t.Error("j1a: bad GetSpecialMap")
+	}
+	if len(specialTable) < 1 {
+		t.Error("j1b: bad GetSpecialMap")
+	}
+
+	categoryTable, err := cat.GetCategoryMap()
+	if err != nil {
+		t.Error("j2a: bad GetCategoryMap")
+	}
+	if len(categoryTable) < 1 {
+		t.Error("j2b: bad GetCategoryMap")
+	}
+
+	// InsertCategoryWords(categoryID uint64, words []string) error {
+	// InsertWordCategory(description string) (hd.CategoryTable, error) {
+}
 
 /* profile ************************************************************************************/
-/*
-	func Encrypt(key, data []byte) ([]byte, error) {
-	func Decrypt(key, data []byte) ([]byte, error) {
-	func GenerateKey() ([]byte, error) {
-	func DeriveKey(password, salt []byte) ([]byte, []byte, error) {
-	func EncryptData(password, textdata string) string {
-	func DecryptData(password string, ciphertext []byte) (string, error) {
-	func GetUserProfile(userName, pwdText string) (hd.UserProfile, error) {
-	// InsertUserProfile(userName, userEmail, pwdText string, acmmemberid int) (hd.UserProfile, error) {
+/*<<<<
+func Encrypt(key, data []byte) ([]byte, error) {
+func Decrypt(key, data []byte) ([]byte, error) {
+func GenerateKey() ([]byte, error) {
+func DeriveKey(password, salt []byte) ([]byte, []byte, error) {
+func EncryptData(password, textdata string) string {
+func DecryptData(password string, ciphertext []byte) (string, error) {
+func GetUserProfile(userName, pwdText string) (hd.UserProfile, error) {
+// InsertUserProfile(userName, userEmail, pwdText string, acmmemberid int) (hd.UserProfile, error) {
 */

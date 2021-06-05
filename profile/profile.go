@@ -105,7 +105,7 @@ func EncryptData(password, textdata string) string {
 
 	ciphertext, err := Encrypt(pwd, data)
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
 
 	return hex.EncodeToString(ciphertext)
@@ -116,7 +116,7 @@ func DecryptData(password string, ciphertext []byte) (string, error) {
 
 	plaintext, err := Decrypt(pwd, ciphertext)
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
 
 	return string(plaintext), err
