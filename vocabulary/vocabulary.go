@@ -31,10 +31,14 @@ func GetVocabularyByWord(wordX string) (hd.Vocabulary, error) {
 	var rowCount, frequency, wordRank, occurrenceCount int
 	var probability float32
 	var dateupdated time.Time
-	SELECT := vocabularySelect + " WHERE Word='" + wordX + "'"
+	SELECT := vocabularySelect + " WHERE word='" + wordX + "'"
 	err = db.QueryRow(context.Background(), SELECT).Scan(&id, &word, &rowCount, &frequency, &wordRank, &probability, &speechPart, &occurrenceCount, &stem, &dateupdated)
 	dbx.CheckErr(err)
-	return hd.Vocabulary{Id: id, Word: word, RowCount: rowCount, Frequency: frequency, WordRank: wordRank, Probability: probability, SpeechPart: speechPart, OccurrenceCount: occurrenceCount, Stem: stem, DateUpdated: dateupdated}, nil
+	if err != nil { // not found
+		return hd.Vocabulary{}, err
+	} else {
+		return hd.Vocabulary{Id: id, Word: word, RowCount: rowCount, Frequency: frequency, WordRank: wordRank, Probability: probability, SpeechPart: speechPart, OccurrenceCount: occurrenceCount, Stem: stem, DateUpdated: dateupdated}, err
+	}
 }
 
 // GetVocabularyList method does NOT apply filtering to imported []words. Func places single quotes around each words element.
@@ -71,6 +75,57 @@ func GetVocabularyList(words []string) ([]hd.Vocabulary, error) {
 			&vocabulary.DateUpdated)
 		if err != nil {
 			log.Printf("GetVocabularyList(2): %+v\n", err)
+			return nil, err
+		}
+		vocabularyList = append(vocabularyList, vocabulary)
+	}
+
+	// get any iteration errors
+	err = rows.Err()
+	dbx.CheckErr(err)
+
+	return vocabularyList, err
+}
+
+// GetStemWords func returns all the words which have the stem of imported word, inclusive.
+func GetStemWords(word string) ([]hd.Vocabulary, error) {
+	stemVoc, err := GetVocabularyByWord(strings.ToLower(word))
+	if err != nil {
+		log.Printf("GetStemWords(0): %+v\n", err)
+		return []hd.Vocabulary{}, err
+	}
+
+	db, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return []hd.Vocabulary{}, err
+	}
+	defer db.Close()
+
+	query := vocabularySelect + " WHERE stem='" + stemVoc.Stem + "'"
+	rows, err := db.Query(context.Background(), query)
+	dbx.CheckErr(err)
+	if err != nil {
+		log.Printf("GetStemWords(1): %+v\n", err)
+		return []hd.Vocabulary{}, err
+	}
+	defer rows.Close()
+
+	var vocabulary hd.Vocabulary
+	vocabularyList := []hd.Vocabulary{}
+	for rows.Next() {
+		err := rows.Scan(
+			&vocabulary.Id,
+			&vocabulary.Word,
+			&vocabulary.RowCount,
+			&vocabulary.Frequency,
+			&vocabulary.WordRank,
+			&vocabulary.Probability,
+			&vocabulary.SpeechPart,
+			&vocabulary.OccurrenceCount,
+			&vocabulary.Stem,
+			&vocabulary.DateUpdated)
+		if err != nil {
+			log.Printf("GetStemWords(2): %+v\n", err)
 			return nil, err
 		}
 		vocabularyList = append(vocabularyList, vocabulary)

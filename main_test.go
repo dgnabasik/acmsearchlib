@@ -797,15 +797,23 @@ func Test_vocabulary(t *testing.T) {
 	words := []string{"3d", "able", "access"}
 	vocList, err := voc.GetVocabularyList(words)
 	if err != nil {
-		t.Error("h1a: bad GetVocabularyList")
+		t.Error("h0a: bad GetVocabularyList")
 	}
 	if len(vocList) != 3 {
-		t.Error("h1b: bad GetVocabularyList")
+		t.Error("h0b: bad GetVocabularyList")
 	}
 
 	_, err = voc.GetVocabularyByWord(words[0])
 	if err != nil {
-		t.Error("h2: bad GetVocabularyByWord")
+		t.Error("h1: bad GetVocabularyByWord")
+	}
+
+	vocList, err = voc.GetStemWords("access")
+	if err != nil {
+		t.Error("h2a: bad GetStemWords")
+	}
+	if len(vocList) != 8 {
+		t.Error("h2b: bad GetStemWords")
 	}
 
 	prefix := "" // fetch all words
