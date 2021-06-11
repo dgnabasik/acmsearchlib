@@ -200,10 +200,19 @@ func ReadTextLines(filePath string, normalizeText bool) ([]string, error) {
 		log.Printf("filesystem.ReadTextLines: %+v\n", err)
 		return nil, err
 	}
+	fi, err := file.Stat()
+	if err != nil {
+		log.Printf("filesystem.ReadTextLines: %+v\n", err)
+		return nil, err
+	}
 	defer file.Close()
 
 	var lines []string
 	scanner := bufio.NewScanner(file)
+	maxCapacity := fi.Size() + 1
+	buf := make([]byte, maxCapacity)
+	scanner.Buffer(buf, int(maxCapacity))
+
 	for scanner.Scan() {
 		if normalizeText {
 			str := strings.ToLower(strings.TrimSpace(scanner.Text()))

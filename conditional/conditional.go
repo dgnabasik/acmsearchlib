@@ -426,8 +426,8 @@ func CalcConditionalProbability(startingWordgram string, wordMap map[string]floa
 				today := nt.NullTimeToday().DT
 				err = DB1.QueryRow(context.Background(), `SELECT pAgivenB, pBgivenA, pmi FROM GetConditionalProbabilities($1, $2, $3, $4)`, wordGrams[wordA], wordGrams[wordB], startDateParam, endDateParam).Scan(&pAgivenB, &pBgivenA, &pmi)
 				dbx.CheckErr(err)
-				if pAgivenB > cutoffProbability && pBgivenA > cutoffProbability {
-					err = DB1.QueryRow(context.Background(), `SELECT firstDate, lastDate FROM GetFirstLastArchiveDates($1, $2, $3, $4)`, wordGrams[wordA], wordGrams[wordB], startDateParam, endDateParam).Scan(&firstDate, &lastDate)
+				if pAgivenB > cutoffProbability && pBgivenA > cutoffProbability { // 1 is sessionID
+					err = DB1.QueryRow(context.Background(), `SELECT firstDate, lastDate FROM GetFirstLastArchiveDates($1, $2, $3, $4, $5)`, wordGrams[wordA], wordGrams[wordB], startDateParam, endDateParam, 1).Scan(&firstDate, &lastDate)
 					dbx.CheckErr(err)                            // firstDate, lastDate can be null!
 					firstDateValue = nt.New_NullTime2(firstDate) // must match function RETURNS TABLE names.
 					lastDateValue = nt.New_NullTime2(lastDate)
