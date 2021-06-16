@@ -5,7 +5,6 @@ package basicgraph
 import (
 	"context"
 	"log"
-	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -27,12 +26,12 @@ func getTableNames(useTempTable bool) []string {
 	return []string{[]string{"Simplex", "temp_Simplex"}[tableIndex], []string{"Facet", "temp_Facet"}[tableIndex]}
 }
 
-// GetSimplexByNameUserID func : simplexName is case-insensitive.
-// Get linked [Simplex] rows using constant {UserID, SimplexName, SimplexType} with varying {Timeinterval}.
-func GetSimplexByNameUserID(userID int, simplexName, simplexType string, useTempTable bool) ([]hd.SimplexComplex, error) {
+// GetSimplexByNameUserID func : simplexName, simplextype are case-sensitive.
+func GetSimplexByNameUserID(userID int, simplexName, simplexType string, useTempTable bool) (hd.SimplexComplex, error) {
+	var sc hd.SimplexComplex
 	db, err := dbx.GetDatabaseReference()
 	if err != nil {
-		return nil, err
+		return sc, err
 	}
 	defer db.Close()
 
@@ -46,46 +45,32 @@ func GetSimplexByNameUserID(userID int, simplexName, simplexType string, useTemp
 	dbx.CheckErr(err)
 	if err != nil {
 		log.Printf("GetSimplexByNameUserID(1): %+v\n", err)
-		return nil, err
+		return sc, err
 	}
 	defer rows.Close()
 
-	var s hd.SimplexComplex
 	var f hd.SimplexFacet
-	complexes := make([]hd.SimplexComplex, 0)
 	facets := make([]hd.SimplexFacet, 0)
 	var timeframetype int
 	var startDate, endDate time.Time
-	var oldID uint64
-	// all simplex values are the same.
+
 	for rows.Next() {
-		err := rows.Scan(&s.ID, &s.UserID, &s.SimplexName, &s.SimplexType, &s.EulerCharacteristic, &s.Dimension, &s.FiltrationValue, &s.NumSimplices, &s.NumVertices, &s.BettiNumbers,
-			&timeframetype, &startDate, &endDate, &s.Enabled, &s.DateCreated, &s.DateUpdated, &f.ComplexID, &f.SourceVertexID, &f.TargetVertexID, &f.SourceWord, &f.TargetWord, &f.Weight)
+		err := rows.Scan(&sc.ID, &sc.UserID, &sc.SimplexName, &sc.SimplexType, &sc.EulerCharacteristic, &sc.Dimension, &sc.FiltrationValue, &sc.NumSimplices, &sc.NumVertices, &sc.BettiNumbers,
+			&timeframetype, &startDate, &endDate, &sc.Enabled, &sc.DateCreated, &sc.DateUpdated, &f.ComplexID, &f.SourceVertexID, &f.TargetVertexID, &f.SourceWord, &f.TargetWord, &f.Weight)
 		if err != nil {
 			log.Printf("GetSimplexByNameUserID(2): %+v\n", err)
-			return complexes, err
+			return sc, err
 		}
-		s.Timeinterval = nt.New_TimeInterval(nt.TimeFrameType(timeframetype), nt.New_NullTime2(startDate), nt.New_NullTime2(endDate))
-		if oldID != s.ID {
-			complexes = append(complexes, s)
-			oldID = s.ID
-		}
+		sc.Timeinterval = nt.New_TimeInterval(nt.TimeFrameType(timeframetype), nt.New_NullTime2(startDate), nt.New_NullTime2(endDate))
 		facets = append(facets, f)
 	}
 	err = rows.Err()
 	dbx.CheckErr(err)
 
-	// partition facets into correct simplex
-	for ndx, s := range complexes {
-		complexes[ndx].FacetVector = make([]hd.SimplexFacet, 0)
-		for _, f := range facets {
-			if f.ComplexID == s.ID {
-				complexes[ndx].FacetVector = append(complexes[ndx].FacetVector, f)
-			}
-		}
-	}
+	sc.FacetVector = make([]hd.SimplexFacet, len(facets))
+	copy(sc.FacetVector, facets) // copy(dst, src []Type)
 
-	return complexes, err
+	return sc, err
 }
 
 // GetSimplexListByUserID func fetches all of a user's simplices but not the facets.
@@ -186,49 +171,8 @@ func BulkInsertSimplexFacets(facets []hd.SimplexFacet) error {
 	return nil
 }
 
-// PostSimplexComplex func moves [temp_Simplex] & [temp_Facet] data into [Simplex] & [Facet] tables. Returns new [Simplex].ID values!
-func PostSimplexComplex(userID int, simplexName, simplexType string, timeInterval nt.TimeInterval) ([]uint64, error) {
-	simplexList, err := GetSimplexByNameUserID(userID, simplexName, simplexType, true) // useTempTable
-	dbx.CheckErr(err)
-
-	// Ensure simplexIDs is called in StartDate order.
-	sort.Sort(hd.SimplexComplexSorterDate(simplexList))
-	simplexIDmap := make(map[uint64]int)
-	for ndx := range simplexList {
-		simplexIDmap[simplexList[ndx].ID]++
-	}
-	simplexIDs := make([]uint64, 0, len(simplexIDmap))
-	for k := range simplexIDmap {
-		simplexIDs = append(simplexIDs, k)
-	}
-
-	db, err := dbx.GetDatabaseReference()
-	if err != nil {
-		return nil, err
-	}
-	defer db.Close()
-
-	var newSimplexID uint64
-	idList := make([]uint64, 0)
-	for ndx := range simplexIDs { // Use Exec to execute a query that does not return a result set.
-		rows, err := db.Query(context.Background(), "SELECT PostSimplexComplex("+strconv.FormatUint(simplexIDs[ndx], 10)+")")
-		dbx.CheckErr(err)
-
-		for rows.Next() {
-			err = rows.Scan(&newSimplexID)
-			dbx.CheckErr(err)
-			idList = append(idList, newSimplexID)
-		}
-		rows.Close()
-	}
-	//defer rows.Close()
-
-	return idList, nil
-}
-
 // GetSimplexWordDifference func returns words that are the same, gained, and lost between two SimplexComplex-Facet sets. Format: word|type={S,G,L}
-// CREATE TABLE acmsearch.Word_type (sourceword character varying(32), wordtype char(1) );
-func GetSimplexWordDifference(complexIdList []uint64) ([]hd.KeyValueStringPair, error) {
+func GetSimplexWordDifference(plexid0, plexid1 uint64) ([]hd.KeyValueStringPair, error) {
 	db, err := dbx.GetDatabaseReference()
 	if err != nil {
 		return nil, err
@@ -236,20 +180,38 @@ func GetSimplexWordDifference(complexIdList []uint64) ([]hd.KeyValueStringPair, 
 	defer db.Close()
 
 	// PostgreSQL functions invoked with SELECT; stored procs invoked with CALL.
-	var str string
+	var sourceword, wordtype string
 	list := make([]hd.KeyValueStringPair, 0)
-	for ndx := 0; ndx < len(complexIdList)-1; ndx++ {
-		SELECT := "SELECT WordDifference(" + strconv.FormatUint(complexIdList[ndx], 10) + "," + strconv.FormatUint(complexIdList[ndx+1], 10) + ")"
-		rows, err := db.Query(context.Background(), SELECT)
+	SELECT := "SELECT sourceword, wordtype FROM WordDifference(" + strconv.FormatUint(plexid0, 10) + "," + strconv.FormatUint(plexid1, 10) + ")"
+	rows, err := db.Query(context.Background(), SELECT)
+	dbx.CheckErr(err)
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&sourceword, &wordtype)
 		dbx.CheckErr(err)
-		for rows.Next() {
-			err = rows.Scan(&str) // (stone,G)
-			dbx.CheckErr(err)
-			index := strings.Index(str, ",")
-			list = append(list, hd.KeyValueStringPair{Key: str[1:index], Value: str[index+1 : index+2]})
-		}
-		rows.Close()
+		list = append(list, hd.KeyValueStringPair{Key: sourceword, Value: wordtype})
 	}
-	//defer rows.Close()
+	err = rows.Err()
+	dbx.CheckErr(err)
+
 	return list, nil
+}
+
+// PostSimplexComplex func moves [temp_Simplex] & [temp_Facet] data into [Simplex] & [Facet] tables. Returns new [Simplex].ID value!
+func PostSimplexComplex(userID int, simplexName, simplexType string, timeInterval nt.TimeInterval) (uint64, error) {
+	simplex, err := GetSimplexByNameUserID(userID, simplexName, simplexType, true) // useTempTable
+	dbx.CheckErr(err)
+
+	db, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return 0, err
+	}
+	defer db.Close()
+
+	var newsimplexid uint64
+	err = db.QueryRow(context.Background(), "SELECT newsimplexid FROM PostSimplexComplex("+strconv.FormatUint(simplex.ID, 10)+")").Scan(&newsimplexid)
+	dbx.CheckErr(err)
+
+	return newsimplexid, err
 }
