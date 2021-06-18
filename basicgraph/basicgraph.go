@@ -67,6 +67,7 @@ func GetSimplexByNameUserID(userID int, simplexName, simplexType string, useTemp
 		sc.Timeinterval = nt.New_TimeInterval(nt.TimeFrameType(timeframetype), nt.New_NullTime2(startDate), nt.New_NullTime2(endDate))
 		if sc.ID != oldID {
 			scList = append(scList, sc)
+			oldID = sc.ID
 		}
 		facets = append(facets, f)
 	}
