@@ -676,6 +676,30 @@ func (sc SimplexComplex) Print() string {
 	return str
 }
 
+// CreateSimplexComplex func does NOT assign ID; assigned when saved to database.
+func CreateSimplexComplex(scName, scType string, facets []SimplexFacet, timeinterval nt.TimeInterval,
+	userID, eulerCharacteristic, dimension, numSimplices, numVertices int, filtrationValue float32) SimplexComplex {
+
+	complex := SimplexComplex{
+		UserID:              userID,
+		SimplexName:         scName,
+		SimplexType:         scType,
+		EulerCharacteristic: eulerCharacteristic,
+		Dimension:           dimension,
+		FiltrationValue:     filtrationValue,
+		NumSimplices:        numSimplices,
+		NumVertices:         numVertices,
+		BettiNumbers:        make([]int, 3),
+		FacetVector:         make([]SimplexFacet, len(facets)),
+		Timeinterval:        timeinterval,
+		Enabled:             1,
+		DateCreated:         time.Now().UTC(),
+		DateUpdated:         time.Now().UTC(),
+	}
+	copy(complex.FacetVector, facets) // (dst,src)
+	return complex
+}
+
 // SimplexBarcode struct
 type SimplexBarcode struct {
 	ComplexID           uint64          `json:"complexid"` // FK to [SimplexComplex]
