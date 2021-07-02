@@ -33,7 +33,7 @@ const (
 	Unknown          = "Unknown"
 	prefixTimeOffset = "T11:45:26.371Z"
 	NullDate         = "0001-01-01" // + " 00:00:00 +0000 UTC"
-	VeryFirstDate    = "2000-01-03"
+	VeryFirstDate    = "2000-01-01" // actually -03
 	VeryFirstYear    = 2000
 )
 
@@ -173,8 +173,7 @@ func GetTimeIntervalDatePartitionList(baseTimeInterval TimeInterval) []TimeInter
 		}
 
 	default: // TFUnknown & TFSpan:
-		span := TimeInterval{Timeframetype: TFSpan, StartDate: New_NullTime(VeryFirstDate), EndDate: NullTimeToday()}
-		intervalList = append(intervalList, span)
+		intervalList = append(intervalList, baseTimeInterval)
 	}
 
 	return intervalList

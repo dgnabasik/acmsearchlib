@@ -4,6 +4,7 @@ package wordscore
 
 import (
 	"context"
+	"errors"
 	"log"
 	"time"
 
@@ -146,4 +147,55 @@ func BulkInsertWordScores(wordScoreList []hd.WordScore) error {
 	dbx.CheckErr(err)
 
 	return err
+}
+
+// DeleteWordscoreByPeriod func
+func DeleteWordscoreByPeriod(timeInterval nt.TimeInterval) error {
+	db, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	DELETE := " DELETE FROM Wordscore WHERE " + dbx.CompileDateClause(timeInterval, true)
+	commandTag, err := db.Exec(context.Background(), DELETE)
+	if err != nil {
+		return err
+	}
+	if commandTag.RowsAffected() != 1 {
+		return errors.New("no rows were deleted")
+	}
+	return nil
+}
+
+// GetWordscorePeriodGroup func
+func GetWordscorePeriodGroup() ([]nt.TimeInterval, error) {
+	db, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return nil, err
+	}
+	defer db.Close()
+
+	SELECT := "SELECT timeframetype, MAX(startdate) AS startdate, MAX(enddate) AS enddate FROM Wordscore GROUP BY timeframetype ORDER BY timeframetype"
+	rows, err := db.Query(context.Background(), SELECT)
+	dbx.CheckErr(err)
+	defer rows.Close()
+
+	// fields to read
+	var startdate, enddate time.Time
+	var timeframetype int
+	var dateList []nt.TimeInterval
+
+	for rows.Next() {
+		err = rows.Scan(&timeframetype, &startdate, &enddate)
+		dbx.CheckErr(err)
+		ti := nt.New_TimeInterval(nt.TimeFrameType(timeframetype), nt.New_NullTime2(startdate), nt.New_NullTime2(enddate))
+		dateList = append(dateList, ti)
+	}
+
+	// get any iteration errors
+	err = rows.Err()
+	dbx.CheckErr(err)
+
+	return dateList, nil
 }

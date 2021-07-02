@@ -746,3 +746,18 @@ func GetWordgramConditionalsByInterval(queryWords []string, newWords []string, t
 
 	return wordScoreConditionalList, err
 }
+
+// GetMaxOccurrenceArchivedate func
+func GetMaxOccurrenceArchivedate() (time.Time, error) {
+	archivedate := time.Time{}
+	db, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return archivedate, err
+	}
+	defer db.Close()
+
+	err = db.QueryRow(context.Background(), "SELECT MAX(archivedate) FROM Occurrence").Scan(&archivedate)
+	dbx.CheckErr(err)
+
+	return archivedate, nil
+}
