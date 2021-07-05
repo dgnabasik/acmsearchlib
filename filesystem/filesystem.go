@@ -47,7 +47,7 @@ const (
 func GetFilePrefixPath() string {
 	envVar := os.Getenv("ACM_FILE_PREFIX")
 	if envVar == "" {
-		log.Printf("ACM_FILE_PREFIX env var not found...using default%s\n")
+		log.Printf("ACM_FILE_PREFIX env var not found...using default\n")
 		envVar = "/home/david/"
 	}
 	return envVar
@@ -332,7 +332,7 @@ func GetFileTime(fileName string) int64 {
 func GetSourceDirectory() string {
 	envVar := os.Getenv("REACT_ACM_SOURCE_DIR")
 	if envVar == "" {
-		log.Printf("REACT_ACM_SOURCE_DIR env var not found...using default%s\n")
+		log.Printf("REACT_ACM_SOURCE_DIR env var not found...using default\n")
 		envVar = "/home/david/websites/acmsearch/docs/"
 	}
 	return envVar
