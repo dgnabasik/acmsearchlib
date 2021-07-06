@@ -48,10 +48,10 @@ func FilteringRules(word string) (string, int) {
 	}
 
 	newWord := word // Remove leading/trailing . /
-	if strings.HasPrefix(newWord, ".") || strings.HasPrefix(newWord, "/") {
+	if strings.HasPrefix(newWord, ".") || strings.HasPrefix(newWord, "/") || strings.HasPrefix(newWord, "`") || strings.HasPrefix(newWord, "€") || strings.HasPrefix(newWord, "£") {
 		newWord = newWord[1:]
 	}
-	if strings.HasSuffix(newWord, ".") || strings.HasSuffix(newWord, "/") {
+	if strings.HasSuffix(newWord, ".") || strings.HasSuffix(newWord, "/") || strings.HasSuffix(newWord, "`") || strings.HasSuffix(newWord, ";") {
 		newWord = newWord[:len(newWord)-1]
 	}
 
