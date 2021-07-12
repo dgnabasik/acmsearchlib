@@ -737,8 +737,8 @@ func Testconditional(t *testing.T) {
 	elapsed := time.Since(startTime)
 	fmt.Println("cond.GetProbabilityGraph: " + elapsed.String())
 
-	dimensions := 1
-	wordScoreConditional, err := cond.GetWordgramConditionalsByInterval(words, timeinterval, dimensions)
+	dimensions := 1 // queryWords []string, newWords []string, timeInterval nt.TimeInterval, dimensions int
+	wordScoreConditional, err := cond.GetWordgramConditionalsByInterval(words, words, timeinterval, dimensions)
 	if err != nil {
 		t.Error("f11c: bad GetWordgramConditionalsByInterval")
 	}
@@ -925,8 +925,8 @@ func Testbasicgraph(t *testing.T) {
 		t.Error("i2b: bad GetSimplexListByUserID")
 	}
 
-	complexIdList := []uint64{152, 155, 156}
-	keyValueStringPair, err := bg.GetSimplexWordDifference(complexIdList)
+	//complexIdList := []uint64{152, 155, 156}                                                                        // return (map[nt.TimeInterval][]hd.KeyValueStringPair, []hd.SimplexComplex, error)
+	keyValueStringPair, simplexComplex, err := bg.GetSimplexWordDifference(userID, simplexName, simplexType, false) // useTempTable bool
 	if err != nil {
 		t.Error("i3a: bad GetSimplexWordDifference")
 	}
