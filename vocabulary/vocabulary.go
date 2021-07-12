@@ -268,6 +268,47 @@ func GetVocabularyMapProbability(wordGrams []string, timeInterval nt.TimeInterva
 	return wordIDMap, err
 }
 
+// GetTitleVocabularyMapProbability Read all Vocabulary.Word,Probability values if wordGrams is []string{}. Applys filtering.
+func GetTitleVocabularyMapProbability(wordGrams []string, timeInterval nt.TimeInterval) (map[string]float32, error) {
+	db, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return nil, err
+	}
+	defer db.Close()
+
+	wordIDMap := make(map[string]float32)
+	var word string
+	var floatField float32
+
+	SELECT := "SELECT word,probability FROM TitleVocabulary WHERE "
+	if len(wordGrams) > 0 {
+		SELECT = SELECT + dbx.GetWhereClause("word", wordGrams)
+	} else {
+		SELECT = SELECT + "word in (SELECT DISTINCT(word) FROM Title WHERE " + dbx.GetSingleDateWhereClause("archivedate", timeInterval) + ")"
+	}
+	rows, err := db.Query(context.Background(), SELECT)
+	dbx.CheckErr(err)
+
+	for rows.Next() {
+		err = rows.Scan(&word, &floatField)
+		dbx.CheckErr(err)
+
+		newWord, rule := cond.FilteringRules(word)
+		if rule < 0 {
+			continue
+		} else if rule > 0 {
+			word = newWord
+		}
+
+		wordIDMap[word] = floatField
+	}
+
+	err = rows.Err()
+	dbx.CheckErr(err)
+
+	return wordIDMap, err
+}
+
 // GetTitleWordsBigramInterval func queries either [Occurrence] or [title] tables.
 // This does NOT perform the word intersection by acmId!
 func GetTitleWordsBigramInterval(bigrams []string, timeInterval nt.TimeInterval, useOccurrence bool) ([]hd.Occurrence, error) {
@@ -344,6 +385,41 @@ func UpdateVocabulary(recordList []hd.Vocabulary) (int, error) {
 	return len(recordList), nil
 }
 
+// UpdateTitleVocabulary updates TitleVocabulary.RowCount, Frequency, SpeechPart, Stem for EVERY row!. AcmData table never needs updating.
+func UpdateTitleVocabulary(recordList []hd.Vocabulary) (int, error) {
+	if len(recordList) == 0 {
+		return 0, nil
+	}
+
+	db, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return -1, err
+	}
+	defer db.Close()
+
+	txn, err := db.Begin(context.Background())
+	dbx.CheckErr(err)
+
+	batch := &pgx.Batch{} // prepare batch updates. DB updates DateUpdated.
+	for _, v := range recordList {
+		sqlStatement := "UPDATE TitleVocabulary SET RowCount=$2, Frequency=$3, SpeechPart=$4, OccurrenceCount=$5, Stem=$6 WHERE Word = $1;"
+		batch.Queue(sqlStatement, v.Word, v.RowCount, v.Frequency, v.SpeechPart, v.OccurrenceCount, v.Stem)
+	}
+
+	batchResults := txn.SendBatch(context.Background(), batch)
+
+	var qerr error
+	var rows pgx.Rows
+	for qerr == nil {
+		rows, qerr = batchResults.Query()
+		rows.Close()
+	}
+	err = txn.Commit(context.Background())
+	dbx.CheckErr(err)
+
+	return len(recordList), nil
+}
+
 // GetVocabularyMap reads all Vocabulary.Word,{Id, Frequency, Wordrank} values. Applys filtering.
 func GetVocabularyMap(fieldName string) (map[string]int, error) {
 	db, err := dbx.GetDatabaseReference()
@@ -355,7 +431,43 @@ func GetVocabularyMap(fieldName string) (map[string]int, error) {
 	wordIDmap := make(map[string]int)
 	var word string
 	var intField int
-	SELECT := "SELECT Word," + fieldName + " FROM vocabulary;" // WHERE word LIKE 'tech%'
+	SELECT := "SELECT word," + fieldName + " FROM vocabulary"
+	rows, err := db.Query(context.Background(), SELECT)
+	dbx.CheckErr(err)
+
+	for rows.Next() {
+		err = rows.Scan(&word, &intField)
+		dbx.CheckErr(err)
+
+		newWord, rule := cond.FilteringRules(word)
+		if rule < 0 {
+			continue
+		} else if rule > 0 {
+			word = newWord
+		}
+
+		wordIDmap[word] = intField
+	}
+
+	// get any iteration errors
+	err = rows.Err()
+	dbx.CheckErr(err)
+
+	return wordIDmap, err
+}
+
+// GetTitleVocabularyMap reads all TitleVocabulary.Word,{Id, Frequency, Wordrank} values. Applys filtering.
+func GetTitleVocabularyMap(fieldName string) (map[string]int, error) {
+	db, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return nil, err
+	}
+	defer db.Close()
+
+	wordIDmap := make(map[string]int)
+	var word string
+	var intField int
+	SELECT := "SELECT word," + fieldName + " FROM TitleVocabulary"
 	rows, err := db.Query(context.Background(), SELECT)
 	dbx.CheckErr(err)
 
@@ -421,6 +533,47 @@ func BulkInsertVocabulary(recordList []hd.Vocabulary) (int, error) {
 	return len(recordList), nil
 }
 
+// BulkInsertTitleVocabulary gets []Vocabulary from wordFrequencyList(). Does not insert Scores!
+func BulkInsertTitleVocabulary(recordList []hd.Vocabulary) (int, error) {
+	if len(recordList) == 0 {
+		return 0, nil
+	}
+
+	db, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return -1, err
+	}
+	defer db.Close()
+
+	txn, err := db.Begin(context.Background())
+	dbx.CheckErr(err)
+
+	vocabList := make([]hd.Vocabulary, 0)
+	for _, rec := range recordList {
+		_, rule := cond.FilteringRules(rec.Word)
+		if rule >= 0 {
+			vocabList = append(vocabList, rec)
+		}
+	}
+
+	copyCount, err := db.CopyFrom(
+		context.Background(),
+		pgx.Identifier{"titlevocabulary"}, // tablename
+		[]string{"word", "rowcount", "frequency", "wordrank", "probability", "speechpart", "occurrencecount", "stem"},
+		pgx.CopyFromSlice(len(vocabList), func(i int) ([]interface{}, error) {
+			return []interface{}{vocabList[i].Word, vocabList[i].RowCount, vocabList[i].Frequency, vocabList[i].WordRank, vocabList[i].Probability, vocabList[i].SpeechPart, vocabList[i].OccurrenceCount, vocabList[i].Stem}, nil
+		}),
+	)
+	dbx.CheckErr(err)
+	err = txn.Commit(context.Background())
+	dbx.CheckErr(err)
+	if copyCount == 0 {
+		log.Printf("BulkInsertTitleVocabulary: no rows inserted")
+	}
+
+	return len(recordList), nil
+}
+
 // CallUpdateVocabulary invokes Postgresql UpdateVocabulary() which updates every Vocabulary.WordRank,Probability value.
 func CallUpdateVocabulary() error {
 	db, err := dbx.GetDatabaseReference()
@@ -430,6 +583,20 @@ func CallUpdateVocabulary() error {
 	defer db.Close()
 
 	_, err = db.Exec(context.Background(), "call UpdateVocabulary();")
+	dbx.CheckErr(err)
+
+	return err
+}
+
+// CallUpdateTitleVocabulary invokes Postgresql UpdateTitleVocabulary() which updates every TitleVocabulary.WordRank,Probability value.
+func CallUpdateTitleVocabulary() error {
+	db, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	_, err = db.Exec(context.Background(), "call UpdateTitleVocabulary();")
 	dbx.CheckErr(err)
 
 	return err
