@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"sync"
 	"time"
 
 	cond "github.com/dgnabasik/acmsearchlib/conditional"
@@ -136,6 +137,48 @@ func GetStemWords(word string) ([]hd.Vocabulary, error) {
 	dbx.CheckErr(err)
 
 	return vocabularyList, err
+}
+
+// GetStemWordList func returns all the words which have the stem of imported word, inclusive. CONCURRENT!
+func GetStemWordList(queryWords []string) ([]hd.Vocabulary, error) {
+	queue := make(chan hd.Vocabulary) // Unbuffered synchronous channel
+	fatalErrors := make(chan error)   // Make a channel to pass fatal errors in WaitGroup.
+	var wg sync.WaitGroup
+
+	for _, word := range queryWords {
+		wg.Add(1)
+		go func(word string) {
+			defer wg.Done()
+			vocabulary, err := GetStemWords(word)
+			if err != nil {
+				fatalErrors <- err
+			}
+			for _, voc := range vocabulary {
+				queue <- voc
+			}
+		}(word)
+	}
+
+	go func() {
+		wg.Wait()
+		close(queue)
+	}()
+
+	// Wait until either WaitGroup is done or fatal error is received through the channel.
+	select {
+	case <-queue:
+		break // keep going
+	case err := <-fatalErrors:
+		close(fatalErrors)
+		log.Printf("GetStemWordList error: %+v\n", err)
+	}
+
+	vocabularyList := []hd.Vocabulary{}
+	for t := range queue {
+		vocabularyList = append(vocabularyList, t)
+	}
+
+	return vocabularyList, nil
 }
 
 func getAcmGraphCount() string {
