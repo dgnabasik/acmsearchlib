@@ -816,6 +816,14 @@ func Test_vocabulary(t *testing.T) {
 		t.Error("h2b: bad GetStemWords")
 	}
 
+	vocList, err = voc.GetStemWordList(words)
+	if err != nil {
+		t.Error("h2c: bad GetStemWordList")
+	}
+	if len(vocList) != 1+2+8 {
+		t.Error("h2d: bad GetStemWordList")
+	}
+
 	prefix := "" // fetch all words
 	lookupMap, err := voc.GetWordListMap(prefix)
 	if err != nil {
