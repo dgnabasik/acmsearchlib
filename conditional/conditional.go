@@ -711,8 +711,10 @@ func GetWordgramConditionalsByInterval(queryWords []string, newWords []string, t
 	bigrams := make([]string, 0)
 	for _, qw := range queryWords {
 		for _, nw := range newWords {
-			if qw != nw {
-				bigrams = append(bigrams, qw+SEP+nw)
+			bigram := qw + SEP + nw
+			_, found := hd.StringSliceContains(bigrams, bigram)
+			if qw != nw && !found {
+				bigrams = append(bigrams, bigram)
 			}
 		}
 	}
