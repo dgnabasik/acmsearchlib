@@ -269,6 +269,12 @@ func (a VocabularySorterFreq) Len() int           { return len(a) }
 func (a VocabularySorterFreq) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a VocabularySorterFreq) Less(i, j int) bool { return a[i].Frequency > a[j].Frequency } // want lowest frequencies first.
 
+type VocabularySorterWord []Vocabulary
+
+func (a VocabularySorterWord) Len() int           { return len(a) }
+func (a VocabularySorterWord) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a VocabularySorterWord) Less(i, j int) bool { return strings.Compare(a[i].Word, a[j].Word) < 0 }
+
 // GetVocabularyItem Find existing item by Word, Return index else -1.
 // for i := range myconfig{.} using a range loop on the index avoids copying the entire item.
 func GetVocabularyItem(word string, vocabList []Vocabulary) int {
