@@ -181,27 +181,17 @@ func GetStemWordList(queryWords []string) ([]hd.Vocabulary, error) {
 	return vocabularyList, nil
 }
 
-func getAcmGraphCount() string {
-	count := os.Getenv("REACT_ACM_GRAPH_COUNT")
-	if count == "" {
-		count = "1"
-	}
-	return count
-}
-
-// GetWordListMap method returns all words if prefix is blank. Also filters by REACT_ACM_GRAPH_COUNT.
-func GetWordListMap(prefix string) ([]hd.LookupMap, error) {
+// GetWordListMap method returns all words.
+func GetWordListMap(useVocabulary bool) ([]hd.LookupMap, error) {
 	db, err := dbx.GetDatabaseReference()
 	if err != nil {
 		return nil, err
 	}
 	defer db.Close()
 
-	occurrenceCount := getAcmGraphCount()
-
-	query := "SELECT id, word FROM vocabulary WHERE occurrenceCount > " + occurrenceCount + " ORDER BY word"
-	if len(prefix) > 0 {
-		query = "SELECT id, word FROM vocabulary WHERE occurrenceCount > " + occurrenceCount + " AND word LIKE '" + strings.ToLower(prefix) + "%' ORDER BY word"
+	query := "SELECT id, word FROM Vocabulary ORDER BY word"
+	if !useVocabulary {
+		query = "SELECT id, word FROM TitleVocabulary ORDER BY word"
 	}
 	rows, err := db.Query(context.Background(), query)
 	dbx.CheckErr(err)
