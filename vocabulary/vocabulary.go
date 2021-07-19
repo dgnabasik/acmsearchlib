@@ -5,7 +5,6 @@ package vocabulary
 import (
 	"context"
 	"log"
-	"os"
 	"strings"
 	"sync"
 	"time"
