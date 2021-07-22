@@ -316,7 +316,7 @@ func GetTitleVocabularyMapProbability(wordGrams []string, timeInterval nt.TimeIn
 	if len(wordGrams) > 0 {
 		SELECT = SELECT + dbx.GetWhereClause("word", wordGrams)
 	} else {
-		SELECT = SELECT + "word in (SELECT DISTINCT(word) FROM Title WHERE " + dbx.GetSingleDateWhereClause("archivedate", timeInterval) + ")"
+		SELECT = SELECT + "word in (SELECT DISTINCT(word) FROM TitleOccurrence WHERE " + dbx.GetSingleDateWhereClause("archivedate", timeInterval) + ")"
 	}
 	rows, err := db.Query(context.Background(), SELECT)
 	dbx.CheckErr(err)
@@ -341,7 +341,7 @@ func GetTitleVocabularyMapProbability(wordGrams []string, timeInterval nt.TimeIn
 	return wordIDMap, err
 }
 
-// GetTitleWordsBigramInterval func queries either [Occurrence] or [title] tables.
+// GetTitleWordsBigramInterval func queries either [Occurrence] or [TitleOccurrence] tables.
 // This does NOT perform the word intersection by acmId!
 func GetTitleWordsBigramInterval(bigrams []string, timeInterval nt.TimeInterval, useOccurrence bool) ([]hd.Occurrence, error) {
 	db, err := dbx.GetDatabaseReference()
@@ -356,7 +356,7 @@ func GetTitleWordsBigramInterval(bigrams []string, timeInterval nt.TimeInterval,
 	}
 	tableName := "Occurrence"
 	if !useOccurrence {
-		tableName = "Title"
+		tableName = "TitleOccurrence"
 	}
 	SELECT := "SELECT acmId, archiveDate, word, nentry FROM " + tableName + " WHERE word IN " + inPhrase + " AND " + dbx.GetSingleDateWhereClause("archiveDate", timeInterval)
 
