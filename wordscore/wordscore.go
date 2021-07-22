@@ -1,6 +1,6 @@
 package wordscore
 
-//  wordscore database interface
+//  [wordscore], [titlewordscore] database interface
 
 import (
 	"context"
@@ -15,17 +15,24 @@ import (
 	pgx "github.com/jackc/pgx/v4"
 )
 
-const wordscoreSelect = "SELECT id,word,timeframetype,startDate,endDate,density,linkage,growth,score FROM WordScore"
+const wordscoreSelect = "SELECT id,word,timeframetype,startDate,endDate,density,linkage,growth,score FROM "
+
+func getTableName(useWordscore bool) string {
+	if useWordscore {
+		return "wordscore"
+	}
+	return "titlewordscore"
+}
 
 // GetWordScores func returns all wordscores.
-func GetWordScores(word string) ([]hd.WordScore, error) {
+func GetWordScores(word string, useWordscore bool) ([]hd.WordScore, error) {
 	db, err := dbx.GetDatabaseReference()
 	if err != nil {
 		return nil, err
 	}
 	defer db.Close()
 
-	SELECT := wordscoreSelect + " WHERE Word='" + word + "' ORDER BY startDate"
+	SELECT := wordscoreSelect + getTableName(useWordscore) + " WHERE Word='" + word + "' ORDER BY startDate"
 	rows, err := db.Query(context.Background(), SELECT)
 	dbx.CheckErr(err)
 	defer rows.Close()
@@ -67,14 +74,14 @@ func GetWordScores(word string) ([]hd.WordScore, error) {
 }
 
 // GetWordScoreListByTimeInterval func
-func GetWordScoreListByTimeInterval(words []string, timeInterval nt.TimeInterval) ([]hd.WordScore, error) {
+func GetWordScoreListByTimeInterval(words []string, timeInterval nt.TimeInterval, useWordscore bool) ([]hd.WordScore, error) {
 	db, err := dbx.GetDatabaseReference()
 	if err != nil {
 		return nil, err
 	}
 	defer db.Close()
 
-	SELECT := wordscoreSelect + " WHERE word IN" + dbx.CompileInClause(words) + "AND " + dbx.CompileDateClause(timeInterval, true)
+	SELECT := wordscoreSelect + getTableName(useWordscore) + " WHERE word IN" + dbx.CompileInClause(words) + "AND " + dbx.CompileDateClause(timeInterval, true)
 	rows, err := db.Query(context.Background(), SELECT)
 	dbx.CheckErr(err)
 	if err != nil {
@@ -119,7 +126,7 @@ func GetWordScoreListByTimeInterval(words []string, timeInterval nt.TimeInterval
 }
 
 // BulkInsertWordScores func populates [WordScore] table. Assumes explicit schema path (search_path=public) in connection string.
-func BulkInsertWordScores(wordScoreList []hd.WordScore) error {
+func BulkInsertWordScores(wordScoreList []hd.WordScore, useWordscore bool) error {
 	db, err := dbx.GetDatabaseReference()
 	if err != nil {
 		return err
@@ -130,10 +137,11 @@ func BulkInsertWordScores(wordScoreList []hd.WordScore) error {
 	dbx.CheckErr(err)
 	defer txn.Rollback(context.Background())
 
+	tablename := getTableName(useWordscore)
 	// Must use lowercase column names!
 	copyCount, err := db.CopyFrom(
 		context.Background(),
-		pgx.Identifier{"wordscore"}, // tablename
+		pgx.Identifier{tablename},
 		[]string{"word", "timeframetype", "startdate", "enddate", "density", "linkage", "growth", "score"},
 		pgx.CopyFromSlice(len(wordScoreList), func(i int) ([]interface{}, error) {
 			return []interface{}{wordScoreList[i].Word, int(wordScoreList[i].Timeinterval.Timeframetype), wordScoreList[i].Timeinterval.StartDate.DT, wordScoreList[i].Timeinterval.EndDate.DT, wordScoreList[i].Density, wordScoreList[i].Linkage, wordScoreList[i].Growth, wordScoreList[i].Score}, nil
@@ -150,14 +158,14 @@ func BulkInsertWordScores(wordScoreList []hd.WordScore) error {
 }
 
 // DeleteWordscoreByPeriod func
-func DeleteWordscoreByPeriod(timeInterval nt.TimeInterval) error {
+func DeleteWordscoreByPeriod(timeInterval nt.TimeInterval, useWordscore bool) error {
 	db, err := dbx.GetDatabaseReference()
 	if err != nil {
 		return err
 	}
 	defer db.Close()
 
-	DELETE := " DELETE FROM Wordscore WHERE " + dbx.CompileDateClause(timeInterval, true)
+	DELETE := " DELETE FROM " + getTableName(useWordscore) + " WHERE " + dbx.CompileDateClause(timeInterval, true)
 	commandTag, err := db.Exec(context.Background(), DELETE)
 	if err != nil {
 		return err
@@ -169,14 +177,14 @@ func DeleteWordscoreByPeriod(timeInterval nt.TimeInterval) error {
 }
 
 // GetWordscorePeriodGroup func
-func GetWordscorePeriodGroup() ([]nt.TimeInterval, error) {
+func GetWordscorePeriodGroup(useWordscore bool) ([]nt.TimeInterval, error) {
 	db, err := dbx.GetDatabaseReference()
 	if err != nil {
 		return nil, err
 	}
 	defer db.Close()
 
-	SELECT := "SELECT timeframetype, MAX(startdate) AS startdate, MAX(enddate) AS enddate FROM Wordscore GROUP BY timeframetype ORDER BY timeframetype"
+	SELECT := "SELECT timeframetype, MAX(startdate) AS startdate, MAX(enddate) AS enddate FROM " + getTableName(useWordscore) + " GROUP BY timeframetype ORDER BY timeframetype"
 	rows, err := db.Query(context.Background(), SELECT)
 	dbx.CheckErr(err)
 	defer rows.Close()
