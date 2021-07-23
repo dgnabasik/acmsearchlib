@@ -126,7 +126,7 @@ func SelectOccurrenceByWord(occurrenceList []hd.Occurrence, word string) []hd.Oc
 // GetOccurrenceListByDate returns result set ordered by ArchiveDate.
 // Read []Occurrence values by archiveDate range. This applys FilteringRules(word).
 // mapset.Set is the set of distinct AcmId values in the returned list.
-func GetOccurrenceListByDate(timeinterval nt.TimeInterval) ([]hd.Occurrence, mapset.Set, error) {
+func GetOccurrenceListByDate(timeinterval nt.TimeInterval, useOccurrence bool) ([]hd.Occurrence, mapset.Set, error) {
 	db, err := dbx.GetDatabaseReference()
 	if err != nil {
 		return nil, nil, err
@@ -134,6 +134,9 @@ func GetOccurrenceListByDate(timeinterval nt.TimeInterval) ([]hd.Occurrence, map
 	defer db.Close()
 
 	SELECT := "SELECT * FROM GetOccurrencesByDate" + dbx.GetFormattedDatesForProcedure(timeinterval)
+	if !useOccurrence {
+		SELECT = "SELECT * FROM GetTitleOccurrencesByDate" + dbx.GetFormattedDatesForProcedure(timeinterval)
+	}
 	rows, err := db.Query(context.Background(), SELECT)
 	dbx.CheckErr(err)
 	defer rows.Close()
