@@ -766,8 +766,9 @@ func Testconditional(t *testing.T) {
 
 // Testwordscore func
 func Testwordscore(t *testing.T) {
+	useWordscore := true
 	word := "3d"
-	wordscoreList, err := ws.GetWordScores(word)
+	wordscoreList, err := ws.GetWordScores(word, useWordscore)
 	if err != nil {
 		t.Error("g1a: bad GetWordScores")
 	}
@@ -779,7 +780,7 @@ func Testwordscore(t *testing.T) {
 	startDate := nt.New_NullTime("2004-01-01")
 	endDate := nt.New_NullTime("2007-12-31")
 	timeInterval := nt.New_TimeInterval(nt.TFTerm, startDate, endDate)
-	wordscoreList, err = ws.GetWordScoreListByTimeInterval(words, timeInterval)
+	wordscoreList, err = ws.GetWordScoreListByTimeInterval(words, timeInterval, useWordscore)
 	if err != nil {
 		t.Error("g2a: bad GetWordScoreListByTimeInterval")
 	}
