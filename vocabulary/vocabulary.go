@@ -9,7 +9,6 @@ import (
 	"sync"
 	"time"
 
-	cond "github.com/dgnabasik/acmsearchlib/conditional"
 	dbx "github.com/dgnabasik/acmsearchlib/database"
 	hd "github.com/dgnabasik/acmsearchlib/headers"
 	nt "github.com/dgnabasik/acmsearchlib/nulltime"
@@ -260,7 +259,7 @@ func GetVocabularyListByDate(timeinterval nt.TimeInterval, useVocabulary bool) (
 		err = rows.Scan(&id, &word, &rowCount, &frequency, &wordRank, &probability, &speechPart, &occurrenceCount, &stem, &dateUpdated)
 		dbx.CheckErr(err)
 
-		newWord, rule := cond.FilteringRules(word)
+		newWord, rule := hd.FilteringRules(word)
 		if rule < 0 {
 			continue
 		} else if rule > 0 {
@@ -302,7 +301,7 @@ func GetVocabularyMapProbability(wordGrams []string, timeInterval nt.TimeInterva
 		err = rows.Scan(&word, &floatField)
 		dbx.CheckErr(err)
 
-		newWord, rule := cond.FilteringRules(word)
+		newWord, rule := hd.FilteringRules(word)
 		if rule < 0 {
 			continue
 		} else if rule > 0 {
@@ -409,7 +408,7 @@ func GetVocabularyMap(fieldName string, useVocabulary bool) (map[string]int, err
 		err = rows.Scan(&word, &intField)
 		dbx.CheckErr(err)
 
-		newWord, rule := cond.FilteringRules(word)
+		newWord, rule := hd.FilteringRules(word)
 		if rule < 0 {
 			continue
 		} else if rule > 0 {
@@ -443,7 +442,7 @@ func BulkInsertVocabulary(recordList []hd.Vocabulary, useVocabulary bool) (int, 
 
 	vocabList := make([]hd.Vocabulary, 0)
 	for _, rec := range recordList {
-		_, rule := cond.FilteringRules(rec.Word)
+		_, rule := hd.FilteringRules(rec.Word)
 		if rule >= 0 {
 			vocabList = append(vocabList, rec)
 		}

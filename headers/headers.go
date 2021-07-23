@@ -774,3 +774,35 @@ func CreateWordChangesStruct(queryWords []string, kvsp []KeyValueStringPair, tim
 	}
 	return wc
 }
+
+func isHexWord(word string) bool {
+	_, err := hex.DecodeString(word)
+	return len(word) >= 10 && err == nil
+}
+
+// FilteringRules filters output from Postgres ts_stat select. Include 3d prefixes.
+// Return 0 for ok, -1 to completely ignore, 1 for modified word.
+func FilteringRules(word string) (string, int) {
+	if len(strings.TrimSpace(word)) <= 1 {
+		return word, -1
+	}
+
+	ignore := strings.HasPrefix(word, "0") || strings.HasPrefix(word, "1") || strings.HasPrefix(word, "2") || (strings.HasPrefix(word, "3") && !strings.HasPrefix(word, "3d")) || strings.HasPrefix(word, "4") || strings.HasPrefix(word, "5") || strings.HasPrefix(word, "6") || strings.HasPrefix(word, "7") || strings.HasPrefix(word, "8") || strings.HasPrefix(word, "9") || strings.HasPrefix(word, "-") || strings.HasPrefix(word, "+") || strings.Count(word, "/") > 1 || strings.Count(word, "_") > 1 || strings.HasPrefix(word, "www.") || strings.HasSuffix(word, ".com") || strings.HasSuffix(word, ".org") || isHexWord(word)
+	if ignore {
+		return word, -1
+	}
+
+	newWord := word // Remove leading/trailing . /
+	if strings.HasPrefix(newWord, ".") || strings.HasPrefix(newWord, "/") || strings.HasPrefix(newWord, "`") || strings.HasPrefix(newWord, "€") || strings.HasPrefix(newWord, "£") {
+		newWord = newWord[1:]
+	}
+	if strings.HasSuffix(newWord, ".") || strings.HasSuffix(newWord, "/") || strings.HasSuffix(newWord, "`") || strings.HasSuffix(newWord, ";") {
+		newWord = newWord[:len(newWord)-1]
+	}
+
+	if newWord != word {
+		return newWord, 1
+	}
+
+	return word, 0
+}
