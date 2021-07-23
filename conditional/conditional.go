@@ -177,9 +177,9 @@ func GetOccurrenceListByDate(timeinterval nt.TimeInterval, useOccurrence bool) (
 // https://medium.com/@cep21/gos-append-is-not-always-thread-safe-a3034db7975
 // Do not use shared state as the first variable to append.	NOT USED!
 // Explicitly make() a new slice with an extra element's worth of capacity, then copy() the old slice to it, then finally append() or add the new value.
-func CollectWordGrams(wordGrams []string, timeinterval nt.TimeInterval) ([]hd.Occurrence, mapset.Set) {
-	var alphaCollection []hd.Occurrence                               // populate in separate goroutine using queue channel.
-	occurrenceList, idSet, _ := GetOccurrenceListByDate(timeinterval) // []Occurrence
+func CollectWordGrams(wordGrams []string, timeinterval nt.TimeInterval, useOccurrence bool) ([]hd.Occurrence, mapset.Set) {
+	var alphaCollection []hd.Occurrence                                              // populate in separate goroutine using queue channel.
+	occurrenceList, idSet, _ := GetOccurrenceListByDate(timeinterval, useOccurrence) // []Occurrence
 	sort.Sort(hd.OccurrenceSorterWord(occurrenceList))
 
 	// goroutine version:
