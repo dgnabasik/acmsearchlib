@@ -346,7 +346,7 @@ The imported wordMap has probabilities over timeinterval. startingWordgram allow
 Do for 2 permutations (order matters). Performs FilteringRules(words) Returns len(wordGrams).
 Number of permutations for 97022 wordgrams is n!/(n-r)! = 9,413,171,462. */
 
-// CalcConditionalProbability func returns 	wordMap:SELECT Word,Probability FROM vocabulary */
+// CalcConditionalProbability func returns 	wordMap:SELECT Word,Probability FROM vocabulary.
 func CalcConditionalProbability(startingWordgram string, wordMap map[string]float32, timeinterval nt.TimeInterval) (int, error) {
 	if len(wordMap) < 2 {
 		log.Printf("There must at at least 2 words to compute conditional probabilities.")
@@ -420,6 +420,39 @@ func CalcConditionalProbability(startingWordgram string, wordMap map[string]floa
 	elapsed := time.Since(start)
 	fmt.Println(elapsed.String())
 	return len(wordGrams), nil
+}
+
+// GetAllArchiveDates func returns list of Occurrence dates. Use Conditional.Id as session value.
+func GetAllArchiveDates(wordA, wordB string, timeInterval nt.TimeInterval, session int64, useOccurrence bool) ([]time.Time, error) {
+	db, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return nil, err
+	}
+	defer db.Close()
+
+	params := "'" + wordA + "', '" + wordB + "', '" + timeInterval.StartDate.StandardDate() + "', '" + timeInterval.EndDate.StandardDate() + "', " + fmt.Sprintf("%v", session)
+	SELECT := "SELECT archDate FROM GetAllArchiveDates(" + params + ")"
+	if !useOccurrence {
+		SELECT = "SELECT * FROM GetAllTitleArchiveDates(" + params + ")"
+	}
+	rows, err := db.Query(context.Background(), SELECT)
+	dbx.CheckErr(err)
+	defer rows.Close()
+
+	// fields to read
+	var archDate time.Time
+	var archDateList []time.Time
+
+	for rows.Next() {
+		err = rows.Scan(&archDate)
+		dbx.CheckErr(err)
+		archDateList = append(archDateList, archDate)
+	}
+
+	err = rows.Err()
+	dbx.CheckErr(err)
+
+	return archDateList, nil
 }
 
 // GetConditionalByTimeInterval func modifies condProbList.
