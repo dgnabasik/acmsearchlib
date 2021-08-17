@@ -10,7 +10,6 @@ import (
 	"strings"
 	"time"
 
-	cond "github.com/dgnabasik/acmsearchlib/conditional"
 	dbx "github.com/dgnabasik/acmsearchlib/database"
 	hd "github.com/dgnabasik/acmsearchlib/headers"
 	nt "github.com/dgnabasik/acmsearchlib/nulltime"
@@ -249,7 +248,7 @@ func WordFrequencyList(useSummary bool) ([]hd.Vocabulary, error) {
 		err = rows.Scan(&word, &rowCount, &frequency)
 		dbx.CheckErr(err)
 
-		newWord, rule := cond.FilteringRules(word)
+		newWord, rule := hd.FilteringRules(word)
 		if rule < 0 {
 			continue
 		} else if rule > 0 {
@@ -360,7 +359,7 @@ func GetWordIntersection(words []string, timeInterval nt.TimeInterval) ([]hd.Tit
 	var list []hd.TitleSummary
 
 	for rows.Next() {
-		err := rows.Scan(&ts.Id, &ts.ArchiveDate, &ts.Title, &ts.Summary)
+		err := rows.Scan(&ts.ID, &ts.ArchiveDate, &ts.Title, &ts.Summary)
 		dbx.CheckErr(err)
 		list = append(list, ts)
 	}
