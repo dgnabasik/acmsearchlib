@@ -24,7 +24,7 @@ import (
 // comment
 const (
 	SEP              = "|"
-	condColumnSelect = "SELECT id, wordlist, probability, timeframetype, startDate, endDate, firstDate, lastDate, pmi, dateUpdated FROM Conditional "
+	condColumnSelect = "SELECT id, wordlist, probability, reverseprob, tfidf, timeframetype, startDate, endDate, firstDate, lastDate, pmi, dateUpdated FROM Conditional "
 )
 
 // mapset https://github.com/deckarep/golang-set/blob/master/README.md & https://godoc.org/github.com/deckarep/golang-set
@@ -309,9 +309,9 @@ func BulkInsertConditionalProbability(conditionals []hd.ConditionalProbability) 
 	copyCount, err := db.CopyFrom(
 		context.Background(),
 		pgx.Identifier{"conditional"}, // tablename
-		[]string{"wordlist", "probability", "timeframetype", "startdate", "enddate", "firstdate", "lastdate", "pmi", "dateupdated"},
+		[]string{"wordlist", "probability", "reverseProb", "tfidf", "timeframetype", "startdate", "enddate", "firstdate", "lastdate", "pmi", "dateupdated"},
 		pgx.CopyFromSlice(len(conditionals), func(i int) ([]interface{}, error) {
-			return []interface{}{conditionals[i].WordList, conditionals[i].Probability, int(conditionals[i].Timeinterval.Timeframetype), conditionals[i].Timeinterval.StartDate.DT,
+			return []interface{}{conditionals[i].WordList, conditionals[i].Probability, conditionals[i].ReverseProb, conditionals[i].Tfidf, int(conditionals[i].Timeinterval.Timeframetype), conditionals[i].Timeinterval.StartDate.DT,
 				conditionals[i].Timeinterval.EndDate.DT, conditionals[i].FirstDate.DT, conditionals[i].LastDate.DT, conditionals[i].Pmi, conditionals[i].DateUpdated}, nil
 		}),
 	)
@@ -376,10 +376,11 @@ func CalcConditionalProbability(startingWordgram string, wordMap map[string]floa
 	start := time.Now()
 
 	var conditionals []hd.ConditionalProbability
-	var pAgivenB, pBgivenA, pmi float32 // must match function RETURNS TABLE names.
+	var pAgivenB, pBgivenA, pmi, tfidf float32 // must match function RETURNS TABLE names.
 	var firstDate, lastDate time.Time
 	var firstDateValue, lastDateValue nt.NullTime
 	var totalInserts int64
+	var wordlist string
 	startDateParam := timeinterval.StartDate.StandardDate()
 	endDateParam := timeinterval.EndDate.StandardDate()
 
@@ -402,10 +403,9 @@ func CalcConditionalProbability(startingWordgram string, wordMap map[string]floa
 					dbx.CheckErr(err)                            // firstDate, lastDate can be null!
 					firstDateValue = nt.New_NullTime2(firstDate) // must match function RETURNS TABLE names.
 					lastDateValue = nt.New_NullTime2(lastDate)
-					wordlist := wordGrams[wordA] + SEP + wordGrams[wordB]
-					conditionals = append(conditionals, hd.ConditionalProbability{Id: 0, WordList: wordlist, Probability: pAgivenB, Timeinterval: timeinterval, FirstDate: firstDateValue, LastDate: lastDateValue, Pmi: pmi, DateUpdated: today})
-					wordlist = wordGrams[wordB] + SEP + wordGrams[wordA]
-					conditionals = append(conditionals, hd.ConditionalProbability{Id: 0, WordList: wordlist, Probability: pBgivenA, Timeinterval: timeinterval, FirstDate: firstDateValue, LastDate: lastDateValue, Pmi: pmi, DateUpdated: today})
+					tfidf = 0 //<<<
+					wordlist = wordGrams[wordA] + SEP + wordGrams[wordB]
+					conditionals = append(conditionals, hd.ConditionalProbability{Id: 0, WordList: wordlist, Probability: pAgivenB, ReverseProb: pBgivenA, Tfidf: tfidf, Timeinterval: timeinterval, FirstDate: firstDateValue, LastDate: lastDateValue, Pmi: pmi, DateUpdated: today})
 				}
 			}
 
@@ -480,7 +480,7 @@ func GetConditionalByTimeInterval(bigrams []string, timeInterval nt.TimeInterval
 	var endDate time.Time
 
 	for rows.Next() {
-		err := rows.Scan(&cProb.Id, &cProb.WordList, &cProb.Probability, &timeframetype, &startDate, &endDate, &cProb.FirstDate, &cProb.LastDate, &cProb.Pmi, &cProb.DateUpdated)
+		err := rows.Scan(&cProb.Id, &cProb.WordList, &cProb.Probability, &cProb.ReverseProb, &cProb.Tfidf, &timeframetype, &startDate, &endDate, &cProb.FirstDate, &cProb.LastDate, &cProb.Pmi, &cProb.DateUpdated)
 		if err != nil {
 			log.Printf("GetConditionalByTimeInterval(2): %+v\n", err)
 			return condProbList, err
@@ -523,7 +523,7 @@ func GetConditionalByProbability(word string, probabilityCutoff float32, timeInt
 	var endDate time.Time
 
 	for rows.Next() {
-		err := rows.Scan(&cProb.Id, &cProb.WordList, &cProb.Probability, &timeframetype, &startDate, &endDate, &cProb.FirstDate, &cProb.LastDate, &cProb.Pmi, &cProb.DateUpdated)
+		err := rows.Scan(&cProb.Id, &cProb.WordList, &cProb.Probability, &cProb.ReverseProb, &cProb.Tfidf, &timeframetype, &startDate, &endDate, &cProb.FirstDate, &cProb.LastDate, &cProb.Pmi, &cProb.DateUpdated)
 		if err != nil {
 			log.Printf("GetConditionalByProbability(2): %+v\n", err)
 			return err
@@ -580,7 +580,7 @@ func GetConditionalList(words []string, timeInterval nt.TimeInterval, permute bo
 	var condProbList []hd.ConditionalProbability
 
 	for rows.Next() {
-		err := rows.Scan(&cProb.Id, &cProb.WordList, &cProb.Probability, &timeframetype, &startDate, &endDate, &cProb.FirstDate, &cProb.LastDate, &cProb.Pmi, &cProb.DateUpdated)
+		err := rows.Scan(&cProb.Id, &cProb.WordList, &cProb.Probability, &cProb.ReverseProb, &cProb.Tfidf, &timeframetype, &startDate, &endDate, &cProb.FirstDate, &cProb.LastDate, &cProb.Pmi, &cProb.DateUpdated)
 		dbx.CheckErr(err)
 		cProb.Timeinterval = nt.New_TimeInterval(nt.TimeFrameType(timeframetype), nt.New_NullTime2(startDate), nt.New_NullTime2(endDate))
 		condProbList = append(condProbList, cProb)
@@ -637,20 +637,20 @@ func GetProbabilityGraph(words []string, timeInterval nt.TimeInterval) ([]hd.Con
 		bigram := "'" + bigrams[index] + "'"
 		ndxSep := strings.Index(bigrams[index], SEP)
 		leftWord := "'" + bigrams[index][0:ndxSep] + "'"
-		rightWord := "'" + bigrams[index][ndxSep+1:] + "'"
-		reverseBigram := "'" + bigrams[index][ndxSep+1:] + SEP + bigrams[index][0:ndxSep] + "'"
+		//rightWord := "'" + bigrams[index][ndxSep+1:] + "'"
+		//reverseBigram := "'" + bigrams[index][ndxSep+1:] + SEP + bigrams[index][0:ndxSep] + "'"
 
 		SELECT.WriteString(condColumnSelect)
 		SELECT.WriteString("WHERE wordarray[1]=" + leftWord + " AND " + intervalClause)
 		SELECT.WriteString("AND pmi >= (SELECT MAX(pmi) FROM Conditional WHERE wordlist=" + bigram + " AND " + intervalClause + ") ")
 		SELECT.WriteString("AND probability >= (SELECT MAX(probability) FROM Conditional WHERE wordlist=" + bigram + " AND " + intervalClause + ") ")
 		SELECT.WriteString("AND SUBSTRING(wordlist from " + strconv.Itoa(len(leftWord)+2) + " for 32) IN (SELECT word FROM Wordscore WHERE score >= (SELECT MAX(score) FROM Wordscore WHERE word=" + leftWord + ")) ")
-		SELECT.WriteString("UNION ")
-		SELECT.WriteString(condColumnSelect)
-		SELECT.WriteString("WHERE wordarray[2]=" + rightWord + " AND " + intervalClause)
-		SELECT.WriteString("AND pmi >= (SELECT MAX(pmi) FROM Conditional WHERE wordlist=" + reverseBigram + " AND " + intervalClause + ") ")
-		SELECT.WriteString("AND probability >= (SELECT MAX(probability) FROM Conditional WHERE wordlist=" + reverseBigram + " AND " + intervalClause + ") ")
-		SELECT.WriteString("AND SUBSTRING(wordlist FROM " + strconv.Itoa(len(rightWord)+2) + " for 32) IN (SELECT word FROM Wordscore WHERE score >= (SELECT MAX(score) FROM Wordscore WHERE word=" + rightWord + ")) ")
+		//SELECT.WriteString("UNION ")
+		//SELECT.WriteString(condColumnSelect)
+		//SELECT.WriteString("WHERE wordarray[2]=" + rightWord + " AND " + intervalClause)
+		//SELECT.WriteString("AND pmi >= (SELECT MAX(pmi) FROM Conditional WHERE wordlist=" + reverseBigram + " AND " + intervalClause + ") ")
+		//SELECT.WriteString("AND probability >= (SELECT MAX(probability) FROM Conditional WHERE wordlist=" + reverseBigram + " AND " + intervalClause + ") ")
+		//SELECT.WriteString("AND SUBSTRING(wordlist FROM " + strconv.Itoa(len(rightWord)+2) + " for 32) IN (SELECT word FROM Wordscore WHERE score >= (SELECT MAX(score) FROM Wordscore WHERE word=" + rightWord + ")) ")
 		if index < len(bigrams)-1 {
 			SELECT.WriteString("UNION ")
 		}
@@ -670,7 +670,7 @@ func GetProbabilityGraph(words []string, timeInterval nt.TimeInterval) ([]hd.Con
 	var condProbList []hd.ConditionalProbability
 
 	for rows.Next() {
-		err := rows.Scan(&cProb.Id, &cProb.WordList, &cProb.Probability, &timeframetype, &startDate, &endDate, &cProb.FirstDate, &cProb.LastDate, &cProb.Pmi, &cProb.DateUpdated)
+		err := rows.Scan(&cProb.Id, &cProb.WordList, &cProb.Probability, &cProb.ReverseProb, &cProb.Tfidf, &timeframetype, &startDate, &endDate, &cProb.FirstDate, &cProb.LastDate, &cProb.Pmi, &cProb.DateUpdated)
 		dbx.CheckErr(err)
 		cProb.Timeinterval = timeInterval
 		condProbList = append(condProbList, cProb)
@@ -679,7 +679,7 @@ func GetProbabilityGraph(words []string, timeInterval nt.TimeInterval) ([]hd.Con
 	err = rows.Err()
 	dbx.CheckErr(err)
 
-	// fetch reverseWordlist values:
+	/* fetch reverseWordlist values:
 	reverseWordlist := make([]string, 0)
 	for _, cp := range condProbList {
 		ndxSep := strings.Index(cp.WordList, SEP)
@@ -691,13 +691,13 @@ func GetProbabilityGraph(words []string, timeInterval nt.TimeInterval) ([]hd.Con
 	dbx.CheckErr(err)
 	defer rows.Close()
 	for rows.Next() {
-		err := rows.Scan(&cProb.Id, &cProb.WordList, &cProb.Probability, &timeframetype, &startDate, &endDate, &cProb.FirstDate, &cProb.LastDate, &cProb.Pmi, &cProb.DateUpdated)
+		err := rows.Scan(&cProb.Id, &cProb.WordList, &cProb.Probability, &cProb.ReverseProb, &cProb.Tfidf, &timeframetype, &startDate, &endDate, &cProb.FirstDate, &cProb.LastDate, &cProb.Pmi, &cProb.DateUpdated)
 		dbx.CheckErr(err)
 		cProb.Timeinterval = timeInterval
 		condProbList = append(condProbList, cProb)
 	}
 	err = rows.Err()
-	dbx.CheckErr(err)
+	dbx.CheckErr(err) */
 
 	return condProbList, nil
 }
@@ -723,7 +723,7 @@ func GetWordgramConditionalsByInterval(queryWords []string, newWords []string, t
 	}
 	inPhrase := dbx.CompileInClause(bigrams) // Can't use dbx.CompileDateClause() because of w alias.
 
-	SELECT := `SELECT w.word, c.wordlist, w.score, c.probability, c.pmi, c.timeframetype, c.startDate, c.endDate, c.firstdate, c.lastdate FROM Wordscore AS w 
+	SELECT := `SELECT w.word, c.wordlist, w.score, c.probability, c.reverseprob, c.tfidf, c.pmi, c.timeframetype, c.startDate, c.endDate, c.firstdate, c.lastdate FROM Wordscore AS w 
 		INNER JOIN Conditional AS c ON w.word=SUBSTRING(c.wordlist FROM POSITION('|' IN c.wordlist)+1 FOR 32) WHERE w.startdate=c.startDate AND w.endDate=c.endDate`
 	SELECT += " AND c.wordlist IN " + inPhrase + " AND w.startDate >= '" + timeInterval.StartDate.StandardDate() + "' AND w.endDate <= '" + timeInterval.EndDate.StandardDate() + "' ORDER BY c.wordlist"
 	//fs.WriteTextLines([]string{SELECT}, "/home/david/websites/acmsearch/golang/datafiles/GetWordgramConditionalsByInterval.sql", false)
@@ -731,7 +731,7 @@ func GetWordgramConditionalsByInterval(queryWords []string, newWords []string, t
 	dbx.CheckErr(err)
 	defer rows.Close()
 
-	var score, pmi, probability float32
+	var score, pmi, probability, reverseprob, tfidf float32
 	var timeframetype int
 	var startDate, endDate, firstDate, lastDate time.Time
 	var word, wordlist string
@@ -739,12 +739,12 @@ func GetWordgramConditionalsByInterval(queryWords []string, newWords []string, t
 	wordScoreConditionalList := make([]hd.WordScoreConditionalFlat, 0)
 
 	for rows.Next() {
-		err = rows.Scan(&word, &wordlist, &score, &probability, &pmi, &timeframetype, &startDate, &endDate, &firstDate, &lastDate)
+		err = rows.Scan(&word, &wordlist, &score, &probability, &reverseprob, &tfidf, &pmi, &timeframetype, &startDate, &endDate, &firstDate, &lastDate)
 		dbx.CheckErr(err)
 		wordArray := strings.Split(wordlist, SEP)
 		id++
 		wordScoreConditionalList = append(wordScoreConditionalList, hd.WordScoreConditionalFlat{ID: id, WordArray: wordArray,
-			Wordlist: wordlist, Score: score, Probability: probability, Pmi: pmi, Timeframetype: timeframetype, StartDate: startDate, EndDate: endDate, FirstDate: firstDate, LastDate: lastDate})
+			Wordlist: wordlist, Score: score, Probability: probability, ReverseProb: reverseprob, Tfidf: tfidf, Pmi: pmi, Timeframetype: timeframetype, StartDate: startDate, EndDate: endDate, FirstDate: firstDate, LastDate: lastDate})
 	}
 	err = rows.Err()
 	dbx.CheckErr(err)

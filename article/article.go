@@ -328,3 +328,45 @@ func BulkInsertAcmData(articleList []hd.AcmArticle) (int, error) {
 
 	return len(articleList), nil
 }
+
+// GetWordIntersection func returns ordered list of high-probability bigrams for given word.
+func GetWordIntersection(words []string, timeInterval nt.TimeInterval) ([]hd.TitleSummary, error) {
+	intervalClause := dbx.CompileDateClause(timeInterval, false)
+
+	db, err := dbx.GetDatabaseReference()
+	if err != nil {
+		return nil, err
+	}
+	defer db.Close()
+
+	queryLines := make([]string, 0)
+	var SELECT strings.Builder
+	SELECT.WriteString("SELECT id, archivedate, title, summary from Acmdata WHERE id IN (")
+
+	for index := 0; index < len(words); index++ {
+		SELECT.WriteString("SELECT acmid FROM Occurrence WHERE word='" + words[index] + "' AND " + intervalClause)
+		if index < len(words)-1 {
+			SELECT.WriteString("INTERSECT ")
+		}
+		queryLines = append(queryLines, SELECT.String())
+	}
+	query := strings.Join(queryLines, " ") + " ) ORDER BY archivedate DESC;"
+	fmt.Println(query)
+	rows, err := db.Query(context.Background(), query)
+	dbx.CheckErr(err)
+	defer rows.Close()
+
+	var ts hd.TitleSummary
+	var list []hd.TitleSummary
+
+	for rows.Next() {
+		err := rows.Scan(&ts.Id, &ts.ArchiveDate, &ts.Title, &ts.Summary)
+		dbx.CheckErr(err)
+		list = append(list, ts)
+	}
+
+	err = rows.Err()
+	dbx.CheckErr(err)
+
+	return list, nil
+}

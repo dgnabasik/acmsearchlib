@@ -552,8 +552,10 @@ func (om OrderedArticleMap) PrintMap() {
 // ConditionalProbability struct does NOT include the wordarray text[] column in [Conditional].
 type ConditionalProbability struct {
 	Id           uint64          `json:"id"`
-	WordList     string          `json:"wordlist"`     // concatenated("|")
-	Probability  float32         `json:"probability"`  // Conditional Probability
+	WordList     string          `json:"wordlist"`    // concatenated("|")
+	Probability  float32         `json:"probability"` // Conditional Probability
+	ReverseProb  float32         `json:"reverseprob"`
+	Tfidf        float32         `json:"tfidf"`
 	Timeinterval nt.TimeInterval `json:"timeinterval"` // declared in nulltime.go;
 	FirstDate    nt.NullTime     `json:"firstdate"`
 	LastDate     nt.NullTime     `json:"lastdate"`
@@ -583,6 +585,8 @@ type WordScoreConditionalFlat struct {
 	Wordlist      string    `json:"wordlist"`
 	Score         float32   `json:"score"`
 	Probability   float32   `json:"probability"`
+	ReverseProb   float32   `json:"reverseprob"`
+	Tfidf         float32   `json:"tfidf"`
 	Pmi           float32   `json:"pmi"`
 	Timeframetype int       `json:"timeframetype"`
 	StartDate     time.Time `json:"startdate"`
@@ -604,7 +608,7 @@ func (wscf WordScoreConditionalFlat) Print() string {
 	ti := nt.New_TimeInterval(nt.TimeFrameType(wscf.Timeframetype), nt.New_NullTime2(wscf.StartDate), nt.New_NullTime2(wscf.EndDate))
 	fd := nt.New_NullTime2(wscf.FirstDate)
 	ld := nt.New_NullTime2(wscf.LastDate)
-	str := fmt.Sprintf("%s : %f : %f : %f : %s : %s : %s", wscf.Wordlist, wscf.Score, wscf.Probability, wscf.Pmi, ti.ToString(), fd.StandardDate(), ld.StandardDate())
+	str := fmt.Sprintf("%s : %f : %f : %f : %f : %f : %s : %s : %s", wscf.Wordlist, wscf.Score, wscf.Probability, wscf.ReverseProb, wscf.ReverseProb, wscf.Pmi, ti.ToString(), fd.StandardDate(), ld.StandardDate())
 	return str
 }
 
@@ -640,12 +644,21 @@ type GraphLink struct {
 	TargetNodeID int       `json:"target"` // json must be named 'target' to be D3-compatible.
 	Level        int       `json:"level"`
 	WordList1    string    `json:"wordlist1"` // concatenated("|")
-	CondProb1    float32   `json:"condprob1"`
+	CondProb1    float32   `json:"condprob1"` // P(wordA|wordB)
 	WordList2    string    `json:"wordlist2"`
-	CondProb2    float32   `json:"condprob2"`
+	CondProb2    float32   `json:"condprob2"` // P(wordB|wordA)
 	FirstDate    time.Time `json:"firstdate"`
 	LastDate     time.Time `json:"lastdate"`
 	Pmi          float32   `json:"pmi"` // point mutual information.
+}
+
+// TitleSummary struct for display.
+type TitleSummary struct {
+	ID          int       `json:"id"`
+	ArchiveDate time.Time `json:"archivedate"`
+	Word        string    `json:"word"`
+	Title       string    `json:"title"`
+	Summary     string    `json:"summary"`
 }
 
 // KeyValuePairInterface interface for AcmArticle, Vocabulary, Occurrence, WordScore structs.

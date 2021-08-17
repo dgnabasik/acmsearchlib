@@ -6,7 +6,8 @@ require (
 	github.com/dgnabasik/acmsearchlib/database v0.0.0-20210706001359-c82124fe2300
 	github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210706001359-c82124fe2300
 	github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210706001359-c82124fe2300
-	github.com/jackc/pgx/v4 v4.12.0
-	golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97 // indirect
+	github.com/jackc/pgx/v4 v4.13.0
+	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5 // indirect
+	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
 )
