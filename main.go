@@ -375,7 +375,7 @@ func Testheaders(t *testing.T) {
 	}
 
 	words := []string{"3d", "access", "able", "kläui", "att", "beyond", "kommunikationsbüro", "cu", "schrödinger", "tübingen", "either", "four", "iff", "ins", "lin", "björn", "ngn", "éal", "nov", "éciale", "goëry", "göttingen", "loránd", "onto", "sa", "seven", "sf", "lovász", "ramón", "sánchez", "ably", "abroad", "abruptly", "absolutely", "thirteen"}
-	vocabList, err := voc.GetVocabularyList(words)
+	vocabList, err := voc.GetVocabularyList(words, true)  // useVocabulary
 	if err != nil {
 		t.Error("b13a: bad GetVocabularyList")
 	}
@@ -626,17 +626,17 @@ func Testarticle(t *testing.T) {
 // Testconditional func
 func Testconditional(t *testing.T) {
 	word := "0123456789abcdef"             // min(len)=10
-	_, status := cond.FilteringRules(word) // status: 0 for ok, -1 to completely ignore, 1 for modified word.
+	_, status := hd.FilteringRules(word) // status: 0 for ok, -1 to completely ignore, 1 for modified word.
 	if status != -1 {
 		t.Error("f1a: bad FilteringRules")
 	}
 	word = ".0123456789abcdef"            // min(len)=10
-	_, status = cond.FilteringRules(word) // status: 0 for ok, -1 to completely ignore, 1 for modified word.
+	_, status = hd.FilteringRules(word) // status: 0 for ok, -1 to completely ignore, 1 for modified word.
 	if status != 1 {
 		t.Error("f1b: bad FilteringRules")
 	}
 	word = "word"                         // min(len)=10
-	_, status = cond.FilteringRules(word) // status: 0 for ok, -1 to completely ignore, 1 for modified word.
+	_, status = hd.FilteringRules(word) // status: 0 for ok, -1 to completely ignore, 1 for modified word.
 	if status != 0 {
 		t.Error("f1c: bad FilteringRules")
 	}
@@ -646,7 +646,7 @@ func Testconditional(t *testing.T) {
 	startDate := nt.New_NullTime("2020-01-01")
 	endDate := nt.New_NullTime("2020-12-31")
 	timeinterval := nt.New_TimeInterval(nt.TFYear, startDate, endDate)
-	occurrenceList, occurrenceMap, err := cond.GetOccurrenceListByDate(timeinterval)
+	occurrenceList, occurrenceMap, err := cond.GetOccurrenceListByDate(timeinterval, true)  // useOccurrence 
 	if err != nil {
 		t.Error("f2a: bad GetOccurrenceListByDate")
 	}
@@ -747,7 +747,7 @@ func Testconditional(t *testing.T) {
 	}
 
 	startTime = time.Now()
-	occurrenceList, idSet := cond.CollectWordGrams(words, timeinterval)
+	occurrenceList, idSet := cond.CollectWordGrams(words, timeinterval, true)  // useOccurrence
 	elapsed = time.Since(startTime)
 	fmt.Println("cond.CollectWordGrams: " + elapsed.String())
 	if len(occurrenceList) < 1000 {
@@ -796,7 +796,7 @@ func Testwordscore(t *testing.T) {
 // Testvocabulary func
 func Testvocabulary(t *testing.T) {
 	words := []string{"3d", "able", "access"}
-	vocList, err := voc.GetVocabularyList(words)
+	vocList, err := voc.GetVocabularyList(words, true)  // useVocabulary
 	if err != nil {
 		t.Error("h0a: bad GetVocabularyList")
 	}
@@ -804,12 +804,12 @@ func Testvocabulary(t *testing.T) {
 		t.Error("h0b: bad GetVocabularyList")
 	}
 
-	_, err = voc.GetVocabularyByWord(words[0])
+	_, err = voc.GetVocabularyByWord(words[0], true)  // useVocabulary
 	if err != nil {
 		t.Error("h1: bad GetVocabularyByWord")
 	}
 
-	vocList, err = voc.GetStemWords("access")
+	vocList, err = voc.GetStemWords("access", true)  // useVocabulary
 	if err != nil {
 		t.Error("h2a: bad GetStemWords")
 	}
@@ -817,16 +817,16 @@ func Testvocabulary(t *testing.T) {
 		t.Error("h2b: bad GetStemWords")
 	}
 
-	prefix := "" // fetch all words
-	lookupMap, err := voc.GetWordListMap(prefix)
+	useVocabulary := true
+	lookupMap, err := voc.GetWordListMap(useVocabulary)
 	if err != nil {
 		t.Error("h3a: bad GetWordListMap")
 	}
 	if len(lookupMap) < 1 {
 		t.Error("h3b: bad GetWordListMap")
 	}
-	prefix = "work" // fetch words*
-	lookupMap, err = voc.GetWordListMap(prefix)
+
+	lookupMap, err = voc.GetWordListMap(useVocabulary)
 	if err != nil {
 		t.Error("h3c: bad GetWordListMap")
 	}
