@@ -466,16 +466,17 @@ type WordScore struct {
 	Linkage      float32         `json:"linkage"`
 	Growth       float32         `json:"growth"`
 	Score        float32         `json:"score"`
+	Wstfidf      float32         `json:"wstfidf"`
 }
 
 // Print method
 func (v WordScore) Print() string {
-	return fmt.Sprintf("%s : %s : %f : %f : %f : %f", v.Word, v.Timeinterval.ToString(), v.Density, v.Linkage, v.Growth, v.Score)
+	return fmt.Sprintf("%s : %s : %f : %f : %f : %f : %f", v.Word, v.Timeinterval.ToString(), v.Density, v.Linkage, v.Growth, v.Score, v.Wstfidf)
 }
 
 // GetKeyValuePairs method
 func (v WordScore) GetKeyValuePairs() (map[string]string, map[int]string) {
-	fieldNames := []string{"Id", "Word", "Timeinterval", "Density", "Linkage", "Growth", "Score"}
+	fieldNames := []string{"Id", "Word", "Timeinterval", "Density", "Linkage", "Growth", "Score", "Wstfidf"}
 	orderedMap := GetOrderedMap(fieldNames)
 
 	predicateMap := make(map[string]string, len(fieldNames))
@@ -486,6 +487,7 @@ func (v WordScore) GetKeyValuePairs() (map[string]string, map[int]string) {
 	predicateMap[fieldNames[4]] = fmt.Sprintf(floatFormatter, v.Linkage)
 	predicateMap[fieldNames[5]] = fmt.Sprintf(floatFormatter, v.Growth)
 	predicateMap[fieldNames[6]] = fmt.Sprintf(floatFormatter, v.Score)
+	predicateMap[fieldNames[7]] = fmt.Sprintf(floatFormatter, v.Wstfidf)
 
 	return predicateMap, orderedMap
 }
@@ -636,6 +638,7 @@ type GraphNode struct {
 	Linkage      float32         `json:"linkage"`      // WordScore
 	Growth       float32         `json:"growth"`       // WordScore
 	Score        float32         `json:"score"`        // WordScore
+	Wstfidf      float32         `json:"wstfidf"`      // WordScore
 }
 
 // GraphLink struct consolidates 2 ConditionalProbability objects.

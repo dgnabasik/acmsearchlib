@@ -15,7 +15,7 @@ import (
 	pgx "github.com/jackc/pgx/v4"
 )
 
-const wordscoreSelect = "SELECT id,word,timeframetype,startDate,endDate,density,linkage,growth,score FROM "
+const wordscoreSelect = "SELECT id,word,timeframetype,startDate,endDate,density,linkage,growth,score,wstfidf FROM "
 
 func getTableName(useWordscore bool) string {
 	if useWordscore {
@@ -41,7 +41,7 @@ func GetWordScores(word string, useWordscore bool) ([]hd.WordScore, error) {
 	var id uint64
 	var timeframetype int
 	var dt1, dt2 time.Time
-	var density, linkage, growth, score float32
+	var density, linkage, growth, score, wstfidf float32
 	var wordscore hd.WordScore
 	wordscoreList := []hd.WordScore{}
 
@@ -55,14 +55,15 @@ func GetWordScores(word string, useWordscore bool) ([]hd.WordScore, error) {
 			&density,
 			&linkage,
 			&growth,
-			&score)
+			&score,
+			&wstfidf)
 		if err != nil {
 			log.Printf("GetWordScores: %+v\n", err)
 			return wordscoreList, err
 		}
 
 		timeinterval := nt.TimeInterval{Timeframetype: nt.TimeFrameType(timeframetype), StartDate: nt.New_NullTime2(dt1), EndDate: nt.New_NullTime2(dt2)}
-		wordscore = hd.WordScore{Id: id, Word: word, Timeinterval: timeinterval, Density: density, Linkage: linkage, Growth: growth, Score: score}
+		wordscore = hd.WordScore{Id: id, Word: word, Timeinterval: timeinterval, Density: density, Linkage: linkage, Growth: growth, Score: score, Wstfidf: wstfidf}
 		wordscoreList = append(wordscoreList, wordscore)
 	}
 
@@ -94,7 +95,7 @@ func GetWordScoreListByTimeInterval(words []string, timeInterval nt.TimeInterval
 	var word string
 	var timeframetype int
 	var dt1, dt2 time.Time
-	var density, linkage, growth, score float32
+	var density, linkage, growth, score, wstfidf float32
 	var wordscore hd.WordScore
 	wordscoreList := []hd.WordScore{}
 
@@ -108,14 +109,15 @@ func GetWordScoreListByTimeInterval(words []string, timeInterval nt.TimeInterval
 			&density,
 			&linkage,
 			&growth,
-			&score)
+			&score,
+			&wstfidf)
 		if err != nil {
 			log.Printf("GetWordScoreListByTimeInterval(2): %+v\n", err)
 			return wordscoreList, err
 		}
 
 		timeinterval := nt.TimeInterval{Timeframetype: nt.TimeFrameType(timeframetype), StartDate: nt.New_NullTime2(dt1), EndDate: nt.New_NullTime2(dt2)}
-		wordscore = hd.WordScore{Id: id, Word: word, Timeinterval: timeinterval, Density: density, Linkage: linkage, Growth: growth, Score: score}
+		wordscore = hd.WordScore{Id: id, Word: word, Timeinterval: timeinterval, Density: density, Linkage: linkage, Growth: growth, Score: score, Wstfidf: wstfidf}
 		wordscoreList = append(wordscoreList, wordscore)
 	}
 
@@ -142,9 +144,9 @@ func BulkInsertWordScores(wordScoreList []hd.WordScore, useWordscore bool) error
 	copyCount, err := db.CopyFrom(
 		context.Background(),
 		pgx.Identifier{tablename},
-		[]string{"word", "timeframetype", "startdate", "enddate", "density", "linkage", "growth", "score"},
+		[]string{"word", "timeframetype", "startdate", "enddate", "density", "linkage", "growth", "score", "wstfidf"},
 		pgx.CopyFromSlice(len(wordScoreList), func(i int) ([]interface{}, error) {
-			return []interface{}{wordScoreList[i].Word, int(wordScoreList[i].Timeinterval.Timeframetype), wordScoreList[i].Timeinterval.StartDate.DT, wordScoreList[i].Timeinterval.EndDate.DT, wordScoreList[i].Density, wordScoreList[i].Linkage, wordScoreList[i].Growth, wordScoreList[i].Score}, nil
+			return []interface{}{wordScoreList[i].Word, int(wordScoreList[i].Timeinterval.Timeframetype), wordScoreList[i].Timeinterval.StartDate.DT, wordScoreList[i].Timeinterval.EndDate.DT, wordScoreList[i].Density, wordScoreList[i].Linkage, wordScoreList[i].Growth, wordScoreList[i].Score, wordScoreList[i].Wstfidf}, nil
 		}),
 	)
 	dbx.CheckErr(err)
