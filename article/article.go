@@ -339,18 +339,15 @@ func GetWordIntersection(words []string, timeInterval nt.TimeInterval) ([]hd.Tit
 	defer db.Close()
 
 	queryLines := make([]string, 0)
-	var SELECT strings.Builder
-	SELECT.WriteString("SELECT id, archivedate, title, summary from Acmdata WHERE id IN (")
-
+	queryLines = append(queryLines, "SELECT id, archivedate, title, summary from Acmdata WHERE id IN (")
 	for index := 0; index < len(words); index++ {
-		SELECT.WriteString("SELECT acmid FROM Occurrence WHERE word='" + words[index] + "' AND " + intervalClause )
+		queryLines = append(queryLines, "SELECT acmid FROM Occurrence WHERE word='" + words[index] + "' AND " + intervalClause )
 		if index < len(words)-1 {
-			SELECT.WriteString("INTERSECT ")
+			queryLines = append(queryLines, "INTERSECT ")
 		}
-		//queryLines = append(queryLines, SELECT.String())
 	}
 	query := strings.Join(queryLines, " ") + " ) ORDER BY archivedate DESC;"
-	fmt.Println(query)
+	fmt.Println(query)//<<<
 	rows, err := db.Query(context.Background(), query)
 	dbx.CheckErr(err)
 	defer rows.Close()
