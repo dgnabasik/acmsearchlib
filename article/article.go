@@ -330,7 +330,7 @@ func BulkInsertAcmData(articleList []hd.AcmArticle) (int, error) {
 
 // GetWordIntersection func returns ordered list of high-probability bigrams for given word.
 func GetWordIntersection(words []string, timeInterval nt.TimeInterval) ([]hd.TitleSummary, error) {
-	intervalClause := dbx.CompileDateClause(timeInterval, false)
+	intervalClause := dbx.GetSingleDateWhereClause("archiveDate", timeInterval)
 
 	db, err := dbx.GetDatabaseReference()
 	if err != nil {
@@ -343,11 +343,11 @@ func GetWordIntersection(words []string, timeInterval nt.TimeInterval) ([]hd.Tit
 	SELECT.WriteString("SELECT id, archivedate, title, summary from Acmdata WHERE id IN (")
 
 	for index := 0; index < len(words); index++ {
-		SELECT.WriteString("SELECT acmid FROM Occurrence WHERE word='" + words[index] + "' AND " + intervalClause)
+		SELECT.WriteString("SELECT acmid FROM Occurrence WHERE word='" + words[index] + "' AND " + intervalClause )
 		if index < len(words)-1 {
 			SELECT.WriteString("INTERSECT ")
 		}
-		queryLines = append(queryLines, SELECT.String())
+		//queryLines = append(queryLines, SELECT.String())
 	}
 	query := strings.Join(queryLines, " ") + " ) ORDER BY archivedate DESC;"
 	fmt.Println(query)
