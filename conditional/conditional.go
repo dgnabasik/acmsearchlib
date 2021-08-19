@@ -656,7 +656,7 @@ func GetProbabilityGraph(words []string, timeInterval nt.TimeInterval) ([]hd.Con
 		}
 		queryLines = append(queryLines, SELECT.String())
 	}
-	queryLines = hd.RemoveDuplicateStrings(queryLines)
+	queryLines = hd.RemoveDuplicateStrings(queryLines)//<<<
 	//fs.WriteTextLines(queryLines, "/home/david/websites/acmsearch/golang/datafiles/GetProbabilityGraph.sql", false)
 	query := strings.Join(queryLines, " ") + ";"
 	rows, err := db.Query(context.Background(), query)
