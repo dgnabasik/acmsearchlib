@@ -347,7 +347,6 @@ func GetWordIntersection(words []string, timeInterval nt.TimeInterval) ([]hd.Tit
 		}
 	}
 	query := strings.Join(queryLines, " ") + " ) ORDER BY archivedate DESC;"
-	fmt.Println(query)//<<<
 	rows, err := db.Query(context.Background(), query)
 	dbx.CheckErr(err)
 	defer rows.Close()
