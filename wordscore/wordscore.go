@@ -82,7 +82,7 @@ func GetWordScoreListByTimeInterval(words []string, timeInterval nt.TimeInterval
 	}
 	defer db.Close()
 
-	SELECT := wordscoreSelect + getTableName(useWordscore) + " WHERE word IN" + dbx.CompileInClause(words) + "AND " + dbx.CompileDateClause(timeInterval, true)
+	SELECT := wordscoreSelect + getTableName(useWordscore) + " WHERE word IN" + dbx.CompileInClause(words) + "AND " + dbx.CompileDateClause(timeInterval, true) + " ORDER BY startDate"
 	rows, err := db.Query(context.Background(), SELECT)
 	dbx.CheckErr(err)
 	if err != nil {

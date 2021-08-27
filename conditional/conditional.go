@@ -465,7 +465,7 @@ func GetConditionalByTimeInterval(bigrams []string, timeInterval nt.TimeInterval
 	defer db.Close()
 
 	inPhrase := dbx.CompileInClause(bigrams)
-	query := condColumnSelect + "WHERE wordlist IN " + inPhrase + " AND " + dbx.CompileDateClause(timeInterval, includeTimeframetype)
+	query := condColumnSelect + "WHERE wordlist IN " + inPhrase + " AND " + dbx.CompileDateClause(timeInterval, includeTimeframetype) + " ORDER BY startDate"
 	rows, err := db.Query(context.Background(), query)
 	dbx.CheckErr(err)
 	if err != nil {
@@ -656,7 +656,7 @@ func GetProbabilityGraph(words []string, timeInterval nt.TimeInterval) ([]hd.Con
 		}
 		queryLines = append(queryLines, SELECT.String())
 	}
-	queryLines = hd.RemoveDuplicateStrings(queryLines)//<<<
+	queryLines = hd.RemoveDuplicateStrings(queryLines) //<<<
 	//fs.WriteTextLines(queryLines, "/home/david/websites/acmsearch/golang/datafiles/GetProbabilityGraph.sql", false)
 	query := strings.Join(queryLines, " ") + ";"
 	rows, err := db.Query(context.Background(), query)
