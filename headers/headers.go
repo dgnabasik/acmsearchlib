@@ -643,16 +643,18 @@ type GraphNode struct {
 
 // GraphLink struct consolidates 2 ConditionalProbability objects.
 type GraphLink struct {
-	SourceNodeID int       `json:"source"` // json must be named 'source' to be D3-compatible.
-	TargetNodeID int       `json:"target"` // json must be named 'target' to be D3-compatible.
-	Level        int       `json:"level"`
-	WordList1    string    `json:"wordlist1"` // concatenated("|")
-	CondProb1    float32   `json:"condprob1"` // P(wordA|wordB)
-	WordList2    string    `json:"wordlist2"`
-	CondProb2    float32   `json:"condprob2"` // P(wordB|wordA)
-	FirstDate    time.Time `json:"firstdate"`
-	LastDate     time.Time `json:"lastdate"`
-	Pmi          float32   `json:"pmi"` // point mutual information.
+	SourceNodeID int     `json:"source"` // json must be named 'source' to be D3-compatible.
+	TargetNodeID int     `json:"target"` // json must be named 'target' to be D3-compatible.
+	Level        int     `json:"level"`
+	WordList1    string  `json:"wordlist1"` // concatenated("|")
+	CondProb1    float32 `json:"condprob1"` // P(wordA|wordB)
+	WordList2    string  `json:"wordlist2"`
+	CondProb2    float32 `json:"condprob2"` // P(wordB|wordA)
+	Pmi          float32 `json:"pmi"`       // point mutual information.
+	Tfidf        float32 `json:"tfidf"`
+	//FirstDate  time.Time `json:"firstdate"`
+	//LastDate   time.Time `json:"lastdate"`
+	SameDateList []time.Time `json:"samedatelist"`
 }
 
 // TitleSummary struct for display.
