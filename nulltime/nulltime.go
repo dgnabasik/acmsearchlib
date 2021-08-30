@@ -116,6 +116,14 @@ type TimeInterval struct {
 	EndDate       NullTime
 }
 
+type TimeIntervalSorterDate []TimeInterval
+
+func (a TimeIntervalSorterDate) Len() int      { return len(a) }
+func (a TimeIntervalSorterDate) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a TimeIntervalSorterDate) Less(i, j int) bool {
+	return a[i].StartDate.DT.Before(a[j].StartDate.DT)
+}
+
 // New_TimeInterval func
 func New_TimeInterval(timeframetype TimeFrameType, startDate NullTime, endDate NullTime) TimeInterval {
 	p := new(TimeInterval)

@@ -559,10 +559,10 @@ type ConditionalProbability struct {
 	ReverseProb  float32         `json:"reverseprob"`
 	Tfidf        float32         `json:"tfidf"`
 	Timeinterval nt.TimeInterval `json:"timeinterval"` // declared in nulltime.go;
-	FirstDate    nt.NullTime     `json:"firstdate"`
-	LastDate     nt.NullTime     `json:"lastdate"`
-	Pmi          float32         `json:"pmi"` // point mutual information.
-	DateUpdated  time.Time       `json:"dateupdated"`
+	//FirstDate    nt.NullTime     `json:"firstdate"`
+	//LastDate     nt.NullTime     `json:"lastdate"`
+	Pmi         float32   `json:"pmi"` // point mutual information.
+	DateUpdated time.Time `json:"dateupdated"`
 }
 
 // SpecialTable struct
@@ -593,9 +593,9 @@ type WordScoreConditionalFlat struct {
 	Timeframetype int       `json:"timeframetype"`
 	StartDate     time.Time `json:"startdate"`
 	EndDate       time.Time `json:"enddate"`
-	FirstDate     time.Time `json:"firstdate"`
-	LastDate      time.Time `json:"lastdate"`
-	Common        bool      `json:"common"` // intersection; not in database.
+	//FirstDate     time.Time `json:"firstdate"`
+	//LastDate      time.Time `json:"lastdate"`
+	Common bool `json:"common"` // intersection; not in database.
 }
 
 // WordScoreConditionalFlatSorter sort interface by ID.
@@ -608,9 +608,9 @@ func (a WordScoreConditionalFlatSorter) Less(i, j int) bool { return a[i].ID < a
 // Print method
 func (wscf WordScoreConditionalFlat) Print() string {
 	ti := nt.New_TimeInterval(nt.TimeFrameType(wscf.Timeframetype), nt.New_NullTime2(wscf.StartDate), nt.New_NullTime2(wscf.EndDate))
-	fd := nt.New_NullTime2(wscf.FirstDate)
-	ld := nt.New_NullTime2(wscf.LastDate)
-	str := fmt.Sprintf("%s : %f : %f : %f : %f : %f : %s : %s : %s", wscf.Wordlist, wscf.Score, wscf.Probability, wscf.ReverseProb, wscf.ReverseProb, wscf.Pmi, ti.ToString(), fd.StandardDate(), ld.StandardDate())
+	//fd := nt.New_NullTime2(wscf.FirstDate)
+	//ld := nt.New_NullTime2(wscf.LastDate)	// , fd.StandardDate(), ld.StandardDate()	 : %s : %s
+	str := fmt.Sprintf("%s : %f : %f : %f : %f : %f : %s", wscf.Wordlist, wscf.Score, wscf.Probability, wscf.ReverseProb, wscf.ReverseProb, wscf.Pmi, ti.ToString())
 	return str
 }
 
