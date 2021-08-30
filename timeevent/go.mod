@@ -1,5 +1,5 @@
 module github.com/dgnabasik/acmsearchlib/timeevent
 
-go 1.16
+go 1.17
 
-require github.com/golang/protobuf v1.5.2 // indirect
+require google.golang.org/protobuf v1.27.1 // indirect

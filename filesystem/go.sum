@@ -2,11 +2,11 @@ github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ3
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210830140352-c000f6cc7e02 h1:wr4DI3LBrzs0bbnplO80CIWBRSVAei8dMLemCBPYfY4=
-github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210830140352-c000f6cc7e02/go.mod h1:6ReBVD6a4xnSj4OKmsdva4S3lmYzxxTpiPI1CENKMao=
-github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210825170524-53e3e64f7179/go.mod h1:NqU9gFj/Ic5qqPeYEEbs4w++YD2Zktqtp4VnCmJNKKo=
-github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210830140352-c000f6cc7e02 h1:Xf0gke0RFC22FtQh/OnxPaMIU+VYfDv0RP1OKZBW0P8=
+github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210830141227-2e506c045c84 h1:t3n7LKjDtmB4IxQHSAYjuLmI5vskDWAJqnva+60wSu0=
+github.com/dgnabasik/acmsearchlib/headers v0.0.0-20210830141227-2e506c045c84/go.mod h1:az2iExpIdhnUKuBCH3RNPpW6sDJcrUq8BJ5SsvwC3dw=
 github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210830140352-c000f6cc7e02/go.mod h1:NqU9gFj/Ic5qqPeYEEbs4w++YD2Zktqtp4VnCmJNKKo=
+github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210830141227-2e506c045c84 h1:Udsywv4Yc200/+hughqRAsHfDkioV0u7yo0IVOcIH+w=
+github.com/dgnabasik/acmsearchlib/nulltime v0.0.0-20210830141227-2e506c045c84/go.mod h1:NqU9gFj/Ic5qqPeYEEbs4w++YD2Zktqtp4VnCmJNKKo=
 github.com/gin-contrib/sse v0.1.0 h1:Y/yl/+YNO8GZSjAhjMsSuLt29uWRFHdHYUb5lYOV9qE=
 github.com/gin-contrib/sse v0.1.0/go.mod h1:RHrZQHXnP2xjPF+u1gW/2HnVO7nvIa9PG3Gm+fLHvGI=
 github.com/gin-gonic/gin v1.7.4 h1:QmUZXrvJ9qZ3GfWvQ+2wnW/1ePrTEJqPKMYEU3lD/DM=

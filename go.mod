@@ -1,6 +1,6 @@
 module github.com/dgnabasik/acmsearchlib
 
-go 1.16
+go 1.17
 
 require (
 	github.com/dgnabasik/acmsearchlib/article v0.0.0-20210825170524-53e3e64f7179
