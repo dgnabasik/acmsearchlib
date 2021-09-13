@@ -323,10 +323,6 @@ func BulkInsertConditionalProbability(conditionals []hd.ConditionalProbability) 
 	err = txn.Commit(context.Background())
 	dbx.CheckErr(err)
 
-	//// Execute wordarray update stored proc:
-	_, err = db.Exec(context.Background(), "call UpdateVocabularyWordarray();")
-	dbx.CheckErr(err)
-
 	return nil
 }
 
@@ -500,10 +496,9 @@ func GetConditionalByProbability(word string, probabilityCutoff float32, timeInt
 	}
 	defer db.Close()
 
-	//prefix := "'" + word + "|%'"
-	//postfix := "'%|" + word + "'"
-	query := condColumnSelect + "WHERE " + dbx.CompileDateClause(timeInterval, false) + " AND (wordarray[1]='" + word + "' OR wordarray[2]='" + word + "')"
-	//// " AND (wordlist LIKE " + prefix + " OR wordlist LIKE " + postfix + ")"
+	prefix := "'" + word + "|%'"
+	postfix := "'%|" + word + "'"
+	query := condColumnSelect + "WHERE " + dbx.CompileDateClause(timeInterval, false) + " AND (wordlist LIKE " + prefix + " OR wordlist LIKE " + postfix + ")"
 
 	rows, err := db.Query(context.Background(), query)
 	dbx.CheckErr(err)
@@ -633,20 +628,20 @@ func GetProbabilityGraph(words []string, timeInterval nt.TimeInterval) ([]hd.Con
 		bigram := "'" + bigrams[index] + "'"
 		ndxSep := strings.Index(bigrams[index], SEP)
 		leftWord := "'" + bigrams[index][0:ndxSep] + "'"
-		//rightWord := "'" + bigrams[index][ndxSep+1:] + "'"
-		//reverseBigram := "'" + bigrams[index][ndxSep+1:] + SEP + bigrams[index][0:ndxSep] + "'"
+		rightWord := "'" + bigrams[index][ndxSep+1:] + "'"
+		reverseBigram := "'" + bigrams[index][ndxSep+1:] + SEP + bigrams[index][0:ndxSep] + "'"
 
 		SELECT.WriteString(condColumnSelect)
-		SELECT.WriteString("WHERE wordarray[1]=" + leftWord + " AND " + intervalClause)
+		SELECT.WriteString("WHERE SUBSTRING(wordlist FROM 1 FOR POSITION('|' IN wordlist)-1)=" + leftWord + " AND " + intervalClause)
 		SELECT.WriteString("AND pmi >= (SELECT MAX(pmi) FROM Conditional WHERE wordlist=" + bigram + " AND " + intervalClause + ") ")
 		SELECT.WriteString("AND probability >= (SELECT MAX(probability) FROM Conditional WHERE wordlist=" + bigram + " AND " + intervalClause + ") ")
 		SELECT.WriteString("AND SUBSTRING(wordlist from " + strconv.Itoa(len(leftWord)+2) + " for 32) IN (SELECT word FROM Wordscore WHERE score >= (SELECT MAX(score) FROM Wordscore WHERE word=" + leftWord + ")) ")
-		//SELECT.WriteString("UNION ")
-		//SELECT.WriteString(condColumnSelect)
-		//SELECT.WriteString("WHERE wordarray[2]=" + rightWord + " AND " + intervalClause)
-		//SELECT.WriteString("AND pmi >= (SELECT MAX(pmi) FROM Conditional WHERE wordlist=" + reverseBigram + " AND " + intervalClause + ") ")
-		//SELECT.WriteString("AND probability >= (SELECT MAX(probability) FROM Conditional WHERE wordlist=" + reverseBigram + " AND " + intervalClause + ") ")
-		//SELECT.WriteString("AND SUBSTRING(wordlist FROM " + strconv.Itoa(len(rightWord)+2) + " for 32) IN (SELECT word FROM Wordscore WHERE score >= (SELECT MAX(score) FROM Wordscore WHERE word=" + rightWord + ")) ")
+		SELECT.WriteString("UNION ")
+		SELECT.WriteString(condColumnSelect)
+		SELECT.WriteString("WHERE SUBSTRING(wordlist FROM POSITION('|' IN wordlist)+1 FOR 32)=" + rightWord + " AND " + intervalClause)
+		SELECT.WriteString("AND pmi >= (SELECT MAX(pmi) FROM Conditional WHERE wordlist=" + reverseBigram + " AND " + intervalClause + ") ")
+		SELECT.WriteString("AND probability >= (SELECT MAX(probability) FROM Conditional WHERE wordlist=" + reverseBigram + " AND " + intervalClause + ") ")
+		SELECT.WriteString("AND SUBSTRING(wordlist FROM " + strconv.Itoa(len(rightWord)+2) + " for 32) IN (SELECT word FROM Wordscore WHERE score >= (SELECT MAX(score) FROM Wordscore WHERE word=" + rightWord + ")) ")
 		if index < len(bigrams)-1 {
 			SELECT.WriteString("UNION ")
 		}
